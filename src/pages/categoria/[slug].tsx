@@ -41,8 +41,8 @@ export const getStaticProps: GetStaticProps<{
   const categoryWithChildren = await prisma.category.findUnique({
     where: { id: currentCategory.id },
     include: {
-      subCategories: true, // Inclui as subcategorias
-      products: { include: { brand: true } }, // Inclui os produtos com suas marcas
+      subCategories: true, 
+      products: { include: { brand: true } }, 
     },
   });
 
