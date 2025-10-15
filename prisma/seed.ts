@@ -3,49 +3,108 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Start seeding ...');
+  console.log('Iniciando o processo de seeding...');
 
-  // Limpar dados existentes
+  // 1. Limpar dados existentes na ordem correta para evitar erros de constraint
+  console.log('Limpando o banco de dados...');
   await prisma.product.deleteMany();
   await prisma.category.deleteMany();
   await prisma.brand.deleteMany();
 
-  // Criar Marcas
+  // 2. Criar as marcas
+  console.log('Criando marcas...');
   const hp = await prisma.brand.create({ data: { name: 'HP' } });
   const brother = await prisma.brand.create({ data: { name: 'Brother' } });
   const samsung = await prisma.brand.create({ data: { name: 'Samsung' } });
   const epson = await prisma.brand.create({ data: { name: 'Epson' } });
   const canon = await prisma.brand.create({ data: { name: 'Canon' } });
 
-  // Criar Categorias
-  const toner = await prisma.category.create({ data: { name: 'Toner' } });
-  const inkjet = await prisma.category.create({ data: { name: 'Cartucho de Jato de Tinta' } });
-  const refill = await prisma.category.create({ data: { name: 'Cartucho para Recarregar' } });
-  const printer = await prisma.category.create({ data: { name: 'Impressoras' } });
-
-  // Criar Produtos (com imageUrl)
-  await prisma.product.createMany({
-    data: [
-      // Toners
-      { name: 'Toner HP 85A (CE285A)', brandId: hp.id, categoryId: toner.id, imageUrl: 'https://placehold.co/400x400/000000/FFF?text=Toner+HP' },
-      { name: 'Toner Brother TN-1060', brandId: brother.id, categoryId: toner.id, imageUrl: 'https://placehold.co/400x400/000000/FFF?text=Toner+Brother' },
-      { name: 'Toner Samsung D111S', brandId: samsung.id, categoryId: toner.id, imageUrl: 'https://placehold.co/400x400/000000/FFF?text=Toner+Samsung' },
-
-      // Cartuchos Jato de Tinta
-      { name: 'Cartucho HP 664 Preto', brandId: hp.id, categoryId: inkjet.id, imageUrl: 'https://placehold.co/400x400/000000/FFF?text=Cartucho+HP' },
-      { name: 'Cartucho Epson T296 Preto', brandId: epson.id, categoryId: inkjet.id, imageUrl: 'https://placehold.co/400x400/000000/FFF?text=Cartucho+Epson' },
-
-      // Cartuchos para Recarregar
-      { name: 'Cartucho Recarregável HP 950', brandId: hp.id, categoryId: refill.id, imageUrl: 'https://placehold.co/400x400/000000/FFF?text=Recarga+HP' },
-      { name: 'Cartucho Recarregável Canon PG-145', brandId: canon.id, categoryId: refill.id, imageUrl: 'https://placehold.co/400x400/000000/FFF?text=Recarga+Canon' },
-
-      // Impressoras
-      { name: 'Impressora HP DeskJet 2774', brandId: hp.id, categoryId: printer.id, imageUrl: 'https://placehold.co/400x400/000000/FFF?text=Impressora+HP' },
-      { name: 'Impressora Brother HL-1212W', brandId: brother.id, categoryId: printer.id, imageUrl: 'https://placehold.co/400x400/000000/FFF?text=Impressora+Brother' },
-    ],
+  // 3. Criar as categorias hierárquicas
+  console.log('Criando categorias...');
+  // Categorias principais 
+  const catCartuchosToners = await prisma.category.create({
+    data: {
+      name: 'Cartuchos e Toners',
+      imageUrl: '/images/categorias/cartuchos-toners.png', // Exemplo de URL de imagem
+    },
   });
 
-  console.log('Seeding finished.');
+  const catImpressoras = await prisma.category.create({
+    data: {
+      name: 'Impressoras',
+      imageUrl: '/images/categorias/impressoras.png', // Exemplo de URL de imagem
+    },
+  });
+
+  // Subcategorias 
+  const subCatJatoTinta = await prisma.category.create({
+    data: {
+      name: 'Jato de Tinta e Tintas',
+      parentId: catCartuchosToners.id,
+    },
+  });
+
+  const subCatToner = await prisma.category.create({
+    data: {
+      name: 'Toners',
+      parentId: catCartuchosToners.id,
+    },
+  });
+
+  // 4. Criar os produtos com base na lista
+  console.log('Criando produtos...');
+
+  const productsToCreate = [
+    // Cartuchos HP Deskjet [cite: 41]
+    { name: '664', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
+    { name: '662', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
+    { name: '667', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
+    { name: '901', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
+    { name: '60', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
+    { name: '61', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
+    { name: '70', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
+    { name: '75', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
+    { name: '21', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
+    { name: '22', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
+    { name: '27', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
+    { name: '28', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
+    { name: '122', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
+    { name: '122A', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
+    { name: '122XL', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
+    { name: '901XL', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
+
+    // Toners HP [cite: 58]
+    { name: 'CE285A (85A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER' },
+    { name: 'CE278A (78A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER' },
+    { name: 'CF280A (80A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER' },
+    { name: 'CF283A (83A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER' },
+    { name: 'CB436A (36A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER' },
+    { name: 'CB435A (35A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER' },
+    { name: 'CE505A (05A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER' },
+    { name: 'Q2612A (12A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER' },
+    //... (e outros Toners HP)
+
+    // Toners Brother [cite: 72]
+    { name: 'TN-1060', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER' },
+    { name: 'TN-210', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER' },
+    { name: 'TN-220', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER' },
+    { name: 'TN-360', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER' },
+    { name: 'TN-660', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER' },
+    //... (e outros Toners Brother)
+
+    // Toners Samsung [cite: 100]
+    { name: 'D101', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER' },
+    { name: 'D111S', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER' },
+    { name: 'D111L', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER' },
+    { name: 'D203', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER' },
+    { name: 'D205', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER' },
+  ];
+
+  await prisma.product.createMany({
+    data: productsToCreate,
+  });
+
+  console.log('Seeding finalizado com sucesso!');
 }
 
 main()
