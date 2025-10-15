@@ -18,7 +18,6 @@ model Category {
   parentId  Int?
   parent    Category?  @relation("SubCategories", fields: [parentId], references: [id])
   subCategories Category[] @relation("SubCategories")
-
   products  Product[]
 }
 
@@ -31,10 +30,8 @@ model Product {
   
   // Para diferenciar produtos de serviços de recarga
   type          String   // Ex: "TONER", "IMPRESSORA", "RECARGA_JATO_TINTA"
-
   brandId       Int
   brand         Brand    @relation(fields: [brandId], references: [id])
-  
   categoryId    Int
   category      Category @relation(fields: [categoryId], references: [id])
 
@@ -46,9 +43,7 @@ model Product {
 model PrinterCompatibility {
   cartridgeId Int
   cartridge   Product @relation("CartridgeSide", fields: [cartridgeId], references: [id])
-
   printerModel String 
-  
   @@id([cartridgeId, printerModel])
 }
 
