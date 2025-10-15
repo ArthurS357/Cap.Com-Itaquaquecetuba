@@ -1,58 +1,60 @@
-import type { InferGetStaticPropsType, GetStaticProps } from 'next';
-import { PrismaClient, Product, Brand, Category } from '@prisma/client';
+import { PrismaClient, Category } from '@prisma/client';
+import type { GetStaticProps, InferGetStaticPropsType } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 
-type ProductWithDetails = Product & {
-  brand: Brand;
-  category: Category;
-};
+// Função para converter o nome da categoria em um formato amigável para URL (ex: "Cartuchos e Toners" -> "cartuchos-e-toners")
+const slugify = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/\s+/g, '-') // Substitui espaços por -
+    .replace(/[^\w-]+/g, ''); // Remove caracteres especiais
 
-export const getStaticProps: GetStaticProps<{ products: ProductWithDetails[] }> = async () => {
+export const getStaticProps: GetStaticProps<{
+  mainCategories: Category[];
+}> = async () => {
   const prisma = new PrismaClient();
-  const products = await prisma.product.findMany({
-    include: { brand: true, category: true },
+  
+  // Buscamos apenas as categorias principais 
+  const mainCategories = await prisma.category.findMany({
+    where: {
+      parentId: null,
+    },
   });
-  const serializableProducts = products.map((product) => ({
-    ...product,
-    createdAt: product.createdAt.toISOString(),
-  }));
 
-  return { props: { products: serializableProducts }, revalidate: 60 };
+  return {
+    props: {
+      mainCategories,
+    },
+    revalidate: 60, // Revalida a cada 60 segundos
+  };
 };
 
-function HomePage({ products }: InferGetStaticPropsType<typeof getStaticProps>) {
+function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticProps>) {
   return (
     <>
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold">Nossos Produtos</h1>
-        <p className="text-xl text-gray-600 mt-2">
-          Manutenção de Impressoras e Remanufatura de Cartuchos e Toners
-        </p>
+        <h1 className="text-4xl font-bold">Bem vindo a Cap.com Itaquaquecetuba</h1>
+        <p className="text-2xl text-gray-700 mt-4">Selecione o que procura</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {products.map((product) => (
-          <Link href={`/product/${product.id}`} key={product.id}>
-            {/* O "justify-between" foi adicionado para empurrar o texto para baixo */}
-            <div className="border rounded-lg p-4 shadow-lg hover:shadow-xl hover:scale-105 transition-all cursor-pointer h-full flex flex-col justify-between items-center text-center">
-              
-              {/* Adicionamos a imagem do produto */}
-              {product.imageUrl && (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        {mainCategories.map((category) => (
+          <Link
+            href={`/categoria/${slugify(category.name)}`}
+            key={category.id}
+          >
+            <div className="border rounded-lg p-6 shadow-lg hover:shadow-2xl hover:scale-105 transition-all cursor-pointer flex flex-col items-center text-center">
+              {category.imageUrl && (
                 <Image
-                  src={product.imageUrl}
-                  alt={`Imagem do produto ${product.name}`}
-                  width={200}
-                  height={200}
-                  className="object-cover mb-4" // object-cover evita distorção da imagem
+                  src={category.imageUrl}
+                  alt={`Imagem para a categoria ${category.name}`}
+                  width={250}
+                  height={250}
+                  className="object-cover mb-4 rounded-md"
                 />
               )}
-              
-              {/* Div para agrupar o texto */}
-              <div>
-                <h2 className="text-lg font-semibold">{product.name}</h2>
-                <p className="text-sm text-gray-500 mt-2">{product.brand.name} / {product.category.name}</p>
-              </div>
+              <h2 className="text-2xl font-semibold">{category.name}</h2>
             </div>
           </Link>
         ))}
