@@ -36,7 +36,7 @@ export const getStaticProps: GetStaticProps<{
     include: {
       brand: true,
       category: true,
-      compatibleWith: true, // Buscamos as impressoras compatíveis
+      compatibleWith: true, 
     },
   });
 
