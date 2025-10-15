@@ -1,4 +1,3 @@
-// src/pages/index.tsx
 import type { InferGetStaticPropsType, GetStaticProps } from 'next';
 import { PrismaClient, Product, Brand, Category } from '@prisma/client';
 import Link from 'next/link';
@@ -14,7 +13,12 @@ export const getStaticProps: GetStaticProps<{ products: ProductWithDetails[] }> 
   const products = await prisma.product.findMany({
     include: { brand: true, category: true },
   });
-  return { props: { products }, revalidate: 60 };
+  const serializableProducts = products.map((product) => ({
+    ...product,
+    createdAt: product.createdAt.toISOString(),
+  }));
+
+  return { props: { products: serializableProducts }, revalidate: 60 };
 };
 
 function HomePage({ products }: InferGetStaticPropsType<typeof getStaticProps>) {
@@ -22,7 +26,7 @@ function HomePage({ products }: InferGetStaticPropsType<typeof getStaticProps>) 
     <main className="container mx-auto p-8">
       <header className="text-center mb-12 flex flex-col items-center">
         <Image
-          src="/logo-capcom.png" // Lembre-se de colocar o logo na pasta 'public'
+          src="/logo-capcom.png"
           alt="Logo da Cap.Com Itaquaquecetuba"
           width={150}
           height={150}
