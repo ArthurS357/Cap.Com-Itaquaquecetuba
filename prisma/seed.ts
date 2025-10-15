@@ -23,25 +23,25 @@ async function main() {
   const refill = await prisma.category.create({ data: { name: 'Cartucho para Recarregar' } });
   const printer = await prisma.category.create({ data: { name: 'Impressoras' } });
 
-  // Criar Produtos
+  // Criar Produtos (com imageUrl)
   await prisma.product.createMany({
     data: [
       // Toners
-      { name: 'Toner HP 85A (CE285A)', brandId: hp.id, categoryId: toner.id },
-      { name: 'Toner Brother TN-1060', brandId: brother.id, categoryId: toner.id },
-      { name: 'Toner Samsung D111S', brandId: samsung.id, categoryId: toner.id },
+      { name: 'Toner HP 85A (CE285A)', brandId: hp.id, categoryId: toner.id, imageUrl: 'https://placehold.co/400x400/000000/FFF?text=Toner+HP' },
+      { name: 'Toner Brother TN-1060', brandId: brother.id, categoryId: toner.id, imageUrl: 'https://placehold.co/400x400/000000/FFF?text=Toner+Brother' },
+      { name: 'Toner Samsung D111S', brandId: samsung.id, categoryId: toner.id, imageUrl: 'https://placehold.co/400x400/000000/FFF?text=Toner+Samsung' },
 
       // Cartuchos Jato de Tinta
-      { name: 'Cartucho HP 664 Preto', brandId: hp.id, categoryId: inkjet.id },
-      { name: 'Cartucho Epson T296 Preto', brandId: epson.id, categoryId: inkjet.id },
+      { name: 'Cartucho HP 664 Preto', brandId: hp.id, categoryId: inkjet.id, imageUrl: 'https://placehold.co/400x400/000000/FFF?text=Cartucho+HP' },
+      { name: 'Cartucho Epson T296 Preto', brandId: epson.id, categoryId: inkjet.id, imageUrl: 'https://placehold.co/400x400/000000/FFF?text=Cartucho+Epson' },
 
       // Cartuchos para Recarregar
-      { name: 'Cartucho Recarregável HP 950', brandId: hp.id, categoryId: refill.id },
-      { name: 'Cartucho Recarregável Canon PG-145', brandId: canon.id, categoryId: refill.id },
+      { name: 'Cartucho Recarregável HP 950', brandId: hp.id, categoryId: refill.id, imageUrl: 'https://placehold.co/400x400/000000/FFF?text=Recarga+HP' },
+      { name: 'Cartucho Recarregável Canon PG-145', brandId: canon.id, categoryId: refill.id, imageUrl: 'https://placehold.co/400x400/000000/FFF?text=Recarga+Canon' },
 
       // Impressoras
-      { name: 'Impressora HP DeskJet 2774', brandId: hp.id, categoryId: printer.id },
-      { name: 'Impressora Brother HL-1212W', brandId: brother.id, categoryId: printer.id },
+      { name: 'Impressora HP DeskJet 2774', brandId: hp.id, categoryId: printer.id, imageUrl: 'https://placehold.co/400x400/000000/FFF?text=Impressora+HP' },
+      { name: 'Impressora Brother HL-1212W', brandId: brother.id, categoryId: printer.id, imageUrl: 'https://placehold.co/400x400/000000/FFF?text=Impressora+Brother' },
     ],
   });
 
