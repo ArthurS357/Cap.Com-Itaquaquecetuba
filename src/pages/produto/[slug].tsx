@@ -1,3 +1,4 @@
+import { slugify } from '@/lib/utils';
 import { PrismaClient, Product, Brand, Category, PrinterCompatibility } from '@prisma/client';
 import type { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from 'next';
 import SEO from '@/components/Seo';
@@ -8,8 +9,6 @@ type ProductDetails = Product & {
   category: Category;
   compatibleWith: PrinterCompatibility[];
 };
-
-const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const prisma = new PrismaClient();
