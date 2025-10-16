@@ -1,12 +1,11 @@
 import { PrismaClient } from '@prisma/client';
-
 const prisma = new PrismaClient();
-
 async function main() {
   console.log('Iniciando o processo de seeding...');
 
-  // 1. Limpar dados existentes na ordem correta para evitar erros de constraint
+  // 1. Limpar dados existentes na ordem correta
   console.log('Limpando o banco de dados...');
+  await prisma.printerCompatibility.deleteMany();
   await prisma.product.deleteMany();
   await prisma.category.deleteMany();
   await prisma.brand.deleteMany();
@@ -21,39 +20,26 @@ async function main() {
 
   // 3. Criar as categorias hierárquicas
   console.log('Criando categorias...');
-  // Categorias principais 
   const catCartuchosToners = await prisma.category.create({
     data: {
       name: 'Cartuchos e Toners',
-      imageUrl: '/images/categorias/cartuchos-toners.png', // Exemplo de URL de imagem
+      imageUrl: '/images/categorias/cartuchos-toners.png',
     },
   });
-
   const catImpressoras = await prisma.category.create({
     data: {
       name: 'Impressoras',
-      imageUrl: '/images/categorias/impressoras.png', // Exemplo de URL de imagem
+      imageUrl: '/images/categorias/impressoras.png',
     },
   });
-
-  // Subcategorias 
   const subCatJatoTinta = await prisma.category.create({
-    data: {
-      name: 'Jato de Tinta e Tintas',
-      parentId: catCartuchosToners.id,
-    },
+    data: { name: 'Jato de Tinta e Tintas', parentId: catCartuchosToners.id },
   });
-
   const subCatToner = await prisma.category.create({
-    data: {
-      name: 'Toners',
-      parentId: catCartuchosToners.id,
-    },
+    data: { name: 'Toners', parentId: catCartuchosToners.id },
   });
 
-  // 4. Criar os produtos com base na lista
-  console.log('Criando produtos...');
-
+  // 4. Criar os produtos
   const productsToCreate = [
     // Cartuchos HP Deskjet [cite: 41]
     { name: '664', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
@@ -99,14 +85,54 @@ async function main() {
     { name: 'D203', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER' },
     { name: 'D205', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER' },
   ];
-
+  
   await prisma.product.createMany({
     data: productsToCreate,
   });
+  console.log(`${productsToCreate.length} produtos criados.`);
+
+  console.log('Criando relações de compatibilidade...');
+
+  const allProducts = await prisma.product.findMany({ select: { id: true, name: true } });
+  const productMap = new Map(allProducts.map(p => [p.name.toLowerCase(), p.id]));
+
+  const compatibilityMap = {
+    '664': ['HP DeskJet 1115', 'HP DeskJet 2135', 'HP DeskJet 3630'],
+    '662': ['HP DeskJet Ink Advantage 1115', 'HP Ink Advantage 1010 série'],
+    '667': ['HP DeskJet 2710', 'HP DeskJet 2720', 'HP DeskJet 2730'],
+    '901': ['HP OfficeJet Pro 6230', 'HP OfficeJet 8035', 'HP OfficeJet 6812'],
+    'CE285A (85A)': ['HP LaserJet Pro P1102', 'HP LaserJet Pro P1102w', 'HP LaserJet Pro M1132', 'HP LaserJet Pro M1212nf'],
+    'TN-1060': ['Brother HL-1110', 'Brother HL-1210W', 'Brother DCP-1510', 'Brother MFC-1810'],
+    'D111S': ['Samsung ML-2165', 'Samsung SCX-3400', 'Samsung SCX-3405FW'],
+    // ... adicione aqui o restante das compatibilidades do seu documento
+  };
+
+  const compatibilityData = [];
+  for (const productName in compatibilityMap) {
+    const productId = productMap.get(productName.toLowerCase());
+    const printerModels = compatibilityMap[productName as keyof typeof compatibilityMap];
+
+    if (productId) {
+      for (const printerModel of printerModels) {
+        compatibilityData.push({
+          cartridgeId: productId,
+          printerModel: printerModel,
+        });
+      }
+    } else {
+      console.warn(`Aviso: Produto "${productName}" não encontrado. Relações de compatibilidade ignoradas.`);
+    }
+  }
+
+  if (compatibilityData.length > 0) {
+    await prisma.printerCompatibility.createMany({
+      data: compatibilityData,
+    });
+    console.log(`${compatibilityData.length} relações de compatibilidade criadas.`);
+  }
 
   console.log('Seeding finalizado com sucesso!');
-}
-
+} 
 main()
   .catch((e) => {
     console.error(e);
