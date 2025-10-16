@@ -33,7 +33,7 @@ async function main() {
     },
   });
   const subCatJatoTinta = await prisma.category.create({
-    data: { name: 'Jato de Tinta e Tintas', parentId: catCartuchosToners.id },
+    data: { name: 'Cartuchos Descartáveis e Tintas', parentId: catCartuchosToners.id },
   });
   const subCatToner = await prisma.category.create({
     data: { name: 'Toners', parentId: catCartuchosToners.id },
@@ -41,51 +41,49 @@ async function main() {
 
   // 4. Criar os produtos
   const productsToCreate = [
-    // Cartuchos HP Deskjet [cite: 41]
-    { name: '664', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
-    { name: '662', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
-    { name: '667', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
-    { name: '901', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
-    { name: '60', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
-    { name: '61', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
-    { name: '70', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
-    { name: '75', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
-    { name: '21', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
-    { name: '22', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
-    { name: '27', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
-    { name: '28', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
-    { name: '122', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
-    { name: '122A', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
-    { name: '122XL', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
-    { name: '901XL', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA' },
+    // Cartuchos HP Deskjet
+    { name: '664', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
+    { name: '662', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
+    { name: '667', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
+    { name: '901', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
+    { name: '60', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
+    { name: '61', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
+    { name: '70', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
+    { name: '75', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
+    { name: '21', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
+    { name: '22', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
+    { name: '27', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
+    { name: '28', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
+    { name: '122', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
+    { name: '122A', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
+    { name: '122XL', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
+    { name: '901XL', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
 
-    // Toners HP [cite: 58]
-    { name: 'CE285A (85A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER' },
-    { name: 'CE278A (78A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER' },
-    { name: 'CF280A (80A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER' },
-    { name: 'CF283A (83A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER' },
-    { name: 'CB436A (36A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER' },
-    { name: 'CB435A (35A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER' },
-    { name: 'CE505A (05A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER' },
-    { name: 'Q2612A (12A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER' },
-    //... (e outros Toners HP)
+    // Toners HP
+    { name: 'CE285A (85A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
+    { name: 'CE278A (78A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
+    { name: 'CF280A (80A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
+    { name: 'CF283A (83A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
+    { name: 'CB436A (36A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
+    { name: 'CB435A (35A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
+    { name: 'CE505A (05A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
+    { name: 'Q2612A (12A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
 
-    // Toners Brother [cite: 72]
-    { name: 'TN-1060', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER' },
-    { name: 'TN-210', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER' },
-    { name: 'TN-220', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER' },
-    { name: 'TN-360', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER' },
-    { name: 'TN-660', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER' },
-    //... (e outros Toners Brother)
+    // Toners Brother
+    { name: 'TN-1060', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
+    { name: 'TN-210', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
+    { name: 'TN-220', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
+    { name: 'TN-360', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
+    { name: 'TN-660', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
 
-    // Toners Samsung [cite: 100]
-    { name: 'D101', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER' },
-    { name: 'D111S', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER' },
-    { name: 'D111L', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER' },
-    { name: 'D203', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER' },
-    { name: 'D205', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER' },
+    // Toners Samsung
+    { name: 'D101', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
+    { name: 'D111S', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
+    { name: 'D111L', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
+    { name: 'D203', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
+    { name: 'D205', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
   ];
-  
+
   await prisma.product.createMany({
     data: productsToCreate,
   });
@@ -132,7 +130,7 @@ async function main() {
   }
 
   console.log('Seeding finalizado com sucesso!');
-} 
+}
 main()
   .catch((e) => {
     console.error(e);

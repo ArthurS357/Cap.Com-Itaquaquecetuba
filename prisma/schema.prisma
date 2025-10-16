@@ -27,16 +27,13 @@ model Product {
   description   String?
   imageUrl      String?
   price         Float?   // Preço para produtos de venda direta
-  
-  // Para diferenciar produtos de serviços de recarga
   type          String   // Ex: "TONER", "IMPRESSORA", "RECARGA_JATO_TINTA"
   brandId       Int
   brand         Brand    @relation(fields: [brandId], references: [id])
   categoryId    Int
   category      Category @relation(fields: [categoryId], references: [id])
-
-  // Relação para impressoras compatíveis
   compatibleWith PrinterCompatibility[] @relation("CartridgeSide")
+  createdAt   DateTime @default(now())
 }
 
 // Tabela para relacionar Cartuchos e Impressoras

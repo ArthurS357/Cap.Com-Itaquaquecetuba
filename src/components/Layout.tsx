@@ -31,10 +31,10 @@ const Footer = () => (
 
 export default function Layout({ children }: LayoutProps) {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col font-sans bg-surface-background">
       <Navbar />
-      <main className="flex-grow container mx-auto p-8">
-        {children} {/* Aqui é onde o conteúdo da página será inserido */}
+      <main className="flex-grow container mx-auto p-4 md:p-8">
+        {children}
       </main>
       <Footer />
     </div>

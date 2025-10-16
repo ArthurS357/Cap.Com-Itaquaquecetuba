@@ -1,5 +1,6 @@
 import { PrismaClient, Product, Brand, Category, PrinterCompatibility } from '@prisma/client';
 import type { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from 'next';
+import SEO from '@/components/Seo';
 
 type ProductDetails = Product & {
   brand: Brand;
@@ -25,7 +26,6 @@ export const getStaticProps: GetStaticProps<{
   if (!slug) return { notFound: true };
 
   const prisma = new PrismaClient();
-  // Precisamos encontrar o produto pelo nome "slugificado"
   const allProducts = await prisma.product.findMany();
   const foundProduct = allProducts.find(p => slugify(p.name) === slug);
 
@@ -36,13 +36,12 @@ export const getStaticProps: GetStaticProps<{
     include: {
       brand: true,
       category: true,
-      compatibleWith: true, 
+      compatibleWith: true,
     },
   });
 
   if (!productDetails) return { notFound: true };
 
-  // Corrigindo a data para serialização
   const serializableProduct = {
     ...productDetails,
     createdAt: productDetails.createdAt.toISOString(),
@@ -56,8 +55,12 @@ function ProductPage({ product }: InferGetStaticPropsType<typeof getStaticProps>
 
   return (
     <>
+      <SEO
+        title={product.name}
+        description={`Detalhes sobre ${product.name}, da marca ${product.brand.name}. Encontre impressoras compatíveis e mais.`}
+      />
       {/* Seção do Produto Principal */}
-      <div className="bg-gray-100 p-8 rounded-lg shadow-md mb-12">
+      <div className="bg-brand-light p-8 rounded-lg shadow-lg mb-12 ...">
         <h1 className="text-4xl font-bold text-gray-800">{product.name}</h1>
         <p className="text-xl text-gray-600 mt-2"><strong>Marca:</strong> {product.brand.name}</p>
         <p className="text-xl text-gray-600"><strong>Categoria:</strong> {product.category.name}</p>
