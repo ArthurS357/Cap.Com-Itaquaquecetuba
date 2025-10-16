@@ -63,7 +63,6 @@ export const getStaticProps: GetStaticProps<{
   };
 };
 
-
 function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProps>) {
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -78,9 +77,13 @@ function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProp
 
   return (
     <>
-      <SEO title="Início" />
+      <SEO
+        title={category.name}
+        description={`Encontre todos os nossos produtos da categoria ${category.name}.`}
+      />
+
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold">{category.name}</h1>
+        <h1 className="text-4xl font-bold text-text-primary">{category.name}</h1>
       </div>
 
       {!hasSubCategories && (
@@ -90,7 +93,7 @@ function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProp
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Digite o nome ou código do produto..."
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-brand-primary transition-colors"
+            className="w-full px-4 py-3 border-2 border-surface-border rounded-lg focus:outline-none focus:border-brand-primary transition-colors bg-surface-card text-text-primary"
           />
         </div>
       )}
@@ -98,22 +101,24 @@ function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProp
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {hasSubCategories && category.subCategories.map((subCat) => (
           <Link href={`/categoria/${slugify(subCat.name)}`} key={subCat.id}>
-            <div className="bg-surface-card rounded-lg p-6 shadow-md hover:shadow-xl hover:scale-105 transition-all cursor-pointer h-full flex flex-col justify-center items-center text-center border-2 border-transparent hover:border-brand-primary">
-              <h2 className="text-xl font-semibold">{subCat.name}</h2>
+            <div className="group bg-surface-card rounded-xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col justify-center items-center text-center border border-surface-border">
+              <h2 className="text-xl font-semibold text-text-primary">{subCat.name}</h2>
+              <div className="w-1/3 h-1 bg-brand-primary rounded-full mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
           </Link>
         ))}
 
         {!hasSubCategories && filteredProducts.map((product) => (
           <Link href={`/produto/${slugify(product.name)}`} key={product.id}>
-            <div className="bg-surface-card rounded-lg p-4 shadow-md hover:shadow-xl hover:scale-105 transition-all cursor-pointer h-full flex flex-col justify-between items-center text-center border-2 border-transparent hover:border-brand-primary">
+            <div className="group bg-surface-card rounded-xl p-4 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col justify-between items-center text-center border border-surface-border">
               {product.imageUrl && (
                 <Image src={product.imageUrl} alt={product.name} width={200} height={200} className="object-cover mb-4" />
               )}
-              <div>
-                <h2 className="text-lg font-semibold">{product.name}</h2>
-                <p className="text-sm text-gray-500 mt-2">{product.brand.name}</p>
+              <div className="w-full">
+                <h2 className="text-lg font-semibold text-text-primary">{product.name}</h2>
+                <p className="text-sm text-text-subtle mt-2">{product.brand.name}</p>
               </div>
+              <div className="w-1/2 h-1 bg-brand-primary rounded-full mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
           </Link>
         ))}
@@ -121,7 +126,7 @@ function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProp
 
       {!hasSubCategories && filteredProducts.length === 0 && (
         <div className="text-center col-span-full mt-8">
-          <p className="text-xl text-gray-500">Nenhum produto encontrado para a sua busca.</p>
+          <p className="text-xl text-text-subtle">Nenhum produto encontrado para a sua busca.</p>
         </div>
       )}
     </>

@@ -1,6 +1,7 @@
 import { PrismaClient, Product, Brand, Category, PrinterCompatibility } from '@prisma/client';
 import type { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from 'next';
 import SEO from '@/components/Seo';
+import Image from 'next/image';
 
 type ProductDetails = Product & {
   brand: Brand;
@@ -59,25 +60,47 @@ function ProductPage({ product }: InferGetStaticPropsType<typeof getStaticProps>
         title={product.name}
         description={`Detalhes sobre ${product.name}, da marca ${product.brand.name}. Encontre impressoras compatíveis e mais.`}
       />
-      {/* Seção do Produto Principal */}
-      <div className="bg-brand-light p-8 rounded-lg shadow-lg mb-12 ...">
-        <h1 className="text-4xl font-bold text-gray-800">{product.name}</h1>
-        <p className="text-xl text-gray-600 mt-2"><strong>Marca:</strong> {product.brand.name}</p>
-        <p className="text-xl text-gray-600"><strong>Categoria:</strong> {product.category.name}</p>
-        {/* Futuramente mostraremos o preço aqui */}
-        {/* {product.price && <p className="text-2xl font-bold mt-4">R$ {product.price.toFixed(2)}</p>} */}
-        <p className="mt-4 text-gray-700">{product.description || 'Descrição detalhada em breve.'}</p>
+      
+      <div className="bg-surface-card p-6 md:p-8 rounded-xl shadow-md mb-12 flex flex-col md:flex-row items-center gap-8 border border-surface-border">
+        {product.imageUrl && (
+            <Image
+                src={product.imageUrl}
+                alt={`Imagem do produto ${product.name}`}
+                width={300}
+                height={300}
+                className="object-cover rounded-lg w-full md:w-1/3"
+            />
+        )}
+        <div className="flex-1">
+            <h1 className="text-3xl md:text-4xl font-bold text-text-primary">{product.name}</h1>
+            <p className="text-lg text-text-secondary mt-2"><strong>Marca:</strong> {product.brand.name}</p>
+            <p className="text-lg text-text-secondary"><strong>Categoria:</strong> {product.category.name}</p>
+            <p className="mt-4 text-text-secondary">{product.description || 'Descrição detalhada em breve.'}</p>
+            
+            <div className="mt-6 border-2 border-brand-primary/20 bg-brand-light p-6 rounded-xl text-center">
+                <p className="text-lg font-semibold text-text-primary">
+                    {product.type.includes('RECARGA') ? 'Valor para o serviço de recarga:' : 'Informações sobre este produto:'}
+                </p>
+                <p className="text-3xl font-bold text-brand-primary mt-2">
+                    Consulte via WhatsApp!
+                </p>
+                <a href="https://wa.me/5511996388426" target="_blank" rel="noopener noreferrer" className="mt-4 inline-block bg-brand-primary text-white font-bold py-3 px-8 rounded-lg hover:bg-brand-dark transition-colors duration-300">
+                    Iniciar Conversa
+                </a>
+            </div>
+        </div>
       </div>
 
-      {/* Seção de Impressoras Compatíveis */}
       {product.compatibleWith.length > 0 && (
         <div>
-          <h2 className="text-3xl font-bold mb-6 text-center">Impressoras Compatíveis</h2>
-          <ul className="list-disc list-inside columns-1 md:columns-2 lg:columns-3 bg-white p-6 rounded-lg shadow">
-            {product.compatibleWith.map((comp) => (
-              <li key={comp.printerModel} className="mb-2">{comp.printerModel}</li>
-            ))}
-          </ul>
+          <h2 className="text-3xl font-bold mb-6 text-center text-text-primary">Impressoras Compatíveis</h2>
+          <div className="bg-surface-card p-6 rounded-xl shadow-sm border border-surface-border">
+            <ul className="list-disc list-inside columns-1 md:columns-2 lg:columns-3 text-text-secondary gap-x-8">
+              {product.compatibleWith.map((comp) => (
+                <li key={comp.printerModel} className="mb-2">{comp.printerModel}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
     </>

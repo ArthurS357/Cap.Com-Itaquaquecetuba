@@ -7,7 +7,8 @@ type LayoutProps = {
 };
 
 const Navbar = () => (
-  <header className="container mx-auto p-4 flex justify-center items-center border-b">
+  <header className="bg-surface-card/80 backdrop-blur-sm sticky top-0 z-10 border-b border-surface-border">
+    <div className="container mx-auto p-4 flex justify-center items-center">
     <Link href="/">
       <Image
         src="/logo-capcom.png" 
@@ -18,13 +19,14 @@ const Navbar = () => (
       />
     </Link>
     {/* No futuro, podemos adicionar links de navegação aqui */}
+    </div>
   </header>
 );
 
 const Footer = () => (
-  <footer className="container mx-auto text-center mt-12 p-4 border-t">
-    <p>Não encontrou o seu produto?</p>
-    <p className="font-semibold">Entre em contato: (xx) xxxxx-xxxx</p>
+  <footer className="container mx-auto text-center mt-12 p-6 border-t border-surface-border">
+    <p className="text-text-secondary">Não encontrou o seu produto?</p>
+    <p className="font-semibold text-text-primary">Entre em contato: (xx) xxxxx-xxxx</p>
   </footer>
 );
 

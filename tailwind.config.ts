@@ -8,16 +8,23 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'sans-serif'], // Define 'Inter' como a fonte padrão
+        sans: ['Inter', 'sans-serif'],
       },
       colors: {
         brand: {
-          primary: '#00529B', // Um azul corporativo
-          light: '#E6F0F9',   // Um tom de azul bem claro para fundos
+          primary: '#00529B',   // Azul principal
+          dark: '#003d73',     // Azul mais escuro para hover
+          light: '#E6F0F9',   // Azul bem claro para fundos de destaque
         },
         surface: {
-          background: '#F8F9FA', // Um cinza muito claro para o fundo do site
-          card: '#FFFFFF',       // Branco para os cards
+          background: '#F8F9FA', // Fundo cinza claro (mantido)
+          card: '#FFFFFF',       // Fundo dos cards
+          border: '#E9ECEF',    // Cor sutil para bordas
+        },
+        text: {
+          primary: '#212529',    // Preto/cinza escuro para textos principais
+          secondary: '#495057',  // Cinza médio para textos secundários
+          subtle: '#6C757D',     // Cinza claro para textos de apoio
         },
       },
     },
