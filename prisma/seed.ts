@@ -42,10 +42,9 @@ async function main() {
   // 4. Criar os produtos
   const productsToCreate = [
     // Cartuchos HP Deskjet
-    { name: '664', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
-    { name: '662', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
-    { name: '667', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
-    { name: '901', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
+    { name: '664', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/images/produtos/664.png', createdAt: new Date() },
+    { name: '662', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/images/produtos/662.png', createdAt: new Date() },
+    { name: '667', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/images/produtos/667.png', createdAt: new Date() },
     { name: '60', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
     { name: '61', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
     { name: '70', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
@@ -54,10 +53,8 @@ async function main() {
     { name: '22', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
     { name: '27', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
     { name: '28', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
-    { name: '122', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
-    { name: '122A', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
-    { name: '122XL', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
-    { name: '901XL', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
+    { name: '122', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/images/produtos/122.png', createdAt: new Date() },
+    { name: '901', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/images/produtos/901.png', createdAt: new Date() },
 
     // Toners HP
     { name: 'CE285A (85A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
@@ -73,8 +70,10 @@ async function main() {
     { name: 'TN-1060', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
     { name: 'TN-210', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
     { name: 'TN-220', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
+    { name: 'TN-230', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER', description: 'Toner de alto rendimento para impressoras Brother.', imageUrl: '/images/produtos/tn-230.png', createdAt: new Date() },
     { name: 'TN-360', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
     { name: 'TN-660', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
+    { name: 'TN-760', brandId: brother.id, categoryId: subCatToner.id, type: 'TONER', description: 'Toner de capacidade padrão para impressoras Brother.', imageUrl: '/images/produtos/tn-760.png', createdAt: new Date() },
 
     // Toners Samsung
     { name: 'D101', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
