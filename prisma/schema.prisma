@@ -36,14 +36,22 @@ model Product {
   createdAt   DateTime @default(now())
 }
 
-// Tabela para relacionar Cartuchos e Impressoras
+model Printer {
+  id        Int      @id @default(autoincrement())
+  modelName String   @unique
+  brandId   Int
+  brand     Brand    @relation(fields: [brandId], references: [id])
+  compatibleCartridges PrinterCompatibility[] @relation("PrinterSide")
+}
+
 model PrinterCompatibility {
   cartridgeId Int
   cartridge   Product @relation("CartridgeSide", fields: [cartridgeId], references: [id])
-  printerModel String 
-  @@id([cartridgeId, printerModel])
-}
+  printerId   Int
+  printer     Printer @relation("PrinterSide", fields: [printerId], references: [id])
 
+  @@id([cartridgeId, printerId])
+}
 
 model Brand {
   id        Int      @id @default(autoincrement())
