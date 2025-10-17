@@ -1,12 +1,12 @@
-import { useRouter } from 'next/router';
-import LoadingSpinner from '@/components/LoadingSpinner'; 
 import { slugify } from '@/lib/utils';
 import { PrismaClient, Category, Product, Brand } from '@prisma/client';
 import type { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from 'next';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
 import SEO from '@/components/Seo';
 import Link from 'next/link';
-import { useState } from 'react';
 import ProductCard from '@/components/cards/ProductCard';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 type CategoryWithChildren = Category & {
   subCategories: Category[];
@@ -19,7 +19,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const paths = categories.map((category) => ({
     params: { slug: slugify(category.name) },
   }));
-  return { paths, fallback: 'blocking' };
+  // Usar fallback: 'blocking' remove a necessidade de checar router.isFallback no componente
+  return { paths, fallback: true };
 };
 
 export const getStaticProps: GetStaticProps<{
@@ -28,22 +29,9 @@ export const getStaticProps: GetStaticProps<{
   const slug = context.params?.slug as string;
   if (!slug) return { notFound: true };
 
-  function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const router = useRouter();
-  const [searchTerm, setSearchTerm] = useState('');
-
-  if (router.isFallback) {
-    return <LoadingSpinner />;
-  }
-
-  if (!category) {
-    return <div className="text-center text-xl text-text-secondary">Categoria não encontrada.</div>;
-  }
-  
   const prisma = new PrismaClient();
-  const currentCategory = await prisma.category.findFirst({
-    where: { name: { equals: slug.replace(/-/g, ' '), mode: 'insensitive' } },
-  });
+  const categories = await prisma.category.findMany();
+  const currentCategory = categories.find((cat) => slugify(cat.name) === slug);
 
   if (!currentCategory) return { notFound: true };
 
@@ -68,10 +56,16 @@ export const getStaticProps: GetStaticProps<{
 };
 
 function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Mostra o spinner enquanto a página está sendo gerada no servidor
+  if (router.isFallback) {
+    return <LoadingSpinner />;
+  }
+
   if (!category) {
-    return <div className="text-center text-xl text-text-secondary">Carregando...</div>;
+    return <div className="text-center text-xl text-text-secondary">Categoria não encontrada.</div>;
   }
 
   const hasSubCategories = category.subCategories.length > 0;
@@ -80,7 +74,7 @@ function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProp
   );
 
   return (
-    <>
+    <div className="animate-fade-in-up">
       <SEO
         title={category.name}
         description={`Encontre todos os nossos produtos da categoria ${category.name}.`}
@@ -105,7 +99,7 @@ function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProp
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {hasSubCategories && category.subCategories.map((subCat) => (
           <Link href={`/categoria/${slugify(subCat.name)}`} key={subCat.id}>
-            <div className="group bg-surface-card rounded-xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col justify-center items-center text-center border border-surface-border">
+            <div className="group bg-surface-card rounded-xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col justify-center items-center text-center border border-surface-border hover:scale-105">
               <h2 className="text-xl font-semibold text-text-primary">{subCat.name}</h2>
               <div className="w-1/3 h-1 bg-brand-primary rounded-full mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
@@ -122,7 +116,7 @@ function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProp
           <p className="text-xl text-text-subtle">Nenhum produto encontrado para a sua busca.</p>
         </div>
       )}
-    </>
+    </div>
   );
 }
 
