@@ -109,9 +109,11 @@ function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProp
 
         {!hasSubCategories && filteredProducts.map((product) => (
           <Link href={`/produto/${slugify(product.name)}`} key={product.id}>
-            <div className="group bg-surface-card rounded-xl p-4 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col justify-between items-center text-center border border-surface-border">
+            <div className="group bg-surface-card rounded-xl p-4 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer h-full flex flex-col justify-between items-center text-center border border-surface-border">
               {product.imageUrl && (
-                <Image src={product.imageUrl} alt={product.name} width={200} height={200} className="object-cover mb-4" />
+                <div className="bg-white p-2 rounded-md mb-4">
+                  <Image src={product.imageUrl} alt={product.name} width={200} height={200} className="object-contain" />
+                </div>
               )}
               <div className="w-full">
                 <h2 className="text-lg font-semibold text-text-primary">{product.name}</h2>
