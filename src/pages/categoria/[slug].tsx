@@ -3,8 +3,8 @@ import { PrismaClient, Category, Product, Brand } from '@prisma/client';
 import type { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from 'next';
 import SEO from '@/components/Seo';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useState } from 'react';
+import ProductCard from '@/components/cards/ProductCard';
 
 type CategoryWithChildren = Category & {
   subCategories: Category[];
@@ -27,8 +27,9 @@ export const getStaticProps: GetStaticProps<{
   if (!slug) return { notFound: true };
 
   const prisma = new PrismaClient();
-  const categories = await prisma.category.findMany();
-  const currentCategory = categories.find((cat) => slugify(cat.name) === slug);
+  const currentCategory = await prisma.category.findFirst({
+    where: { name: { equals: slug.replace(/-/g, ' '), mode: 'insensitive' } },
+  });
 
   if (!currentCategory) return { notFound: true };
 
@@ -44,19 +45,9 @@ export const getStaticProps: GetStaticProps<{
     return { props: { category: null }, revalidate: 60 };
   }
 
-  const serializableProducts = categoryWithChildren.products.map(product => ({
-    ...product,
-    createdAt: product.createdAt.toISOString(),
-  }));
-
-  const serializableCategory = {
-    ...categoryWithChildren,
-    products: serializableProducts,
-  };
-
   return {
     props: {
-      category: serializableCategory,
+      category: JSON.parse(JSON.stringify(categoryWithChildren)),
     },
     revalidate: 60,
   };
@@ -66,7 +57,7 @@ function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProp
   const [searchTerm, setSearchTerm] = useState('');
 
   if (!category) {
-    return <div>Categoria não encontrada.</div>;
+    return <div className="text-center text-xl text-text-secondary">Carregando...</div>;
   }
 
   const hasSubCategories = category.subCategories.length > 0;
@@ -108,20 +99,7 @@ function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProp
         ))}
 
         {!hasSubCategories && filteredProducts.map((product) => (
-          <Link href={`/produto/${slugify(product.name)}`} key={product.id}>
-            <div className="group bg-surface-card rounded-xl p-4 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer h-full flex flex-col justify-between items-center text-center border border-surface-border">
-              {product.imageUrl && (
-                <div className="bg-white p-2 rounded-md mb-4">
-                  <Image src={product.imageUrl} alt={product.name} width={200} height={200} className="object-contain" />
-                </div>
-              )}
-              <div className="w-full">
-                <h2 className="text-lg font-semibold text-text-primary">{product.name}</h2>
-                <p className="text-sm text-text-subtle mt-2">{product.brand.name}</p>
-              </div>
-              <div className="w-1/2 h-1 bg-brand-primary rounded-full mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </div>
-          </Link>
+          <ProductCard key={product.id} product={product} />
         ))}
       </div>
 
