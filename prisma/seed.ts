@@ -6,6 +6,7 @@ async function main() {
   // 1. Limpar dados existentes na ordem correta
   console.log('Limpando o banco de dados...');
   await prisma.printerCompatibility.deleteMany();
+  await prisma.printer.deleteMany();
   await prisma.product.deleteMany();
   await prisma.category.deleteMany();
   await prisma.brand.deleteMany();
