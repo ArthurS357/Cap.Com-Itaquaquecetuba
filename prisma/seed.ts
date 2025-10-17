@@ -87,8 +87,22 @@ async function main() {
   });
   console.log(`${productsToCreate.length} produtos criados.`);
 
-  console.log('Criando relações de compatibilidade...');
+  // 5. Criar as Impressoras
+console.log('Criando impressoras...');
+const printersToCreate = [
+  // HP
+  { modelName: 'HP DeskJet 1115', brandId: hp.id },
+  { modelName: 'HP LaserJet Pro P1102', brandId: hp.id },
+  // Brother
+  { modelName: 'Brother HL-1110', brandId: brother.id },
+  // Samsung
+  { modelName: 'Samsung ML-2165', brandId: samsung.id },
+  // Adicionar todas as impressoras do documento aqui
+];
+await prisma.printer.createMany({ data: printersToCreate });
 
+  
+  console.log('Criando relações de compatibilidade...');
   const allProducts = await prisma.product.findMany({ select: { id: true, name: true } });
   const productMap = new Map(allProducts.map(p => [p.name.toLowerCase(), p.id]));
 
@@ -107,7 +121,7 @@ async function main() {
     'CE285A (85A)': ['HP LaserJet Pro P1102, P1102w, P1102s, P1104, P1104w, P1106, P1107, P1107w, P1109, P1109w', 'HP LaserJet Pro M1130, M1132, M1134, M1136, M1137, M1138, M1139', 'HP LaserJet Pro M1210, M1212f, M1212nf, M1213nf, M1214nfh, M1216nfh,M1217nfw, M1219nf'],
     'TN-1060': ['Brother HL-1110, HL-1112, HL-1210W, DCP-1510, DCP-1512, MFC-1810'],
     'D111': ['Samsung ML-2160, ML-2162, ML-2164, ML-2165, ML-2168', 'Samsung SCX-3400, SCX-3405, SCX-3405F, SCX-3405FW', ],
-    // ... adicione aqui o restante das compatibilidades do seu documento
+    // ... adicionar aqui o restante das compatibilidades do documento
   };
 
   const compatibilityData = [];
