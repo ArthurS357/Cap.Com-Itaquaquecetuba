@@ -1,21 +1,13 @@
 import { PrismaClient, Category } from '@prisma/client';
 import type { GetStaticProps, InferGetStaticPropsType } from 'next';
-import Link from 'next/link';
-import Image from 'next/image';
-import SEO from '@/components/Seo'; 
+import SEO from '@/components/Seo';
 import CategoryCard from '@/components/cards/CategoryCard';
-
-const slugify = (text: string) =>
-  text
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^\w-]+/g, '');
 
 export const getStaticProps: GetStaticProps<{
   mainCategories: Category[];
 }> = async () => {
   const prisma = new PrismaClient();
-  
+
   const mainCategories = await prisma.category.findMany({
     where: {
       parentId: null,
@@ -24,7 +16,7 @@ export const getStaticProps: GetStaticProps<{
 
   return {
     props: {
-      mainCategories,
+      mainCategories: JSON.parse(JSON.stringify(mainCategories)),
     },
     revalidate: 60,
   };
