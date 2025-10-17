@@ -42,16 +42,17 @@ async function main() {
   // 4. Criar os produtos
   const productsToCreate = [
     // Cartuchos HP Deskjet
-    { name: '664', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/public/images/produtos/664.png', createdAt: new Date() },
-    { name: '662', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/public/images/produtos/662.png', createdAt: new Date() },
-    { name: '667', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/public/images/produtos/667.png', createdAt: new Date() },
+    
+    { name: '21', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
+    { name: '22', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
     { name: '60', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
     { name: '61', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
     { name: '70', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
     { name: '75', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
-    { name: '21', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
-    { name: '22', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
     { name: '122', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/public/images/produtos/122.png', createdAt: new Date() },
+    { name: '664', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/public/images/produtos/664.png', createdAt: new Date() },
+    { name: '662', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/public/images/produtos/662.png', createdAt: new Date() },
+    { name: '667', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/public/images/produtos/667.png', createdAt: new Date() },
     { name: '901', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/public/images/produtos/901.png', createdAt: new Date() },
 
     // Toners HP
@@ -75,8 +76,7 @@ async function main() {
 
     // Toners Samsung
     { name: 'D101', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
-    { name: 'D111S', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
-    { name: 'D111L', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
+    { name: 'D111', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
     { name: 'D203', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
     { name: 'D205', brandId: samsung.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
   ];
@@ -98,13 +98,14 @@ async function main() {
     '61': ['HP DeskJet D1660, D2560', 'HP DeskJet 1000, 1010, 1050, 1510', 'HP Photosmart 5520, 5510 (algumas variantes)', 'HP Envy 4500, 5530 (compatibilidade por região)'],
     '70': ['HP DeskJet 450, 550C (modelos antigos)', 'HP OfficeJet 5100 (modelos antigos)'],
     '75': ['HP OfficeJet 6100, 6150, 6500 (séries OfficeJet que usam 75 em algumas configurações)'],
+    '122': ['HP DeskJet Ink Advantage 1115, 2135 (algumas variantes regionais usam 122A/122XL)', 'HP DeskJet 1510, 2540, 2640 series', 'HP ENVY 4504, 5530 (dependendo da região e submodelo)'],
     '664': ['HP DeskJet 1110, 1111, 1112, 1114, 1115', 'HP DeskJet 2130, 2131, 2132, 2134, 2135', 'HP DeskJet 3630, 3631, 3632, 3633', 'HP ENVY 4510, 4520'],
     '662': ['HP DeskJet Ink Advantage 1115, 2135 (algumas variantes usam 662 em certas regiões)', 'HP Ink Advantage 1010 série (modelos regionais)'],
     '667': ['HP DeskJet 2710, 2720, 2730'],
     '901': ['HP OfficeJet Pro 6230, 6234', 'HP OfficeJet 8030, 8035', 'HP OfficeJet 6812, 6815', 'HP OfficeJet Pro 8210 (verificar versão XL)'],
-    'CE285A (85A)': ['HP LaserJet Pro P1102', 'HP LaserJet Pro P1102w', 'HP LaserJet Pro M1132', 'HP LaserJet Pro M1212nf'],
-    'TN-1060': ['Brother HL-1110', 'Brother HL-1210W', 'Brother DCP-1510', 'Brother MFC-1810'],
-    'D111S': ['Samsung ML-2165', 'Samsung SCX-3400', 'Samsung SCX-3405FW'],
+    'CE285A (85A)': ['HP LaserJet Pro P1102, P1102w, P1102s, P1104, P1104w, P1106, P1107, P1107w, P1109, P1109w', 'HP LaserJet Pro M1130, M1132, M1134, M1136, M1137, M1138, M1139', 'HP LaserJet Pro M1210, M1212f, M1212nf, M1213nf, M1214nfh, M1216nfh,M1217nfw, M1219nf'],
+    'TN-1060': ['Brother HL-1110, HL-1112, HL-1210W, DCP-1510, DCP-1512, MFC-1810'],
+    'D111': ['Samsung ML-2160, ML-2162, ML-2164, ML-2165, ML-2168', 'Samsung SCX-3400, SCX-3405, SCX-3405F, SCX-3405FW', ],
     // ... adicione aqui o restante das compatibilidades do seu documento
   };
 
