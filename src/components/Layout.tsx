@@ -12,14 +12,14 @@ const Navbar = () => (
     <div className="container mx-auto p-4 flex flex-col md:flex-row justify-between items-center gap-4">
       <Link href="/">
         <Image
-          src="public/image/logo-capcom.png"
+          src="/images/logo-capcom.png" 
           alt="Logo da Cap.Com Itaquaquecetuba"
           width={140}
           height={140}
           priority
         />
       </Link>
-      <SearchBar /> 
+      <SearchBar />
     </div>
   </header>
 );
@@ -27,7 +27,7 @@ const Navbar = () => (
 const Footer = () => (
   <footer className="container mx-auto text-center mt-12 p-6 border-t border-surface-border">
     <p className="text-text-secondary">Não encontrou o seu produto?</p>
-    <p className="font-semibold text-text-primary">Entre em contato: (xx) xxxxx-xxxx</p>
+    <p className="font-semibold text-text-primary">Entre em contato: (11) 99638-8426</p> 
   </footer>
 );
 
