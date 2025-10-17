@@ -23,13 +23,13 @@ async function main() {
   const catCartuchosToners = await prisma.category.create({
     data: {
       name: 'Cartuchos e Toners',
-      imageUrl: '/images/categorias/cartuchos-toners.png',
+      imageUrl: 'public/images/categorias/cartuchos-toners.png',
     },
   });
   const catImpressoras = await prisma.category.create({
     data: {
       name: 'Impressoras',
-      imageUrl: '/images/categorias/impressoras.png',
+      imageUrl: 'public/images/categorias/impressoras.png',
     },
   });
   const subCatJatoTinta = await prisma.category.create({
@@ -42,9 +42,9 @@ async function main() {
   // 4. Criar os produtos
   const productsToCreate = [
     // Cartuchos HP Deskjet
-    { name: '664', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/images/produtos/664.png', createdAt: new Date() },
-    { name: '662', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/images/produtos/662.png', createdAt: new Date() },
-    { name: '667', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/images/produtos/667.png', createdAt: new Date() },
+    { name: '664', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/public/images/produtos/664.png', createdAt: new Date() },
+    { name: '662', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/public/images/produtos/662.png', createdAt: new Date() },
+    { name: '667', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/public/images/produtos/667.png', createdAt: new Date() },
     { name: '60', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
     { name: '61', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
     { name: '70', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
@@ -53,8 +53,8 @@ async function main() {
     { name: '22', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
     { name: '27', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
     { name: '28', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', createdAt: new Date() },
-    { name: '122', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/images/produtos/122.png', createdAt: new Date() },
-    { name: '901', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/images/produtos/901.png', createdAt: new Date() },
+    { name: '122', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/public/images/produtos/122.png', createdAt: new Date() },
+    { name: '901', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável de tamanho padrão que pode ser recarregado.', imageUrl: '/public/images/produtos/901.png', createdAt: new Date() },
 
     // Toners HP
     { name: 'CE285A (85A)', brandId: hp.id, categoryId: subCatToner.id, type: 'TONER', createdAt: new Date() },
