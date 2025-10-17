@@ -1,3 +1,5 @@
+import { useRouter } from 'next/router';
+import LoadingSpinner from '@/components/LoadingSpinner'; 
 import { slugify } from '@/lib/utils';
 import { PrismaClient, Category, Product, Brand } from '@prisma/client';
 import type { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from 'next';
@@ -26,6 +28,18 @@ export const getStaticProps: GetStaticProps<{
   const slug = context.params?.slug as string;
   if (!slug) return { notFound: true };
 
+  function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState('');
+
+  if (router.isFallback) {
+    return <LoadingSpinner />;
+  }
+
+  if (!category) {
+    return <div className="text-center text-xl text-text-secondary">Categoria não encontrada.</div>;
+  }
+  
   const prisma = new PrismaClient();
   const currentCategory = await prisma.category.findFirst({
     where: { name: { equals: slug.replace(/-/g, ' '), mode: 'insensitive' } },
