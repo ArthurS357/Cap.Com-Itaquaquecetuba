@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import React from 'react';
+import SearchBar from './SearchBar';
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -8,17 +9,17 @@ type LayoutProps = {
 
 const Navbar = () => (
   <header className="bg-surface-card/80 backdrop-blur-sm sticky top-0 z-10 border-b border-surface-border">
-    <div className="container mx-auto p-4 flex justify-center items-center">
-    <Link href="/">
-      <Image
-        src="/logo-capcom.png" 
-        alt="Logo da Cap.Com Itaquaquecetuba"
-        width={140}
-        height={140}
-        priority
-      />
-    </Link>
-    {/* No futuro, podemos adicionar links de navegação aqui */}
+    <div className="container mx-auto p-4 flex flex-col md:flex-row justify-between items-center gap-4">
+      <Link href="/">
+        <Image
+          src="public/image/logo-capcom.png"
+          alt="Logo da Cap.Com Itaquaquecetuba"
+          width={140}
+          height={140}
+          priority
+        />
+      </Link>
+      <SearchBar /> 
     </div>
   </header>
 );
