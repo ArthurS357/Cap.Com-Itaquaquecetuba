@@ -9,7 +9,7 @@ type CategoryCardProps = {
 
 const CategoryCard = ({ category }: CategoryCardProps) => (
   <Link href={`/categoria/${slugify(category.name)}`} key={category.id}>
-    <div className="group bg-surface-card rounded-xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer h-full flex flex-col items-center text-center border border-surface-border">
+    <div className="group bg-surface-card rounded-xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer h-full flex flex-col items-center text-center border border-surface-border hover:scale-105">
       {category.imageUrl && (
         <Image
           src={category.imageUrl}
