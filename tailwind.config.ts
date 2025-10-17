@@ -17,14 +17,14 @@ const config: Config = {
           light: '#E6F0F9',   // Azul bem claro para fundos de destaque
         },
         surface: {
-          background: '#F8F9FA', // Fundo cinza claro (mantido)
-          card: '#FFFFFF',       // Fundo dos cards
-          border: '#E9ECEF',    // Cor sutil para bordas
+          background: '#121212', // Fundo principal escuro
+          card: '#1E1E1E',       // Fundo dos cards escuro
+          border: '#2C2C2C',    // Cor sutil para bordas no tema escuro
         },
         text: {
-          primary: '#212529',    // Preto/cinza escuro para textos principais
-          secondary: '#495057',  // Cinza médio para textos secundários
-          subtle: '#6C757D',     // Cinza claro para textos de apoio
+          primary: '#E0E0E0',    // Texto principal claro
+          secondary: '#A0A0A0',  // Texto secundário
+          subtle: '#707070',     // Texto de apoio
         },
       },
     },
