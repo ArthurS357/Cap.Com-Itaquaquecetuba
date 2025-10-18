@@ -6,21 +6,22 @@ import { slugify } from '@/lib/utils';
 
 type SearchResult = Product & { brand: Brand };
 
-export const getServerSideProps: GetServerSideProps<{
+export const getServerSideProps: GetStaticProps<{ 
   results: SearchResult[];
   query: string;
 }> = async (context) => {
   const query = context.query.q as string || '';
-  if (!query) {
+  if (!query) { 
     return { props: { results: [], query: '' } };
   }
 
   const prisma = new PrismaClient();
+  console.log(`Buscando por: "${query}"`);
+
   const results = await prisma.product.findMany({
     where: {
       name: {
-        contains: query,
-        mode: 'insensitive',
+        contains: query, 
       },
     },
     include: { brand: true },
