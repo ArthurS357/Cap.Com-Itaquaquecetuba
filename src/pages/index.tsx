@@ -27,7 +27,7 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
     <>
       <SEO title="Início" />
       <div className="text-center mb-12 animate-fade-in-up">
-        <h1 className="text-4xl font-bold text-text-primary">Bem vindo a Cap.com Itaquaquecetuba</h1>
+        <h1 className="text-4xl font-bold text-text-primary">Cap.com Itaquaquecetuba</h1>
         <p className="text-2xl text-text-secondary mt-4">Selecione o que procura</p>
       </div>
 
