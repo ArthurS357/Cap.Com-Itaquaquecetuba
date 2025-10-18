@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-// Importar a função slugify do seu arquivo de utilitários
-import { slugify } from '../src/lib/utils'; // Ajuste o caminho se necessário
+import { slugify } from '../src/lib/utils'; 
 
 const prisma = new PrismaClient();
 

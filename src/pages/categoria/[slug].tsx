@@ -15,12 +15,18 @@ type CategoryWithChildren = Category & {
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const prisma = new PrismaClient();
-  const categories = await prisma.category.findMany({ select: { name: true } });
-  const paths = categories.map((category) => ({
-    params: { slug: slugify(category.name) },
+  const categories = await prisma.category.findMany({
+    where: { slug: { not: undefined } }, 
+    select: { slug: true }
+  });
+
+  const paths = categories
+    .filter(category => category.slug) 
+    .map((category) => ({
+      params: { slug: category.slug! },
   }));
-  // Usar fallback: 'blocking' remove a necessidade de checar router.isFallback no componente
-  return { paths, fallback: true };
+
+  return { paths, fallback: 'blocking' };
 };
 
 export const getStaticProps: GetStaticProps<{
@@ -30,36 +36,37 @@ export const getStaticProps: GetStaticProps<{
   if (!slug) return { notFound: true };
 
   const prisma = new PrismaClient();
-  const categories = await prisma.category.findMany();
-  const currentCategory = categories.find((cat) => slugify(cat.name) === slug);
-
-  if (!currentCategory) return { notFound: true };
 
   const categoryWithChildren = await prisma.category.findUnique({
-    where: { id: currentCategory.id },
+    where: { slug: slug }, 
     include: {
-      subCategories: true,
-      products: { include: { brand: true } },
+      subCategories: { orderBy: { name: 'asc' } }, 
+      products: {
+        include: { brand: true },
+        orderBy: { name: 'asc' } 
+      },
     },
   });
 
+  
   if (!categoryWithChildren) {
-    return { props: { category: null }, revalidate: 60 };
+    return { notFound: true };
   }
+
+  
+  const serializableCategory = JSON.parse(JSON.stringify(categoryWithChildren));
 
   return {
     props: {
-      category: JSON.parse(JSON.stringify(categoryWithChildren)),
+      category: serializableCategory,
     },
-    revalidate: 60,
+    revalidate: 60, 
   };
 };
 
 function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
-
-  // Mostra o spinner enquanto a página está sendo gerada no servidor
   if (router.isFallback) {
     return <LoadingSpinner />;
   }
@@ -84,7 +91,7 @@ function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProp
         <h1 className="text-4xl font-bold text-text-primary">{category.name}</h1>
       </div>
 
-      {!hasSubCategories && (
+      {!hasSubCategories && category.products.length > 0 && ( 
         <div className="mb-8 max-w-lg mx-auto">
           <input
             type="text"
@@ -98,7 +105,7 @@ function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProp
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {hasSubCategories && category.subCategories.map((subCat) => (
-          <Link href={`/categoria/${slugify(subCat.name)}`} key={subCat.id}>
+          <Link href={`/categoria/${subCat.slug}`} key={subCat.id}>
             <div className="group bg-surface-card rounded-xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col justify-center items-center text-center border border-surface-border hover:scale-105">
               <h2 className="text-xl font-semibold text-text-primary">{subCat.name}</h2>
               <div className="w-1/3 h-1 bg-brand-primary rounded-full mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -111,9 +118,15 @@ function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProp
         ))}
       </div>
 
-      {!hasSubCategories && filteredProducts.length === 0 && (
+      {!hasSubCategories && category.products.length > 0 && filteredProducts.length === 0 && ( 
         <div className="text-center col-span-full mt-8">
-          <p className="text-xl text-text-subtle">Nenhum produto encontrado para a sua busca.</p>
+          <p className="text-xl text-text-subtle">Nenhum produto encontrado para "{searchTerm}".</p>
+        </div>
+      )}
+
+       {!hasSubCategories && category.products.length === 0 && ( 
+        <div className="text-center col-span-full mt-8">
+          <p className="text-xl text-text-subtle">Ainda não há produtos nesta categoria.</p>
         </div>
       )}
     </div>

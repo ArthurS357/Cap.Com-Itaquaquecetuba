@@ -1,4 +1,4 @@
-import { slugify } from '@/lib/utils';
+import { slugify } from '@/lib/utils'; 
 import { PrismaClient, Product, Brand, Category, PrinterCompatibility, Printer } from '@prisma/client';
 import type { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from 'next';
 import { useRouter } from 'next/router';
@@ -9,15 +9,22 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 type ProductDetails = Product & {
   brand: Brand;
   category: Category;
-  compatibleWith: (PrinterCompatibility & { printer: Printer })[]; 
+  compatibleWith: (PrinterCompatibility & { printer: Printer })[];
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const prisma = new PrismaClient();
-  const products = await prisma.product.findMany({ select: { name: true } });
-  const paths = products.map((product) => ({
-    params: { slug: slugify(product.name) },
+  const products = await prisma.product.findMany({
+    where: { slug: { not: undefined } }, 
+    select: { slug: true }
+  });
+
+  const paths = products
+    .filter(product => product.slug) 
+    .map((product) => ({
+      params: { slug: product.slug! }, 
   }));
+
   return { paths, fallback: 'blocking' };
 };
 
@@ -28,31 +35,32 @@ export const getStaticProps: GetStaticProps<{
   if (!slug) return { notFound: true };
 
   const prisma = new PrismaClient();
-  const allProducts = await prisma.product.findMany({ select: { id: true, name: true } });
-  const foundProduct = allProducts.find(p => slugify(p.name) === slug);
-
-  if (!foundProduct) return { notFound: true };
 
   const productDetails = await prisma.product.findUnique({
-    where: { id: foundProduct.id },
+    where: { slug: slug }, 
     include: {
       brand: true,
       category: true,
       compatibleWith: {
         include: {
           printer: true, 
-        }
+        },
+        orderBy: { printer: { modelName: 'asc' } } 
       },
     },
   });
 
-  if (!productDetails) return { notFound: true };
+  if (!productDetails) {
+    return { notFound: true };
+  }
 
-  return { 
-    props: { 
-      product: JSON.parse(JSON.stringify(productDetails)) 
-    }, 
-    revalidate: 60 
+  const serializableProduct = JSON.parse(JSON.stringify(productDetails));
+
+  return {
+    props: {
+      product: serializableProduct,
+    },
+    revalidate: 60, 
   };
 };
 
@@ -71,7 +79,7 @@ function ProductPage({ product }: InferGetStaticPropsType<typeof getStaticProps>
         title={product.name}
         description={`Detalhes sobre ${product.name}, da marca ${product.brand.name}. Encontre impressoras compatíveis e mais.`}
       />
-      
+
       <div className="bg-surface-card p-6 md:p-8 rounded-xl shadow-lg flex flex-col md:flex-row items-center gap-8 border border-surface-border">
         {product.imageUrl && (
             <div className="bg-white p-4 rounded-lg">
@@ -89,7 +97,7 @@ function ProductPage({ product }: InferGetStaticPropsType<typeof getStaticProps>
             <p className="text-lg text-text-secondary mt-2"><strong>Marca:</strong> {product.brand.name}</p>
             <p className="text-lg text-text-secondary"><strong>Categoria:</strong> {product.category.name}</p>
             <p className="mt-4 text-text-secondary">{product.description || 'Descrição detalhada em breve.'}</p>
-            
+
             <div className="mt-6 border-2 border-brand-primary/20 bg-brand-light/10 p-6 rounded-xl">
                 <p className="text-lg font-semibold text-text-primary">
                     {product.type.includes('RECARGA') ? 'Valor para o serviço de recarga:' : 'Informações sobre este produto:'}
