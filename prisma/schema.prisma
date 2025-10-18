@@ -10,37 +10,37 @@ datasource db {
 // Modelo de dados
 
 model Category {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  imageUrl  String?
+  id       Int     @id @default(autoincrement())
+  name     String  @unique
+  imageUrl String?
 
   // Para criar a hierarquia (ex: "Jato de Tinta" está dentro de "Cartuchos")
-  parentId  Int?
-  parent    Category?  @relation("SubCategories", fields: [parentId], references: [id])
+  parentId      Int?
+  parent        Category?  @relation("SubCategories", fields: [parentId], references: [id])
   subCategories Category[] @relation("SubCategories")
-  products  Product[]
+  products      Product[]
 }
 
 model Product {
-  id            Int      @id @default(autoincrement())
-  name          String   // Ex: "Toner HP 85A", "Impressora HP DeskJet 2774"
-  description   String?
-  imageUrl      String?
-  price         Float?   // Preço para produtos de venda direta
-  type          String   // Ex: "TONER", "IMPRESSORA", "RECARGA_JATO_TINTA"
-  brandId       Int
-  brand         Brand    @relation(fields: [brandId], references: [id])
-  categoryId    Int
-  category      Category @relation(fields: [categoryId], references: [id])
+  id             Int                    @id @default(autoincrement())
+  name           String // Ex: "Toner HP 85A", "Impressora HP DeskJet 2774"
+  description    String?
+  imageUrl       String?
+  price          Float? // Preço para produtos de venda direta
+  type           String // Ex: "TONER", "IMPRESSORA", "RECARGA_JATO_TINTA"
+  brandId        Int
+  brand          Brand                  @relation(fields: [brandId], references: [id])
+  categoryId     Int
+  category       Category               @relation(fields: [categoryId], references: [id])
   compatibleWith PrinterCompatibility[] @relation("CartridgeSide")
-  createdAt   DateTime @default(now())
+  createdAt      DateTime               @default(now())
 }
 
 model Printer {
-  id        Int      @id @default(autoincrement())
-  modelName String   @unique
-  brandId   Int
-  brand     Brand    @relation(fields: [brandId], references: [id])
+  id                   Int                    @id @default(autoincrement())
+  modelName            String                 @unique
+  brandId              Int
+  brand                Brand                  @relation(fields: [brandId], references: [id])
   compatibleCartridges PrinterCompatibility[] @relation("PrinterSide")
 }
 
@@ -54,7 +54,8 @@ model PrinterCompatibility {
 }
 
 model Brand {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  products  Product[]
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[]
+  printers Printer[]
 }
