@@ -63,50 +63,50 @@ async function main() {
   const productsInputData = [
     // ========= Impressoras =========
     { name: 'HP DeskJet Ink Advantage 2774', brandId: hp.id, categoryId: catImpressoras.id, type: 'IMPRESSORA', description: 'Multifuncional ideal para o dia a dia, com impressão, cópia e digitalização.', imageUrl: 'https://placehold.co/400x400/FFFFFF/000000?text=HP+2774' },
-    { name: 'Epson EcoTank L3250', brandId: epson.id, categoryId: catImpressoras.id, type: 'IMPRESSORA', description: 'Impressora multifuncional com tanques de tinta recarregáveis de alta capacidade.', imageUrl: '/images/categorias/impressoras.png' },
+    { name: 'Epson EcoTank L3250', brandId: epson.id, categoryId: catImpressoras.id, type: 'IMPRESSORA', description: 'Impressora multifuncional com tanques de tinta recarregáveis de alta capacidade. Famosa pela economia extrema, ideal para quem imprime muito.', imageUrl: '/images/categorias/impressoras.png' },
     { name: 'Brother HL-1212W', brandId: brother.id, categoryId: catImpressoras.id, type: 'IMPRESSORA', description: 'Impressora laser monocromática compacta com conexão Wi-Fi.', imageUrl: 'https://placehold.co/400x400/FFFFFF/000000?text=Brother+HL-1212W' },
     { name: 'Canon PIXMA G3110', brandId: canon.id, categoryId: catImpressoras.id, type: 'IMPRESSORA', description: 'Multifuncional Mega Tank com tanques de tinta integrados e Wi-Fi.', imageUrl: 'https://placehold.co/400x400/FFFFFF/000000?text=Canon+G3110' },
     { name: 'HP Smart Tank 517', brandId: hp.id, categoryId: catImpressoras.id, type: 'IMPRESSORA', description: 'Multifuncional com tanques de tinta de alta capacidade.', imageUrl: 'https://placehold.co/400x400/FFFFFF/000000?text=HP+Smart+Tank+517' },
     { name: 'Brother DCP-L2540DW', brandId: brother.id, categoryId: catImpressoras.id, type: 'IMPRESSORA', description: 'Multifuncional laser monocromática com impressão duplex automática.', imageUrl: 'https://placehold.co/400x400/FFFFFF/000000?text=Brother+L2540DW' },
 
     // ========= Cartuchos HP Deskjet =========
-    { name: '21', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável que pode ser recarregado.', imageUrl: '/images/produtos/CartuchosHP/21.png' },
-    { name: '22', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável que pode ser recarregado.', imageUrl: '/images/produtos/CartuchosHP/22.png' },
-    { name: '60', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável que pode ser recarregado.', imageUrl: '/images/produtos/CartuchosHP/60.png' },
-    { name: '61', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável que pode ser recarregado.', imageUrl: '/images/produtos/CartuchosHP/61.png' },
-    { name: '70', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável que pode ser recarregado.', imageUrl: '/images/produtos/CartuchosHP/70.png' },
-    { name: '75', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável que pode ser recarregado.', imageUrl: '/images/produtos/CartuchosHP/75.png' },
-    { name: '122', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável que pode ser recarregado.', imageUrl: '/images/produtos/CartuchosHP/122.png' },
-    { name: '664', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável que pode ser recarregado.', imageUrl: '/images/produtos/CartuchosHP/664.png' },
-    { name: '662', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável que pode ser recarregado.', imageUrl: '/images/produtos/CartuchosHP/662.png' },
-    { name: '667', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável que pode ser recarregado.', imageUrl: '/images/produtos/CartuchosHP/667.png' },
-    { name: '901', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável que pode ser recarregado.', imageUrl: '/images/produtos/CartuchosHP/901.png' },
+    { name: '21', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho de tinta HP 21. Ideal para impressões do dia a dia, compatível com modelos mais antigos.', imageUrl: '/images/produtos/CartuchosHP/21.png' },
+    { name: '22', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho de tinta colorido HP 22. Complementa o cartucho preto para impressões vibrantes em modelos mais antigos.', imageUrl: '/images/produtos/CartuchosHP/22.png' },
+    { name: '60', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho de tinta HP 60. Um dos modelos mais populares para uso doméstico, oferece boa qualidade de impressão.', imageUrl: '/images/produtos/CartuchosHP/60.png' },
+    { name: '61', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho de tinta HP 61. Versátil e econômico, compatível com uma vasta gama de impressoras HP DeskJet.', imageUrl: '/images/produtos/CartuchosHP/61.png' },
+    { name: '70', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho de tinta HP 70. Projetado para impressoras fotográficas e de grande formato, oferece qualidade profissional.', imageUrl: '/images/produtos/CartuchosHP/70.png' },
+    { name: '75', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho de tinta colorido HP 75. Utilizado em diversas impressoras HP Photosmart e OfficeJet para fotos e documentos coloridos.', imageUrl: '/images/produtos/CartuchosHP/75.png' },
+    { name: '122', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho de tinta HP 122. Opção de baixo custo para impressoras da linha DeskJet Ink Advantage.', imageUrl: '/images/produtos/CartuchosHP/122.png' },
+    { name: '664', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho de tinta HP 664. Parte da linha Ink Advantage, focado em rendimento e economia para uso frequente.', imageUrl: '/images/produtos/CartuchosHP/664.png' },
+    { name: '662', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho de tinta HP 662. Outra opção da linha Ink Advantage, projetado para impressões acessíveis e de qualidade.', imageUrl: '/images/produtos/CartuchosHP/662.png' },
+    { name: '667', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho de tinta HP 667. Modelo mais recente para as novas impressoras DeskJet, com tecnologia anti-fraude.', imageUrl: '/images/produtos/CartuchosHP/667.png' },
+    { name: '901', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho de tinta HP 901. Modelo robusto para impressoras OfficeJet, conhecido pela sua alta capacidade de tinta.', imageUrl: '/images/produtos/CartuchosHP/901.png' },
 
     // ========= Toners HP =========
-    { name: 'CE285A (85A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER' },
-    { name: 'CE278A (78A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER' },
-    { name: 'CF280A (80A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER' },
-    { name: 'CF283A (83A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER' },
-    { name: 'CB436A (36A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER' },
-    { name: 'CB435A (35A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER' },
-    { name: 'CE505A (05A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER' },
-    { name: 'Q2612A (12A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER' },
+    { name: 'CE285A (85A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER', description: 'Toner HP 85A. Monocromático, ideal para escritórios pequenos e uso doméstico com impressoras LaserJet compactas. Alto rendimento e confiabilidade.', imageUrl: '/images/produtos/TonerHP/CE285A.png' },
+    { name: 'CE278A (78A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER', description: 'Toner HP 78A. Toner monocromático de alta capacidade, perfeito para ambientes de escritório com impressoras LaserJet Pro.', imageUrl: '/images/produtos/TonerHP/CE278A.png' },
+    { name: 'CF280A (80A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER', description: 'Toner HP 80A. Toner monocromático para impressoras LaserJet Pro de médio porte, oferecendo excelente performance e rendimento.', imageUrl: '/images/produtos/TonerHP/CF280A.png' },
+    { name: 'CF283A (83A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER', description: 'Toner HP 83A. Compacto e eficiente, este toner monocromático é ideal para impressoras LaserJet Pro multifuncionais.', imageUrl: '/images/produtos/TonerHP/CF283A.png' },
+    { name: 'CB436A (36A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER', description: 'Toner HP 36A. Toner monocromático para impressoras LaserJet mais antigas, conhecido pela sua consistência e qualidade de impressão.', imageUrl: '/images/produtos/TonerHP/CB436A.png' },
+    { name: 'CB435A (35A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER', description: 'Toner HP 35A. Toner monocromático de entrada para as populares impressoras LaserJet P1005/P1006.', imageUrl: '/images/produtos/TonerHP/CB435A.png' },
+    { name: 'CE505A (05A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER', description: 'Toner HP 05A. Toner monocromático de rendimento padrão para impressoras LaserJet de médio porte, garantindo impressões nítidas.', imageUrl: '/images/produtos/TonerHP/CE505A.png' },
+    { name: 'Q2612A (12A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER', description: 'Toner HP 12A. Um clássico da HP, este toner monocromático a pó é famoso pela sua durabilidade e alto volume de impressão.', imageUrl: '/images/produtos/TonerHP/Q2612A.png' },
 
     // ========= Toners Brother =========
-    { name: 'TN-1060', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER' },
-    { name: 'TN-210', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER' },
-    { name: 'TN-360', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER' },
-    { name: 'TN-660', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER' },
-    { name: 'TN-760', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER', description: 'Toner de capacidade padrão para impressoras Brother.', imageUrl: '/images/produtos/tn-760.png' },
+    { name: 'TN-1060', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER', description: 'Toner Brother TN-1060. Monocromático de rendimento padrão, ideal para impressoras compactas. Custo-benefício para uso doméstico ou pequeno escritório.', imageUrl: '/images/produtos/TonerBrother/tn1060.png' },
+    { name: 'TN-210', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER', description: 'Toner Brother TN-210. Cartucho de toner colorido para impressoras laser coloridas da Brother, disponível em Ciano, Magenta e Amarelo.', imageUrl: '/images/produtos/TonerBrother/tn210.png' },
+    { name: 'TN-360', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER', description: 'Toner Brother TN-360. Monocromático de alta capacidade, projetado para impressoras e multifuncionais com maior volume de impressão.', imageUrl: '/images/produtos/TonerBrother/tn360.png'  },
+    { name: 'TN-660', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER', description: 'Toner Brother TN-660. Monocromático de alto rendimento, uma escolha popular para escritórios que buscam reduzir custos por página.', imageUrl: '/images/produtos/TonerBrother/tn660.png' },
+    { name: 'TN-760', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER', description: 'Toner Brother TN-760. Monocromático de alto rendimento, sucessor de modelos mais antigos, oferecendo ainda mais páginas por cartucho.', imageUrl: '/images/produtos/TonerBrother/tn760.png' },
 
     // ========= Toners Samsung =========
-    { name: 'D101', brandId: samsung.id, categoryId: subSubCatTonerSamsung.id, type: 'TONER' },
-    { name: 'D111', brandId: samsung.id, categoryId: subSubCatTonerSamsung.id, type: 'TONER' },
+    { name: 'D101', brandId: samsung.id, categoryId: subSubCatTonerSamsung.id, type: 'TONER', description: 'Toner Samsung D101. Monocromático para uma variedade de impressoras laser e multifuncionais Samsung, oferecendo impressões nítidas e confiáveis.', imageUrl: '/images/produtos/TonerSamsung/D101.png'  },
+    { name: 'D111', brandId: samsung.id, categoryId: subSubCatTonerSamsung.id, type: 'TONER', description: 'Toner Samsung D111. Monocromático compatível com as impressoras Samsung Xpress, conhecido pela fácil instalação e qualidade consistente.', imageUrl: '/images/produtos/TonerSamsung/D111.png'  },
 
     // ========= Produtos de Tinta =========
-    { name: 'Tinta Epson', brandId: epson.id, categoryId: catTintas.id, type: 'TINTA_REFIL', description: 'Tinta para recarga de impressoras Epson EcoTank.', imageUrl: '/images/produtos/Tintas/tinta-epson.png' },
-    { name: 'Tinta HP', brandId: hp.id, categoryId: catTintas.id, type: 'TINTA_REFIL', description: 'Tinta para recarga de impressoras HP Ink Tank.', imageUrl: '/images/produtos/Tintas/tinta-hp.png' },
-    { name: 'Tinta Canon', brandId: canon.id, categoryId: catTintas.id, type: 'TINTA_REFIL', description: 'Tinta para recarga de impressoras Canon Mega Tank.', imageUrl: '/images/produtos/Tintas/tinta-canon.png' },
+    { name: 'Tinta Epson', brandId: epson.id, categoryId: catTintas.id, type: 'TINTA_REFIL', description: 'Tinta refil para a linha Epson EcoTank. Cores vibrantes e alta qualidade, ideal para quem busca economia máxima sem abrir mão da performance.', imageUrl: '/images/produtos/Tintas/tinta-epson.png' },
+    { name: 'Tinta HP', brandId: hp.id, categoryId: catTintas.id, type: 'TINTA_REFIL', description: 'Tinta refil para a linha HP Ink Tank e Smart Tank. Garante impressões de alta qualidade com a confiabilidade da marca HP.', imageUrl: '/images/produtos/Tintas/tinta-hp.png' },
+    { name: 'Tinta Canon', brandId: canon.id, categoryId: catTintas.id, type: 'TINTA_REFIL', description: 'Tinta refil para a linha Canon Mega Tank. Oferece cores ricas e texto nítido, perfeita para documentos e fotos.', imageUrl: '/images/produtos/Tintas/tinta-canon.png' },
   ];
 
   const productsToCreate = productsInputData.map(product => ({
@@ -228,4 +228,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-
