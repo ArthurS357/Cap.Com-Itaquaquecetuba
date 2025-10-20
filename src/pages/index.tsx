@@ -135,7 +135,7 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
         <h2 className="text-3xl font-bold text-text-primary mb-6">Sobre Nós</h2>
         <p className="text-lg text-text-secondary leading-relaxed">
           {/* Substitua este parágrafo pelo texto real sobre a sua empresa */}
-          A Cap.Com Itaquaquecetuba é uma empresa dedicada a soluções completas em impressão. Especializamos‑nos na remanufatura de cartuchos e toners, oferecendo alternativas econômicas e sustentáveis sem abrir mão da qualidade. Também realizamos manutenção preventiva e corretiva em uma ampla variedade de impressoras, além de serviços gerais de manutenção para garantir o pleno funcionamento dos seus equipamentos.
+          A Cap.Com em Itaquaquecetuba é uma empresa dedicada a soluções completas em impressão. Especializamos‑nos na remanufatura de cartuchos e toners, oferecendo alternativas econômicas e sustentáveis sem abrir mão da qualidade. Também realizamos manutenção preventiva e corretiva em uma ampla variedade de impressoras, além de serviços gerais de manutenção para garantir o pleno funcionamento dos seus equipamentos.
         </p>
         <p className="text-lg text-text-secondary leading-relaxed mt-4">
           A empresa é representada por Ezequias e Edila, proprietários da loja, que atuam diretamente como prestadores de serviços — oferecendo atendimento personalizado, transparência e compromisso com resultados. Venha nós conhecer
