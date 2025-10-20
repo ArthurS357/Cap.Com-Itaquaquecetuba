@@ -102,8 +102,6 @@ async function main() {
     // ========= Toners Samsung =========
     { name: 'D101', brandId: samsung.id, categoryId: subSubCatTonerSamsung.id, type: 'TONER' },
     { name: 'D111', brandId: samsung.id, categoryId: subSubCatTonerSamsung.id, type: 'TONER' },
-    { name: 'D203', brandId: samsung.id, categoryId: subSubCatTonerSamsung.id, type: 'TONER' },
-    { name: 'D205', brandId: samsung.id, categoryId: subSubCatTonerSamsung.id, type: 'TONER' },
 
     // ========= Produtos de Tinta =========
     { name: 'Tinta Epson', brandId: epson.id, categoryId: catTintas.id, type: 'TINTA_REFIL', description: 'Tinta para recarga de impressoras Epson EcoTank.', imageUrl: '/images/produtos/Tintas/tinta-epson.png' },
