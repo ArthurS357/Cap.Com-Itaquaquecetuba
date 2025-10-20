@@ -82,7 +82,7 @@ async function main() {
     { name: '667', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável que pode ser recarregado.', imageUrl: '/images/produtos/CartuchosHP/667.png' },
     { name: '901', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho descartável que pode ser recarregado.', imageUrl: '/images/produtos/CartuchosHP/901.png' },
 
-    // ========= Toners HP (agora na subcategoria correta) =========
+    // ========= Toners HP =========
     { name: 'CE285A (85A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER' },
     { name: 'CE278A (78A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER' },
     { name: 'CF280A (80A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER' },
@@ -92,7 +92,7 @@ async function main() {
     { name: 'CE505A (05A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER' },
     { name: 'Q2612A (12A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER' },
 
-    // ========= Toners Brother (agora na subcategoria correta) =========
+    // ========= Toners Brother =========
     { name: 'TN-1060', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER' },
     { name: 'TN-210', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER' },
     { name: 'TN-220', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER' },
@@ -101,7 +101,7 @@ async function main() {
     { name: 'TN-660', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER' },
     { name: 'TN-760', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER', description: 'Toner de capacidade padrão para impressoras Brother.', imageUrl: '/images/produtos/tn-760.png' },
 
-    // ========= Toners Samsung (agora na subcategoria correta) =========
+    // ========= Toners Samsung =========
     { name: 'D101', brandId: samsung.id, categoryId: subSubCatTonerSamsung.id, type: 'TONER' },
     { name: 'D111', brandId: samsung.id, categoryId: subSubCatTonerSamsung.id, type: 'TONER' },
     { name: 'D203', brandId: samsung.id, categoryId: subSubCatTonerSamsung.id, type: 'TONER' },
