@@ -95,7 +95,6 @@ async function main() {
     // ========= Toners Brother =========
     { name: 'TN-1060', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER' },
     { name: 'TN-210', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER' },
-    { name: 'TN-230', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER', description: 'Toner de alto rendimento para impressoras Brother.', imageUrl: '/images/produtos/tn-230.png' },
     { name: 'TN-360', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER' },
     { name: 'TN-660', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER' },
     { name: 'TN-760', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER', description: 'Toner de capacidade padrão para impressoras Brother.', imageUrl: '/images/produtos/tn-760.png' },
