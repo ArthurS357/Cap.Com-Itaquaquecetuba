@@ -16,12 +16,12 @@ type CategoryWithChildren = Category & {
 export const getStaticPaths: GetStaticPaths = async () => {
   const prisma = new PrismaClient();
   const categories = await prisma.category.findMany({
-    where: { slug: { not: undefined } }, 
+    where: { slug: { not: undefined } },
     select: { slug: true }
   });
 
   const paths = categories
-    .filter(category => category.slug) 
+    .filter(category => category.slug)
     .map((category) => ({
       params: { slug: category.slug! },
   }));
@@ -38,22 +38,22 @@ export const getStaticProps: GetStaticProps<{
   const prisma = new PrismaClient();
 
   const categoryWithChildren = await prisma.category.findUnique({
-    where: { slug: slug }, 
+    where: { slug: slug },
     include: {
-      subCategories: { orderBy: { name: 'asc' } }, 
+      subCategories: { orderBy: { name: 'asc' } },
       products: {
         include: { brand: true },
-        orderBy: { name: 'asc' } 
+        orderBy: { name: 'asc' }
       },
     },
   });
 
-  
+
   if (!categoryWithChildren) {
     return { notFound: true };
   }
 
-  
+
   const serializableCategory = JSON.parse(JSON.stringify(categoryWithChildren));
 
   return {
@@ -91,7 +91,7 @@ function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProp
         <h1 className="text-4xl font-bold text-text-primary">{category.name}</h1>
       </div>
 
-      {!hasSubCategories && category.products.length > 0 && ( 
+      {!hasSubCategories && category.products.length > 0 && (
         <div className="mb-8 max-w-lg mx-auto">
           <input
             type="text"
@@ -103,28 +103,37 @@ function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProp
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      {/* Grid para subcategorias OU produtos */}
+      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 ${hasSubCategories ? 'justify-items-center' : ''}`}>
+        {/* Renderiza Subcategorias se existirem */}
         {hasSubCategories && category.subCategories.map((subCat) => (
-          <Link href={`/categoria/${subCat.slug}`} key={subCat.id}>
-            <div className="group bg-surface-card rounded-xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col justify-center items-center text-center border border-surface-border hover:scale-105">
-              <h2 className="text-xl font-semibold text-text-primary">{subCat.name}</h2>
-              <div className="w-1/3 h-1 bg-brand-primary rounded-full mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </div>
-          </Link>
+          // Container para limitar a largura do card da subcategoria
+          <div key={subCat.id} className="w-full max-w-xs">
+            <Link href={`/categoria/${subCat.slug}`} >
+              <div className="group bg-surface-card rounded-xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col justify-center items-center text-center border border-surface-border hover:scale-105">
+                <h2 className="text-xl font-semibold text-text-primary">{subCat.name}</h2>
+                {/* Linha azul de destaque no hover (pode usar brand-accent se definido) */}
+                <div className="w-1/3 h-1 bg-brand-primary rounded-full mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
+            </Link>
+          </div>
         ))}
 
+        {/* Renderiza Produtos se NÃO houver subcategorias */}
         {!hasSubCategories && filteredProducts.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
 
-      {!hasSubCategories && category.products.length > 0 && filteredProducts.length === 0 && ( 
+      {/* Mensagem se a busca por produto não retornar nada */}
+      {!hasSubCategories && category.products.length > 0 && filteredProducts.length === 0 && (
         <div className="text-center col-span-full mt-8">
           <p className="text-xl text-text-subtle">Nenhum produto encontrado para "{searchTerm}".</p>
         </div>
       )}
 
-       {!hasSubCategories && category.products.length === 0 && ( 
+      {/* Mensagem se não houver produtos na categoria (e não houver subcategorias) */}
+      {!hasSubCategories && category.products.length === 0 && (
         <div className="text-center col-span-full mt-8">
           <p className="text-xl text-text-subtle">Ainda não há produtos nesta categoria.</p>
         </div>
