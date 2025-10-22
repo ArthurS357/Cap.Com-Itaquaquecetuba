@@ -8,6 +8,7 @@ const SearchBar = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
+      // Navega para a página de busca com o termo pesquisado como query param 'q'
       router.push(`/busca?q=${encodeURIComponent(query.trim())}`);
     }
   };
@@ -20,9 +21,9 @@ const SearchBar = () => {
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Buscar por produto ou impressora..."
         className="w-full px-4 py-2 border border-surface-border rounded-lg
-                   bg-surface-card // Alterado de bg-surface-background
-                   text-text-primary // Garante que o texto digitado seja claro
-                   placeholder-text-secondary // Define a cor do placeholder
+                   bg-surface-card
+                   text-text-primary
+                   placeholder-text-secondary
                    focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent" 
       />
     </form>
