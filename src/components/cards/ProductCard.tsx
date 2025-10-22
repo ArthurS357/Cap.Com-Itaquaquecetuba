@@ -19,7 +19,7 @@ const ProductCard = ({ product }: ProductCardProps) => (
         <h2 className="text-lg font-semibold text-text-primary">{product.name}</h2>
         <p className="text-sm text-text-subtle mt-2">{product.brand.name}</p>
       </div>
-      <div className="w-1/2 h-1 bg-brand-primary rounded-full mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <div className="w-1/2 h-1 bg-brand-accent rounded-full mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
     </div>
   </Link>
 );
