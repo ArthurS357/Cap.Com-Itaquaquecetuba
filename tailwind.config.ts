@@ -13,7 +13,8 @@ const config: Config = {
       colors: {
         brand: {
           primary: '#00529B',   // Azul principal
-          dark: '#003d73',     // Azul mais escuro para hover
+          accent: '#1d7dcf',    // Azul mais vibrante para acentos e hovers
+          dark: '#003d73',     // Azul mais escuro para hover de botões primários
           light: '#E6F0F9',   // Azul bem claro para fundos de destaque
         },
         surface: {
