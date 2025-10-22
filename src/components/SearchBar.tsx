@@ -23,7 +23,7 @@ const SearchBar = () => {
                    bg-surface-card // Alterado de bg-surface-background
                    text-text-primary // Garante que o texto digitado seja claro
                    placeholder-text-secondary // Define a cor do placeholder
-                   focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent" 
+                   focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent" 
       />
     </form>
   );
