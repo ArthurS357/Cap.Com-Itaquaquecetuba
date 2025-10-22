@@ -20,7 +20,7 @@ const CategoryCard = ({ category }: CategoryCardProps) => (
         />
       )}
       <h2 className="text-2xl font-semibold text-text-primary">{category.name}</h2>
-      <div className="w-1/3 h-1 bg-brand-primary rounded-full mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <div className="w-1/3 h-1 bg-brand-accent rounded-full mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
     </div>
   </Link>
 );
