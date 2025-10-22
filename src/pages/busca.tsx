@@ -1,7 +1,7 @@
-import { PrismaClient, Product, Brand } from '@prisma/client';
+import { PrismaClient, Product, Brand, Printer, PrinterCompatibility } from '@prisma/client'; 
 import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import SEO from '@/components/Seo';
-import ProductCard from '@/components/cards/ProductCard'; 
+import ProductCard from '@/components/cards/ProductCard';
 
 // Garante que imageUrl está incluído no tipo
 type SearchResult = Product & { brand: Brand; imageUrl?: string | null };
@@ -20,19 +20,45 @@ export const getServerSideProps: GetServerSideProps<{
   const prisma = new PrismaClient();
   console.log(`Buscando por: "${query}"`); // Log no servidor
 
-  const results = await prisma.product.findMany({
+  // 1. Encontrar impressoras que correspondem à query
+  const matchingPrinters = await prisma.printer.findMany({
     where: {
-      // Busca no nome do produto (case-insensitive)
-      name: {
+      modelName: {
         contains: query,
         mode: 'insensitive',
       },
-      // Adicionar OR para buscar na descrição, slug, marca, etc.
-      // OR: [
-      //   { name: { contains: query, mode: 'insensitive' } },
-      //   { description: { contains: query, mode: 'insensitive' } },
-      //   { brand: { name: { contains: query, mode: 'insensitive' } } }
-      // ]
+    },
+    select: { id: true },
+  });
+  const printerIds = matchingPrinters.map(p => p.id);
+
+  // 2. Encontrar IDs de produtos (cartuchos) compatíveis com essas impressoras
+  let compatibleProductIds: number[] = [];
+  if (printerIds.length > 0) {
+    const compatibilities = await prisma.printerCompatibility.findMany({
+      where: {
+        printerId: {
+          in: printerIds,
+        },
+      },
+      select: { cartridgeId: true },
+    });
+    compatibleProductIds = compatibilities.map(c => c.cartridgeId);
+  }
+
+  // 3. Buscar produtos que correspondem à query no nome, descrição, marca OU são compatíveis com as impressoras encontradas
+  const results = await prisma.product.findMany({
+    where: {
+      OR: [
+        // Busca no nome do produto
+        { name: { contains: query, mode: 'insensitive' } },
+        // Busca na descrição do produto
+        { description: { contains: query, mode: 'insensitive' } },
+        // Busca no nome da marca
+        { brand: { name: { contains: query, mode: 'insensitive' } } },
+        // Busca por compatibilidade de impressora
+        { id: { in: compatibleProductIds } },
+      ],
     },
     include: { brand: true }, // Inclui dados da marca
     // Seleciona os campos necessários, incluindo imageUrl
@@ -48,19 +74,29 @@ export const getServerSideProps: GetServerSideProps<{
         categoryId: true,
         createdAt: true,
         brand: true,
+    },
+    orderBy: { // Opcional: ordenar resultados
+      name: 'asc'
     }
   });
 
-  // Converte datas para string para serialização
-  const serializableResults = results.map(product => ({
-    ...product,
-    createdAt: product.createdAt.toISOString(),
-  }));
+  // Converte datas para string para serialização e remove duplicatas (caso um produto seja encontrado por múltiplos critérios)
+  const uniqueResultsMap = new Map<number, SearchResult>();
+  results.forEach(product => {
+    if (!uniqueResultsMap.has(product.id)) {
+      uniqueResultsMap.set(product.id, {
+        ...product,
+        createdAt: product.createdAt.toISOString(),
+      });
+    }
+  });
+  const serializableResults = Array.from(uniqueResultsMap.values());
+
 
   return { props: { results: serializableResults, query } };
 };
 
-// Componente da Página de Resultados de Busca
+// Componente da Página de Resultados de Busca (sem alterações na renderização)
 function SearchPage({ results, query }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <>
@@ -82,7 +118,7 @@ function SearchPage({ results, query }: InferGetServerSidePropsType<typeof getSe
         // Mensagem estilizada para "Nenhum resultado"
         <div className="col-span-full text-center py-16 px-4 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
           {/* Pode adicionar um SVG de lupa vazia aqui */}
-          <p className="text-xl text-text-secondary">Nenhum produto encontrado para sua busca.</p>
+          <p className="text-xl text-text-secondary">Nenhum produto ou impressora encontrado para sua busca.</p>
           <p className="text-text-subtle mt-2">Tente usar termos diferentes ou navegar pelas categorias.</p>
         </div>
       )}
