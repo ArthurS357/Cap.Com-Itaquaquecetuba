@@ -11,7 +11,7 @@ const ProductCard = ({ product }: ProductCardProps) => (
   <Link href={`/produto/${slugify(product.name)}`} key={product.id}>
     <div className="group bg-surface-card rounded-xl p-4 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer h-full flex flex-col justify-between items-center text-center border border-surface-border hover:scale-105">
       {product.imageUrl && (
-        <div className="bg-white p-2 rounded-md mb-4">
+        <div className="bg-white p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px] bg-surface-border"> 
           <Image src={product.imageUrl} alt={product.name} width={200} height={200} className="object-contain" />
         </div>
       )}
@@ -25,3 +25,4 @@ const ProductCard = ({ product }: ProductCardProps) => (
 );
 
 export default ProductCard;
+
