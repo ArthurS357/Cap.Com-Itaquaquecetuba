@@ -1,17 +1,18 @@
 import { PrismaClient, Product, Brand } from '@prisma/client';
-import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
+import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'; 
 import SEO from '@/components/Seo';
-import Link from 'next/link';
-import { slugify } from '@/lib/utils';
+import ProductCard from '@/components/cards/ProductCard'; 
 
-type SearchResult = Product & { brand: Brand };
 
-export const getServerSideProps: GetStaticProps<{ 
+// Garante que imageUrl está incluído no tipo
+type SearchResult = Product & { brand: Brand; imageUrl?: string | null };
+
+export const getServerSideProps: GetServerSideProps<{
   results: SearchResult[];
   query: string;
 }> = async (context) => {
   const query = context.query.q as string || '';
-  if (!query) { 
+  if (!query) {
     return { props: { results: [], query: '' } };
   }
 
@@ -20,17 +21,35 @@ export const getServerSideProps: GetStaticProps<{
 
   const results = await prisma.product.findMany({
     where: {
+      // Busca pode ser melhorada para incluir descrição, slug, etc.
       name: {
-        contains: query, 
+        contains: query,
+        mode: 'insensitive', // Busca case-insensitive
       },
     },
-    include: { brand: true },
+    include: { brand: true }, // Inclui a marca
+    // Garante que imageUrl seja selecionado se existir no modelo
+    select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        imageUrl: true, 
+        price: true,
+        type: true,
+        brandId: true,
+        categoryId: true,
+        createdAt: true,
+        brand: true, 
+    }
   });
 
+  // Converte datas para string para serialização (necessário em getServerSideProps/getStaticProps)
   const serializableResults = results.map(product => ({
     ...product,
     createdAt: product.createdAt.toISOString(),
   }));
+
 
   return { props: { results: serializableResults, query } };
 };
@@ -44,14 +63,11 @@ function SearchPage({ results, query }: InferGetServerSidePropsType<typeof getSe
       </h1>
 
       {results.length > 0 ? (
+        // Usa o mesmo grid layout das outras páginas
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {results.map((product) => (
-            <Link href={`/produto/${slugify(product.name)}`} key={product.id}>
-              <div className="group bg-surface-card rounded-xl p-4 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col items-center text-center border border-surface-border">
-                <h2 className="text-lg font-semibold text-text-primary">{product.name}</h2>
-                <p className="text-sm text-text-subtle mt-2">{product.brand.name}</p>
-              </div>
-            </Link>
+            // Usa o ProductCard importado
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       ) : (
