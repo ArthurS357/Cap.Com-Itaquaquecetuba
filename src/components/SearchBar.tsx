@@ -19,7 +19,7 @@ const SearchBar = () => {
         type="search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Buscar por produto ou impressora..."
+        placeholder="Buscar por produto, marca ou impressora..."
         className="w-full px-4 py-2 border border-surface-border rounded-lg
                    bg-surface-card
                    text-text-primary
