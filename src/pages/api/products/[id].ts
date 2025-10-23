@@ -44,7 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     res.status(200).json({ product, similarProducts });
   } catch (error) {
-    // Passo 2: Adicionar log detalhado do erro no servidor
+    // Adicionar log detalhado do erro no servidor
     console.error(`[API Error] Failed to fetch product data for ID ${id}:`, error);
     res.status(500).json({ error: 'Failed to fetch product data' });
   } finally {
