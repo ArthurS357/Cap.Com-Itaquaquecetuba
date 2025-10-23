@@ -1,5 +1,4 @@
 import { slugify } from '@/lib/utils';
-// 1. Adicionar Prisma à importação
 import { PrismaClient, Prisma, Brand } from '@prisma/client';
 import type { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from 'next';
 import { useRouter } from 'next/router';
@@ -9,16 +8,13 @@ import Link from 'next/link';
 import ProductCard from '@/components/cards/ProductCard';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
-// 2. Remover tipo manual
-// type CategoryWithChildren = Category & { ... };
-
-// 3. Definir tipo usando Prisma.CategoryGetPayload
+// Definir tipo usando Prisma.CategoryGetPayload
 type CategoryWithDetails = Prisma.CategoryGetPayload<{
   include: {
-    subCategories: true; // Inclui subcategorias
-    products: {        // Inclui produtos
+    subCategories: true; 
+    products: {        
       include: {
-        brand: true;   // E a marca de cada produto
+        brand: true;   
       };
     };
   };
@@ -30,14 +26,14 @@ export const getStaticPaths: GetStaticPaths = async () => {
   let paths: { params: { slug: string } }[] = [];
   try {
       const categories = await prisma.category.findMany({
-        where: { slug: { not: undefined, not: null } }, // Garante que só categorias com slug válido
+        where: { slug: { not: undefined, not: null } }, 
         select: { slug: true }
       });
 
       paths = categories
-        .filter(category => category.slug) // Filtra nulos/undefined
+        .filter(category => category.slug) 
         .map((category) => ({
-          params: { slug: category.slug! }, // '!' assume que slug não será nulo
+          params: { slug: category.slug! }, 
       }));
   } catch(error) {
       console.error("Erro ao gerar paths estáticos para categorias:", error);
@@ -45,13 +41,13 @@ export const getStaticPaths: GetStaticPaths = async () => {
       await prisma.$disconnect();
   }
 
-  return { paths, fallback: 'blocking' }; // Usa 'blocking'
+  return { paths, fallback: 'blocking' }; 
 };
 
 // Busca os dados da categoria específica
-// 4. Ajustar tipo de retorno de getStaticProps
+// Ajustar tipo de retorno de getStaticProps
 export const getStaticProps: GetStaticProps<{
-  category: CategoryWithDetails | null; // Usa o novo tipo
+  category: CategoryWithDetails | null; 
 }> = async (context) => {
   const slug = context.params?.slug as string;
   if (!slug) return { notFound: true };
@@ -64,10 +60,10 @@ export const getStaticProps: GetStaticProps<{
       categoryWithDetails = await prisma.category.findUnique({
         where: { slug: slug },
         include: {
-          subCategories: { orderBy: { name: 'asc' } }, // Ordena subcategorias
+          subCategories: { orderBy: { name: 'asc' } }, 
           products: {
-            include: { brand: true }, // Inclui a marca do produto
-            orderBy: { name: 'asc' }  // Ordena produtos
+            include: { brand: true }, 
+            orderBy: { name: 'asc' }  
           },
         },
       });
@@ -95,7 +91,7 @@ export const getStaticProps: GetStaticProps<{
 };
 
 // Componente da página que exibe a categoria
-// 4. Ajustar tipo das props do componente
+// Ajustar tipo das props do componente
 function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
@@ -112,9 +108,6 @@ function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProp
 
   // Verifica se a categoria atual possui subcategorias
   const hasSubCategories = category.subCategories && category.subCategories.length > 0;
-
-  // Filtra os produtos baseado no searchTerm (apenas se não houver subcategorias)
-  // Garante que category.products existe antes de filtrar
   const filteredProducts = (category.products || []).filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
