@@ -1,94 +1,107 @@
-import { PrismaClient, Brand, Printer, PrinterCompatibility, Product } from '@prisma/client'; 
+import { PrismaClient, Prisma } from '@prisma/client'; 
 import type { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from 'next';
 import SEO from '@/components/Seo';
-import Link from 'next/link';
-import { slugify } from '@/lib/utils';
-import { useRouter } from 'next/router'; 
-import LoadingSpinner from '@/components/LoadingSpinner'; 
+import Link from 'next/link'; 
+import { slugify } from '@/lib/utils'; 
+import { useRouter } from 'next/router';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
-// --- Tipo atualizado para incluir cartuchos compatíveis ---
-type CompatibleCartridgeInfo = Pick<Product, 'id' | 'name' | 'slug'>; // Apenas os campos necessários do produto
+type BrandWithPrintersDetails = Prisma.BrandGetPayload<{
+  include: {
+    printers: { 
+      include: {
+        compatibleCartridges: { 
+          include: {
+            cartridge: { 
+              select: { 
+                id: true;
+                name: true;
+                slug: true;
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+}>;
 
-type PrinterWithCartridges = Printer & {
-  compatibleCartridges: (PrinterCompatibility & {
-    cartridge: CompatibleCartridgeInfo | null; // Produto compatível (pode ser null se algo der errado)
-  })[];
-};
-
-type BrandWithPrinters = Brand & {
-  printers: PrinterWithCartridges[];
-};
-
-// --- getStaticPaths (sem alterações) ---
 export const getStaticPaths: GetStaticPaths = async () => {
   const prisma = new PrismaClient();
-  const brands = await prisma.brand.findMany({ select: { name: true } });
-  // Gerar slug a partir do nome da marca para os paths
-  const paths = brands.map((brand) => ({
-    params: { brand: slugify(brand.name) }, // Usar slugify para o parâmetro da rota
-  }));
-  await prisma.$disconnect(); // Desconectar Prisma
+  let paths: { params: { brand: string } }[] = [];
+  try {
+    const brands = await prisma.brand.findMany({ select: { name: true } });
+    paths = brands
+      .filter(brand => brand.name) 
+      .map((brand) => ({
+          params: { brand: slugify(brand.name) }, 
+      }));
+  } catch (error) {
+    console.error("Erro ao gerar paths estáticos para marcas de impressora:", error);
+  } finally {
+    await prisma.$disconnect(); 
+  }
   return { paths, fallback: 'blocking' };
 };
 
-// --- getStaticProps (atualizado para incluir produtos compatíveis) ---
 export const getStaticProps: GetStaticProps<{
-  brand: BrandWithPrinters | null;
+  brand: BrandWithPrintersDetails | null; // Usa o novo tipo
 }> = async (context) => {
   const brandSlug = context.params?.brand as string;
   if (!brandSlug) return { notFound: true };
 
   const prisma = new PrismaClient();
+  let brandDetails: BrandWithPrintersDetails | null = null;
 
-  // Encontrar a marca pelo slug (gerado a partir do nome)
-  // Precisamos buscar todas as marcas e comparar o slug gerado
-  const allBrands = await prisma.brand.findMany();
-  const targetBrand = allBrands.find(b => slugify(b.name) === brandSlug);
+  try {
+    const allBrands = await prisma.brand.findMany({ select: { id: true, name: true } });
+    const targetBrand = allBrands.find(b => slugify(b.name) === brandSlug);
 
-  if (!targetBrand) {
-    await prisma.$disconnect();
-    return { notFound: true }; // Retorna 404 se a marca não for encontrada
-  }
+    if (!targetBrand) {
+      await prisma.$disconnect();
+      return { notFound: true }; 
+    }
 
-  // Buscar a marca específica pelo ID encontrado, incluindo impressoras e seus cartuchos compatíveis
-  const brandDetails = await prisma.brand.findUnique({
-    where: { id: targetBrand.id },
-    include: {
-      printers: {
-        orderBy: { modelName: 'asc' },
-        include: {
-          compatibleCartridges: {
-            include: {
-              // Inclui apenas os campos necessários do produto (cartucho)
-              cartridge: {
-                select: {
-                  id: true,
-                  name: true,
-                  slug: true, // Incluir o slug para o link
+    brandDetails = await prisma.brand.findUnique({
+      where: { id: targetBrand.id },
+      include: {
+        printers: {
+          orderBy: { modelName: 'asc' },
+          include: {
+            compatibleCartridges: {
+              include: {
+                cartridge: {
+                  select: { 
+                    id: true,
+                    name: true,
+                    slug: true,
+                  },
                 },
               },
+              orderBy: { cartridge: { name: 'asc' } }, 
             },
-            orderBy: { cartridge: { name: 'asc' } }, // Ordena os cartuchos por nome
           },
         },
       },
-    },
-  });
+    });
+    if (!brandDetails) {
+        await prisma.$disconnect();
+        return { notFound: true };
+    }
 
-  await prisma.$disconnect(); // Desconectar Prisma
+    const serializableBrand = JSON.parse(JSON.stringify(brandDetails));
+    await prisma.$disconnect(); 
 
-  // Se mesmo assim não encontrar (improvável, mas seguro verificar)
-  if (!brandDetails) {
-      return { notFound: true };
+    return { props: { brand: serializableBrand }, revalidate: 60 };
+
+  } catch (error) {
+    console.error(`Erro ao buscar dados da marca de impressora para slug "${brandSlug}":`, error);
+    await prisma.$disconnect();
+    return { notFound: true }; 
   }
-
-  // Serializa os dados
-  const serializableBrand = JSON.parse(JSON.stringify(brandDetails));
-
-  return { props: { brand: serializableBrand }, revalidate: 60 };
 };
 
-// --- Componente da Página (atualizado para exibir produtos) ---
+// 4. Ajustar tipo das props do componente
 function BrandPrintersPage({ brand }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
 
@@ -98,7 +111,9 @@ function BrandPrintersPage({ brand }: InferGetStaticPropsType<typeof getStaticPr
   }
 
   // Mensagem se a marca não for encontrada
-  if (!brand) return <div className="text-center text-xl text-text-secondary">Marca de impressora não encontrada.</div>;
+  if (!brand) {
+      return <div className="text-center text-xl text-text-secondary mt-10">Marca de impressora não encontrada.</div>;
+  }
 
   return (
     <>
@@ -110,7 +125,8 @@ function BrandPrintersPage({ brand }: InferGetStaticPropsType<typeof getStaticPr
         Impressoras {brand.name}
       </h1>
 
-      {brand.printers.length > 0 ? (
+      {/* Verifica se existem impressoras antes de mapear */}
+      {brand.printers && brand.printers.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
           {brand.printers.map((printer, index) => (
             <div
@@ -121,14 +137,16 @@ function BrandPrintersPage({ brand }: InferGetStaticPropsType<typeof getStaticPr
               <h2 className="text-xl font-semibold text-text-primary mb-4">{printer.modelName}</h2>
 
               {/* Lista de Produtos Compatíveis */}
+              {/* Verifica se compatibleCartridges existe e tem itens */}
               {printer.compatibleCartridges && printer.compatibleCartridges.length > 0 ? (
                 <div>
                   <h3 className="text-md font-medium text-text-secondary mb-2">Suprimentos Compatíveis:</h3>
                   <ul className="list-disc list-inside space-y-1 text-sm">
                     {printer.compatibleCartridges.map(({ cartridge }) => (
-                      // Verifica se 'cartridge' e 'cartridge.slug' existem antes de renderizar
-                      cartridge && cartridge.slug && (
+                      // Verifica se 'cartridge' e 'cartridge.slug' existem
+                      cartridge?.slug ? ( // Usando optional chaining '?' para segurança extra
                         <li key={cartridge.id}>
+                          {/* 6. Usar Link para navegação interna */}
                           <Link
                             href={`/produto/${cartridge.slug}`}
                             className="text-brand-accent hover:text-brand-primary hover:underline transition-colors"
@@ -136,7 +154,7 @@ function BrandPrintersPage({ brand }: InferGetStaticPropsType<typeof getStaticPr
                             {cartridge.name}
                           </Link>
                         </li>
-                      )
+                      ) : null // Não renderiza se faltar cartucho ou slug
                     ))}
                   </ul>
                 </div>
@@ -147,9 +165,9 @@ function BrandPrintersPage({ brand }: InferGetStaticPropsType<typeof getStaticPr
           ))}
         </div>
       ) : (
-         // Mensagem se não houver impressoras cadastradas para a marca
+         // Mensagem se não houver impressoras cadastradas
          <div className="col-span-full text-center py-16 px-4 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-             <p className="text-xl text-text-secondary">Nenhuma impressora encontrada para esta marca ainda.</p>
+             <p className="text-xl text-text-secondary">Nenhuma impressora encontrada para a marca {brand.name} ainda.</p>
              <p className="text-text-subtle mt-2">Verifique novamente mais tarde ou navegue por outras categorias.</p>
          </div>
       )}
