@@ -1,4 +1,4 @@
-import { PrismaClient, Product, Brand, Printer, PrinterCompatibility } from '@prisma/client'; 
+import { PrismaClient, Product, Brand, Printer, PrinterCompatibility } from '@prisma/client';
 import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import SEO from '@/components/Seo';
 import ProductCard from '@/components/cards/ProductCard';
@@ -12,85 +12,98 @@ export const getServerSideProps: GetServerSideProps<{
   query: string;
 }> = async (context) => {
   const query = context.query.q as string || '';
-  // Retorna imediatamente se não houver termo de busca
   if (!query) {
     return { props: { results: [], query: '' } };
   }
 
   const prisma = new PrismaClient();
-  console.log(`Buscando por: "${query}"`); // Log no servidor
+  console.log(`Buscando por: "${query}"`); 
 
-  // 1. Encontrar impressoras que correspondem à query
-  const matchingPrinters = await prisma.printer.findMany({
-    where: {
-      modelName: {
-        contains: query,
-        mode: 'insensitive',
-      },
-    },
-    select: { id: true },
-  });
-  const printerIds = matchingPrinters.map(p => p.id);
+  let results: SearchResult[] = []; 
 
-  // 2. Encontrar IDs de produtos (cartuchos) compatíveis com essas impressoras
-  let compatibleProductIds: number[] = [];
-  if (printerIds.length > 0) {
-    const compatibilities = await prisma.printerCompatibility.findMany({
+  try {
+    const matchingPrinters = await prisma.printer.findMany({
       where: {
-        printerId: {
-          in: printerIds,
+        modelName: {
+          contains: query,
         },
       },
-      select: { cartridgeId: true },
+      select: { id: true },
     });
-    compatibleProductIds = compatibilities.map(c => c.cartridgeId);
+    const printerIds = matchingPrinters.map(p => p.id);
+
+    let compatibleProductIds: number[] = [];
+    if (printerIds.length > 0) {
+      const compatibilities = await prisma.printerCompatibility.findMany({
+        where: {
+          printerId: {
+            in: printerIds,
+          },
+        },
+        select: { cartridgeId: true },
+      });
+      compatibleProductIds = [...new Set(compatibilities.map(c => c.cartridgeId))];
+    }
+
+    // 3. Buscar produtos que correspondem à query no nome, descrição, marca OU são compatíveis
+    const productResults = await prisma.product.findMany({
+      where: {
+        OR: [
+          { name: { contains: query /*, mode: 'insensitive'*/ } },
+          { description: { contains: query /*, mode: 'insensitive'*/ } },
+          { brand: { name: { contains: query /*, mode: 'insensitive'*/ } } },
+          // Busca por compatibilidade de impressora
+          { id: { in: compatibleProductIds } },
+        ],
+      },
+      // Usa select para pegar apenas os campos necessários, incluindo a marca
+      select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          imageUrl: true,
+          price: true,
+          type: true,
+          brandId: true,
+          categoryId: true,
+          createdAt: true,
+          brand: { // Seleciona apenas o nome da marca
+            select: {
+              name: true,
+              id: true // Inclui ID se precisar em ProductCard
+            }
+          },
+      },
+      orderBy: {
+        name: 'asc'
+      }
+    });
+
+    // Remapeia para o tipo SearchResult e garante que createdAt é string
+    results = productResults.map(product => ({
+      ...product,
+      createdAt: product.createdAt.toISOString(),
+      // Garante que brand está no formato esperado por SearchResult/ProductCard
+      brand: {
+        id: product.brand.id,
+        name: product.brand.name,
+        // Adiciona arrays vazios se ProductCard esperar products/printers
+        products: [],
+        printers: []
+      }
+    }));
+
+
+  } catch (error) {
+      console.error("Erro durante a busca no servidor:", error);
+      // Retorna vazio em caso de erro, mas loga o erro no servidor
+      return { props: { results: [], query } };
+  } finally {
+      await prisma.$disconnect(); // Garante que a conexão com o Prisma seja fechada
   }
 
-  // 3. Buscar produtos que correspondem à query no nome, descrição, marca OU são compatíveis com as impressoras encontradas
-  const results = await prisma.product.findMany({
-    where: {
-      OR: [
-        // Busca no nome do produto
-        { name: { contains: query, mode: 'insensitive' } },
-        // Busca na descrição do produto
-        { description: { contains: query, mode: 'insensitive' } },
-        // Busca no nome da marca
-        { brand: { name: { contains: query, mode: 'insensitive' } } },
-        // Busca por compatibilidade de impressora
-        { id: { in: compatibleProductIds } },
-      ],
-    },
-    include: { brand: true }, // Inclui dados da marca
-    // Seleciona os campos necessários, incluindo imageUrl
-    select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        imageUrl: true,
-        price: true,
-        type: true,
-        brandId: true,
-        categoryId: true,
-        createdAt: true,
-        brand: true,
-    },
-    orderBy: { // Opcional: ordenar resultados
-      name: 'asc'
-    }
-  });
-
-  // Converte datas para string para serialização e remove duplicatas (caso um produto seja encontrado por múltiplos critérios)
-  const uniqueResultsMap = new Map<number, SearchResult>();
-  results.forEach(product => {
-    if (!uniqueResultsMap.has(product.id)) {
-      uniqueResultsMap.set(product.id, {
-        ...product,
-        createdAt: product.createdAt.toISOString(),
-      });
-    }
-  });
-  const serializableResults = Array.from(uniqueResultsMap.values());
+  const serializableResults = results;
 
 
   return { props: { results: serializableResults, query } };
@@ -110,6 +123,7 @@ function SearchPage({ results, query }: InferGetServerSidePropsType<typeof getSe
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
           {results.map((product, index) => (
              <div key={product.id} className="animate-fade-in-up" style={{ animationDelay: `${100 + index * 50}ms` }}>
+               {/* Passa o objeto product diretamente para ProductCard */}
                <ProductCard product={product} />
              </div>
           ))}

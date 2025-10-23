@@ -12,7 +12,7 @@ const Navbar = () => (
     <div className="container mx-auto p-4 flex flex-col md:flex-row justify-between items-center gap-4">
       <Link href="/">
         <Image
-          src="/images/logo-capcom.png" 
+          src="/images/logo-capcom.png"
           alt="Logo da Cap.Com Itaquaquecetuba"
           width={140}
           height={140}
@@ -24,11 +24,18 @@ const Navbar = () => (
   </header>
 );
 
+// --- Componente Footer Corrigido ---
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const storeAddress = "Estr. dos Índios, 765 - Jardim Mossapyra, Itaquaquecetuba - SP, 08570-000";
   const phoneNumber = "(11) 99638-8426";
-  const whatsappLink = "http://googleusercontent.com/maps.google.com/6"; 
+
+  // Passo 1: Remover caracteres não numéricos do telefone
+  const whatsappNumberOnly = phoneNumber.replace(/\D/g, '');
+  // Passo 2: Adicionar o código do Brasil (55)
+  const fullWhatsappNumber = `55${whatsappNumberOnly}`;
+  // Passo 3: Montar o link correto do WhatsApp
+  const whatsappLink = `https://wa.me/${fullWhatsappNumber}`;
 
   return (
     <footer className="bg-surface-card border-t border-surface-border mt-16 py-8">
@@ -50,6 +57,7 @@ const Footer = () => {
             <h4 className="font-semibold text-text-primary mb-3">Contato</h4>
             <p>Não encontrou o seu produto?</p>
             <p className="font-semibold text-text-primary mt-1">Fale conosco:</p>
+            {/* Passo 4: Usar a variável whatsappLink corrigida no href */}
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="block text-lg text-brand-primary hover:text-brand-accent transition-colors my-2">
               {phoneNumber} (WhatsApp)
             </a>
@@ -75,6 +83,7 @@ const Footer = () => {
     </footer>
   );
 };
+// --- Fim do Componente Footer Corrigido ---
 
 
 export default function Layout({ children }: LayoutProps) {
