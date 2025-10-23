@@ -11,20 +11,20 @@ async function main() {
   await prisma.printerCompatibility.deleteMany();
   await prisma.printer.deleteMany();
   await prisma.product.deleteMany();
-  await prisma.category.deleteMany();
+  await prisma.category.deleteMany(); 
   await prisma.brand.deleteMany();
   console.log('Banco de dados limpo.');
 
-  // 2. Criar as marcas
+  // 2. Criar as marcas com o campo slug
   console.log('Criando marcas...');
-  const hp = await prisma.brand.create({ data: { name: 'HP' } });
-  const brother = await prisma.brand.create({ data: { name: 'Brother' } });
-  const samsung = await prisma.brand.create({ data: { name: 'Samsung' } });
-  const epson = await prisma.brand.create({ data: { name: 'Epson' } });
-  const canon = await prisma.brand.create({ data: { name: 'Canon' } });
+  const hp = await prisma.brand.create({ data: { name: 'HP', slug: slugify('HP') } });
+  const brother = await prisma.brand.create({ data: { name: 'Brother', slug: slugify('Brother') } });
+  const samsung = await prisma.brand.create({ data: { name: 'Samsung', slug: slugify('Samsung') } });
+  const epson = await prisma.brand.create({ data: { name: 'Epson', slug: slugify('Epson') } });
+  const canon = await prisma.brand.create({ data: { name: 'Canon', slug: slugify('Canon') } });
   console.log('Marcas criadas.');
 
-  // 3. Criar as categorias hierárquicas
+  // 3. Criar as categorias hierárquicas (com slugs)
   console.log('Criando categorias...');
   // Nível 1
   const catCartuchosToners = await prisma.category.create({
@@ -109,27 +109,29 @@ async function main() {
     { name: 'Tinta Canon', brandId: canon.id, categoryId: catTintas.id, type: 'TINTA_REFIL', description: 'Tinta refil para a linha Canon Mega Tank. Oferece cores ricas e texto nítido, perfeita para documentos e fotos.', imageUrl: '/images/produtos/Tintas/tinta-canon.png' },
   ];
 
+  // Gera o slug para cada produto antes de criar
   const productsToCreate = productsInputData.map(product => ({
     ...product,
-    slug: slugify(product.name),
+    slug: slugify(product.name), // Gera o slug a partir do nome
   }));
 
+  // Cria todos os produtos de uma vez
   await prisma.product.createMany({
     data: productsToCreate,
   });
   console.log(`${productsToCreate.length} produtos criados.`);
 
-  // Buscar todos os produtos criados para mapeamento
+  // Buscar todos os produtos criados para usar seus IDs no mapeamento de compatibilidade
   const allProducts = await prisma.product.findMany({ select: { id: true, name: true } });
+  // Cria um mapa para facilitar a busca do ID do produto pelo nome (case-insensitive)
   const productMap = new Map(allProducts.map(p => [p.name.toLowerCase(), p.id]));
 
-  // 5. Criar as Impressoras (para a tabela de compatibilidade)
+  // 5. Criar as Impressoras (apenas para a tabela de compatibilidade)
   console.log('Criando modelos de impressoras para compatibilidade...');
   const printerModelsList = [
-    // Modelos que também são produtos
+    // Lista de modelos de impressoras (alguns podem ser produtos, outros apenas para compatibilidade)
     'HP DeskJet Ink Advantage 2774', 'Epson EcoTank L3250', 'Brother HL-1212W',
     'Canon PIXMA G3110', 'HP Smart Tank 517', 'Brother DCP-L2540DW',
-    // Todos os outros modelos (incluindo antigos)
     'HP DeskJet 1200, 1220, 1280 (modelos antigos)', 'HP DeskJet 430 (variações regionais)',
     'HP DeskJet 1000 series antigas', 'HP DeskJet 450/454 (modelos antigos)',
     'HP DeskJet 1000, 1050, 2050, 2510', 'HP ENVY 4500, 5530, 5640', 'HP Photosmart 5510, 5520, 6510',
@@ -145,73 +147,100 @@ async function main() {
     'Brother HL-1110, HL-1112, HL-1210W, DCP-1510, DCP-1512, MFC-1810',
     'Samsung ML-2160, ML-2162, ML-2164, ML-2165, ML-2168', 'Samsung SCX-3400, SCX-3405, SCX-3405F, SCX-3405FW',
   ];
+
+  // Processa a lista para criar objetos Printer, tratando nomes múltiplos e associando a marca
   const printersToCreateData = [...new Set(printerModelsList.flat().flatMap(model => model.split(',').map(m => m.trim())))]
     .map(modelName => {
       let brandId;
+      // Associa o ID da marca baseado no início do nome do modelo
       if (modelName.toLowerCase().startsWith('hp')) brandId = hp.id;
       else if (modelName.toLowerCase().startsWith('brother')) brandId = brother.id;
       else if (modelName.toLowerCase().startsWith('samsung')) brandId = samsung.id;
       else if (modelName.toLowerCase().startsWith('epson')) brandId = epson.id;
       else if (modelName.toLowerCase().startsWith('canon')) brandId = canon.id;
-      else brandId = hp.id;
+      else brandId = hp.id; // Assume HP como padrão se não identificar a marca
       return { modelName, brandId };
     });
+
+  // Cria todas as impressoras de uma vez
   await prisma.printer.createMany({
-    data: printersToCreateData
+    data: printersToCreateData,
+    skipDuplicates: true, // Ignora se tentar criar uma impressora que já existe (pelo modelName @unique)
   });
-  console.log(`${printersToCreateData.length} modelos de impressora únicos criados.`);
+  console.log(`${printersToCreateData.length} modelos de impressora únicos processados (ou criados).`);
+
+  // Busca todas as impressoras (incluindo as recém-criadas) para mapeamento
   const allPrinters = await prisma.printer.findMany({ select: { id: true, modelName: true } });
+  // Cria um mapa para facilitar a busca do ID da impressora pelo nome (case-insensitive)
   const printerMap = new Map(allPrinters.map(p => [p.modelName.toLowerCase(), p.id]));
 
   // 6. Criar as Relações de Compatibilidade
   console.log('Criando relações de compatibilidade...');
+  // Mapa definindo quais produtos são compatíveis com quais impressoras
   const compatibilityMap = {
-    '21': ['HP DeskJet 1200, 1220, 1280 (modelos antigos)', 'HP DeskJet 430 (variações regionais)'],
+    '21': ['HP DeskJet 1200', '1220', '1280 (modelos antigos)', 'HP DeskJet 430 (variações regionais)'], // Simplificado
     '22': ['HP DeskJet 1000 series antigas', 'HP DeskJet 450/454 (modelos antigos)'],
-    '60': ['HP DeskJet 1000, 1050, 2050, 2510', 'HP ENVY 4500, 5530, 5640', 'HP Photosmart 5510, 5520, 6510'],
-    '61': ['HP DeskJet D1660, D2560', 'HP DeskJet 1000, 1010, 1050, 1510', 'HP Photosmart 5520, 5510 (algumas variantes)', 'HP Envy 4500, 5530 (compatibilidade por região)'],
-    '70': ['HP DeskJet 450, 550C (modelos antigos)', 'HP OfficeJet 5100 (modelos antigos)'],
-    '75': ['HP OfficeJet 6100, 6150, 6500 (séries OfficeJet que usam 75 em algumas configurações)'],
-    '122': ['HP DeskJet Ink Advantage 1115, 2135 (algumas variantes regionais usam 122A/122XL)', 'HP DeskJet 1510, 2540, 2640 series', 'HP ENVY 4504, 5530 (dependendo da região e submodelo)'],
-    '664': ['HP DeskJet 1110, 1111, 1112, 1114, 1115', 'HP DeskJet 2130, 2131, 2132, 2134, 2135', 'HP DeskJet 3630, 3631, 3632, 3633', 'HP ENVY 4510, 4520'],
-    '662': ['HP DeskJet Ink Advantage 1115, 2135 (algumas variantes usam 662 em certas regiões)', 'HP Ink Advantage 1010 série (modelos regionais)'],
-    '667': ['HP DeskJet 2710, 2720, 2730', 'HP DeskJet Ink Advantage 2774'],
-    '901': ['HP OfficeJet Pro 6230, 6234', 'HP OfficeJet 8030, 8035', 'HP OfficeJet 6812, 6815', 'HP OfficeJet Pro 8210 (verificar versão XL)'],
-    'CE285A (85A)': ['HP LaserJet Pro P1102, P1102w, P1102s, P1104, P1104w, P1106, P1107, P1107w, P1109, P1109w', 'HP LaserJet Pro M1130, M1132, M1134, M1136, M1137, M1138, M1139', 'HP LaserJet Pro M1210, M1212f, M1212nf, M1213nf, M1214nfh, M1216nfh,M1217nfw, M1219nf'],
-    'TN-1060': ['Brother HL-1110, HL-1112, HL-1210W, DCP-1510, DCP-1512, MFC-1810', 'Brother HL-1212W'],
+    '60': ['HP DeskJet 1000', '1050', '2050', '2510', 'HP ENVY 4500', '5530', '5640', 'HP Photosmart 5510', '5520', '6510'],
+    '61': ['HP DeskJet D1660', 'D2560', 'HP DeskJet 1000', '1010', '1050', '1510', 'HP Photosmart 5520', '5510 (algumas variantes)', 'HP Envy 4500', '5530 (compatibilidade por região)'],
+    '70': ['HP DeskJet 450', '550C (modelos antigos)', 'HP OfficeJet 5100 (modelos antigos)'],
+    '75': ['HP OfficeJet 6100', '6150', '6500 (séries OfficeJet que usam 75 em algumas configurações)'],
+    '122': ['HP DeskJet Ink Advantage 1115', '2135 (algumas variantes regionais usam 122A/122XL)', 'HP DeskJet 1510', '2540', '2640 series', 'HP ENVY 4504', '5530 (dependendo da região e submodelo)'],
+    '664': ['HP DeskJet 1110', '1111', '1112', '1114', '1115', 'HP DeskJet 2130', '2131', '2132', '2134', '2135', 'HP DeskJet 3630', '3631', '3632', '3633', 'HP ENVY 4510', '4520'],
+    '662': ['HP DeskJet Ink Advantage 1115', '2135 (algumas variantes usam 662 em certas regiões)', 'HP Ink Advantage 1010 série (modelos regionais)'],
+    '667': ['HP DeskJet 2710', '2720', '2730', 'HP DeskJet Ink Advantage 2774'],
+    '901': ['HP OfficeJet Pro 6230', '6234', 'HP OfficeJet 8030', '8035', 'HP OfficeJet 6812', '6815', 'HP OfficeJet Pro 8210 (verificar versão XL)'],
+    'CE285A (85A)': ['HP LaserJet Pro P1102', 'P1102w', 'P1102s', 'P1104', 'P1104w', 'P1106', 'P1107', 'P1107w', 'P1109', 'P1109w', 'HP LaserJet Pro M1130', 'M1132', 'M1134', 'M1136', 'M1137', 'M1138', 'M1139', 'HP LaserJet Pro M1210', 'M1212f', 'M1212nf', 'M1213nf', 'M1214nfh', 'M1216nfh', 'M1217nfw', 'M1219nf'], // Dividido para melhor leitura
+    'TN-1060': ['Brother HL-1110', 'HL-1112', 'HL-1210W', 'DCP-1510', 'DCP-1512', 'MFC-1810', 'Brother HL-1212W'],
     'TN-660': ['Brother DCP-L2540DW'],
-    'D111': ['Samsung ML-2160, ML-2162, ML-2164, ML-2165, ML-2168', 'Samsung SCX-3400, SCX-3405, SCX-3405F, SCX-3405FW'],
+    'D111': ['Samsung ML-2160', 'ML-2162', 'ML-2164', 'ML-2165', 'ML-2168', 'Samsung SCX-3400', 'SCX-3405', 'SCX-3405F', 'SCX-3405FW'],
     'Tinta Epson': ['Epson EcoTank L3250'],
     'Tinta HP': ['HP Smart Tank 517'],
     'Tinta Canon': ['Canon PIXMA G3110'],
+    // Adicionar mapeamentos para os outros toners (CE278A, CF280A, etc.) aqui
   };
+
   const compatibilityData = [];
+  // Itera sobre o mapa de compatibilidade
   for (const productName in compatibilityMap) {
-    const productId = productMap.get(productName.toLowerCase());
-    const printerModelsForProduct = compatibilityMap[productName as keyof typeof compatibilityMap];
+    const productId = productMap.get(productName.toLowerCase()); // Busca ID do produto
+    const printerModelsForProduct = compatibilityMap[productName as keyof typeof compatibilityMap]; // Pega lista de impressoras compatíveis
+
     if (productId) {
+      // Processa a lista de modelos de impressora, tratando múltiplos nomes e removendo duplicatas
       const uniquePrinterModels = [...new Set(printerModelsForProduct.flatMap(model => model.split(',').map(m => m.trim())))];
       for (const printerModel of uniquePrinterModels) {
-        const printerId = printerMap.get(printerModel.toLowerCase());
+        const printerId = printerMap.get(printerModel.toLowerCase()); // Busca ID da impressora
         if (printerId) {
+          // Adiciona a relação de compatibilidade se ambos IDs foram encontrados
           compatibilityData.push({ cartridgeId: productId, printerId: printerId });
         } else {
+          // Avisa se um modelo de impressora do mapa não foi encontrado no banco
           console.warn(`Aviso: Impressora "${printerModel}" para o produto "${productName}" não encontrada no banco de dados.`);
         }
       }
     } else {
+      // Avisa se um nome de produto do mapa não foi encontrado no banco
       console.warn(`Aviso: Produto "${productName}" não encontrado no mapa de produtos.`);
     }
   }
+
+  // Remove duplicatas exatas de pares (cartridgeId, printerId) antes de inserir
   const uniqueCompatibilityData = Array.from(new Map(compatibilityData.map(item => [`${item.cartridgeId}-${item.printerId}`, item])).values());
+
+  // Cria as relações de compatibilidade no banco
   if (uniqueCompatibilityData.length > 0) {
     try {
       await prisma.printerCompatibility.createMany({
         data: uniqueCompatibilityData,
+        skipDuplicates: true, // Ignora se tentar criar uma relação que já existe (pela chave primária composta)
       });
-      console.log(`${uniqueCompatibilityData.length} relações de compatibilidade únicas criadas.`);
+      console.log(`${uniqueCompatibilityData.length} relações de compatibilidade únicas criadas/processadas.`);
     } catch (error) {
       console.error("Erro ao criar relações de compatibilidade:", error);
+      // Log específico para erro de chave estrangeira pode ser útil aqui
+      if (error instanceof Error && 'code' in error && error.code === 'P2003') {
+           console.error("Detalhe: Erro de chave estrangeira. Verifique se todos os productIds e printerIds existem nas tabelas Product e Printer.");
+      }
     }
   } else {
     console.log("Nenhuma relação de compatibilidade válida para criar.");
@@ -220,11 +249,13 @@ async function main() {
   console.log('Seeding finalizado com sucesso! ✅');
 }
 
+// Executa a função principal e trata erros
 main()
   .catch((e) => {
     console.error('Erro durante o processo de seeding: ❌', e);
-    process.exit(1);
+    process.exit(1); // Sai com código de erro
   })
   .finally(async () => {
+    // Garante que a conexão Prisma seja fechada ao final
     await prisma.$disconnect();
   });
