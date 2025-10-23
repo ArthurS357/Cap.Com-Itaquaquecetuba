@@ -1,62 +1,84 @@
-import { PrismaClient, Product, Brand, Printer, PrinterCompatibility } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import SEO from '@/components/Seo';
 import ProductCard from '@/components/cards/ProductCard';
 
-// Garante que imageUrl está incluído no tipo
-type SearchResult = Product & { brand: Brand; imageUrl?: string | null };
+type SearchResultProduct = Prisma.ProductGetPayload<{
+  select: {
+    id: true;
+    name: true;
+    slug: true;
+    description: true; 
+    imageUrl: true;
+    price: true;      
+    type: true;       
+    brand: {          
+      select: {
+        id: true;
+        name: true;
+      };
+    };
+    // Campos como categoryId, brandId, createdAt foram removidos do select, então não estão aqui
+  };
+}>;
 
-// Busca os resultados no lado do servidor a cada requisição
+
 export const getServerSideProps: GetServerSideProps<{
-  results: SearchResult[];
+  results: SearchResultProduct[]; 
   query: string;
+  error?: string; 
 }> = async (context) => {
   const query = context.query.q as string || '';
-  if (!query) {
+
+  // Retorna vazio imediatamente se a query estiver vazia ou só espaços
+  if (!query.trim()) {
     return { props: { results: [], query: '' } };
   }
 
   const prisma = new PrismaClient();
-  console.log(`Buscando por: "${query}"`); 
-
-  let results: SearchResult[] = []; 
+  let results: SearchResultProduct[] = []; 
 
   try {
+    console.log(`Buscando por: "${query}"`);
+
+    // --- Passo 1: Buscar impressoras que correspondem à query ---
     const matchingPrinters = await prisma.printer.findMany({
       where: {
         modelName: {
           contains: query,
+          // mode: 'insensitive', // Descomente para busca case-insensitive (pode afetar performance)
         },
       },
-      select: { id: true },
+      select: { id: true }, // Seleciona apenas o ID da impressora
     });
     const printerIds = matchingPrinters.map(p => p.id);
 
+    // --- Passo 2: Encontrar IDs de produtos (cartuchos/toners) compatíveis ---
     let compatibleProductIds: number[] = [];
     if (printerIds.length > 0) {
       const compatibilities = await prisma.printerCompatibility.findMany({
         where: {
           printerId: {
-            in: printerIds,
+            in: printerIds, // Busca compatibilidades para as impressoras encontradas
           },
         },
-        select: { cartridgeId: true },
+        select: { cartridgeId: true }, // Seleciona apenas o ID do produto compatível
       });
+      // Usa Set para obter apenas IDs únicos de produtos
       compatibleProductIds = [...new Set(compatibilities.map(c => c.cartridgeId))];
     }
 
-    // 3. Buscar produtos que correspondem à query no nome, descrição, marca OU são compatíveis
+    // --- Passo 3: Buscar produtos que correspondem à query OU são compatíveis ---
     const productResults = await prisma.product.findMany({
       where: {
         OR: [
-          { name: { contains: query /*, mode: 'insensitive'*/ } },
-          { description: { contains: query /*, mode: 'insensitive'*/ } },
-          { brand: { name: { contains: query /*, mode: 'insensitive'*/ } } },
-          // Busca por compatibilidade de impressora
-          { id: { in: compatibleProductIds } },
+          { name: { contains: query /*, mode: 'insensitive'*/ } }, // Busca no nome do produto
+          { description: { contains: query /*, mode: 'insensitive'*/ } }, // Busca na descrição
+          { brand: { name: { contains: query /*, mode: 'insensitive'*/ } } }, // Busca no nome da marca
+          { id: { in: compatibleProductIds } }, // Busca produtos compatíveis encontrados no Passo 2
         ],
       },
-      // Usa select para pegar apenas os campos necessários, incluindo a marca
+      // Seleciona apenas os campos necessários para o tipo SearchResultProduct e ProductCard
       select: {
           id: true,
           name: true,
@@ -65,73 +87,75 @@ export const getServerSideProps: GetServerSideProps<{
           imageUrl: true,
           price: true,
           type: true,
-          brandId: true,
-          categoryId: true,
-          createdAt: true,
-          brand: { // Seleciona apenas o nome da marca
+          brand: { // Inclui a marca relacionada
             select: {
+              id: true,
               name: true,
-              id: true // Inclui ID se precisar em ProductCard
             }
           },
+          // categoryId, brandId, createdAt não são mais selecionados
       },
       orderBy: {
-        name: 'asc'
+        name: 'asc' // Ordena os resultados pelo nome do produto
       }
     });
 
-    // Remapeia para o tipo SearchResult e garante que createdAt é string
-    results = productResults.map(product => ({
-      ...product,
-      createdAt: product.createdAt.toISOString(),
-      // Garante que brand está no formato esperado por SearchResult/ProductCard
-      brand: {
-        id: product.brand.id,
-        name: product.brand.name,
-        // Adiciona arrays vazios se ProductCard esperar products/printers
-        products: [],
-        printers: []
-      }
-    }));
-
+    // Os resultados da consulta já correspondem ao tipo SearchResultProduct devido ao 'select'
+    results = productResults;
 
   } catch (error) {
+      // Em caso de erro na comunicação com o banco ou outro erro inesperado
       console.error("Erro durante a busca no servidor:", error);
-      // Retorna vazio em caso de erro, mas loga o erro no servidor
-      return { props: { results: [], query } };
+      // Garante a desconexão em caso de erro
+      await prisma.$disconnect();
+      // Retorna resultados vazios e uma mensagem de erro para ser exibida na página
+      return { props: { results: [], query, error: "Ocorreu um erro ao realizar a busca. Tente novamente." } };
   } finally {
-      await prisma.$disconnect(); // Garante que a conexão com o Prisma seja fechada
   }
-
-  const serializableResults = results;
-
-
-  return { props: { results: serializableResults, query } };
+  return { props: { results: results, query } }; // Passa os resultados diretamente
 };
 
-// Componente da Página de Resultados de Busca (sem alterações na renderização)
-function SearchPage({ results, query }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+// Componente da Página de Resultados de Busca
+// 5. Ajustar tipo das props
+function SearchPage({ results, query, error }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <>
-      <SEO title={`Busca por "${query}"`} />
+      <SEO
+        title={query ? `Busca por "${query}"` : 'Buscar Produtos'}
+        description={`Resultados da busca por "${query}" na Cap.Com Itaquaquecetuba.`}
+      />
       <h1 className="text-3xl font-bold mb-8 text-text-primary animate-fade-in-up">
-        Resultados para: <span className="text-brand-primary">{query}</span>
+        {/* Mostra o termo buscado ou uma mensagem padrão se a busca estiver vazia */}
+        {query ? (
+            <>Resultados para: <span className="text-brand-primary">{query}</span></>
+        ) : (
+            'Digite algo para buscar'
+        )}
       </h1>
 
-      {results.length > 0 ? (
-        // Grid para exibir os resultados usando ProductCard
+      {/* Exibe mensagem de erro, se houver */}
+      {error && (
+        <div className="col-span-full text-center py-16 px-4 text-red-500 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+            <p className="text-xl">{error}</p>
+        </div>
+      )}
+
+      {/* Exibe resultados apenas se não houver erro E a busca foi realizada (query não vazia) */}
+      {!error && query && results.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
           {results.map((product, index) => (
              <div key={product.id} className="animate-fade-in-up" style={{ animationDelay: `${100 + index * 50}ms` }}>
-               {/* Passa o objeto product diretamente para ProductCard */}
+               {/* O tipo SearchResultProduct é compatível com o esperado por ProductCard */}
                <ProductCard product={product} />
              </div>
           ))}
         </div>
-      ) : (
-        // Mensagem estilizada para "Nenhum resultado"
+      )}
+
+      {/* Mensagem para "Nenhum resultado" (apenas se não houver erro E a busca foi realizada E não houve resultados) */}
+      {!error && query && results.length === 0 && (
         <div className="col-span-full text-center py-16 px-4 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-          {/* Pode adicionar um SVG de lupa vazia aqui */}
+          {/* Pode adicionar um SVG de lupa vazia aqui depois */}
           <p className="text-xl text-text-secondary">Nenhum produto ou impressora encontrado para sua busca.</p>
           <p className="text-text-subtle mt-2">Tente usar termos diferentes ou navegar pelas categorias.</p>
         </div>
@@ -141,3 +165,4 @@ function SearchPage({ results, query }: InferGetServerSidePropsType<typeof getSe
 }
 
 export default SearchPage;
+
