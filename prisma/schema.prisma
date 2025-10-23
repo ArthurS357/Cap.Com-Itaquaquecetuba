@@ -22,12 +22,12 @@ model Category {
 
 model Product {
   id             Int                    @id @default(autoincrement())
-  name           String // Ex: "Toner HP 85A", "Impressora HP DeskJet 2774"
+  name           String                 // Ex: "Toner HP 85A", "Impressora HP DeskJet 2774"
   slug           String                 @unique
   description    String?
   imageUrl       String?
-  price          Float? // Preço para produtos de venda direta
-  type           String // Ex: "TONER", "IMPRESSORA", "RECARGA_JATO_TINTA"
+  price          Float?                 // Preço para produtos de venda direta
+  type           String                 // Ex: "TONER", "IMPRESSORA", "RECARGA_JATO_TINTA"
   brandId        Int
   brand          Brand                  @relation(fields: [brandId], references: [id])
   categoryId     Int
@@ -56,6 +56,7 @@ model PrinterCompatibility {
 model Brand {
   id       Int       @id @default(autoincrement())
   name     String    @unique
+  slug     String    @unique 
   products Product[]
   printers Printer[]
 }
