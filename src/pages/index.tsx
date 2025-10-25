@@ -1,8 +1,48 @@
-import { PrismaClient, Category } from '@prisma/client';
 import type { GetStaticProps, InferGetStaticPropsType } from 'next';
-import SEO from '@/components/Seo';
-import CategoryCard from '@/components/cards/CategoryCard';
-import Image from 'next/image';
+import SEO from '../components/Seo';
+import CategoryCard from '../components/cards/CategoryCard';
+import { useRef, useState, useEffect } from 'react';
+
+type Category = {
+  id: number;
+  name: string;
+  slug: string | null; 
+  imageUrl: string | null;
+  parentId: number | null;
+};
+
+const useScrollAnimation = (options?: IntersectionObserverInit) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const elementRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.1,
+      ...options,
+    });
+
+    const currentElement = elementRef.current;
+    if (currentElement) {
+      observer.observe(currentElement);
+    }
+
+    return () => {
+      if (currentElement) {
+        observer.unobserve(currentElement);
+      }
+    };
+  }, [options]);
+
+  return [elementRef, isVisible] as const;
+};
+
 
 // --- Ícones SVG como componentes simples ---
 const IconRecycle = () => (
@@ -27,6 +67,7 @@ const IconWaze = () => (
 export const getStaticProps: GetStaticProps<{
   mainCategories: Category[];
 }> = async () => {
+  const { PrismaClient } = await import('@prisma/client');
   const prisma = new PrismaClient();
 
   const allMainCategories = await prisma.category.findMany({
@@ -34,6 +75,14 @@ export const getStaticProps: GetStaticProps<{
       parentId: null,
       slug: { not: undefined }
     },
+    // Selecionar apenas os campos necessários para o tipo Category definido acima
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      imageUrl: true,
+      parentId: true,
+    }
   });
 
   const orderedCategories = allMainCategories.sort((a, b) => {
@@ -41,13 +90,16 @@ export const getStaticProps: GetStaticProps<{
     return order.indexOf(a.name) - order.indexOf(b.name);
   });
 
+  await prisma.$disconnect();
+
   return {
     props: {
       mainCategories: JSON.parse(JSON.stringify(orderedCategories)),
     },
-    revalidate: 60, 
+    revalidate: 60,
   };
 };
+
 
 function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticProps>) {
   const storeAddress = "Estr. dos Índios, 765 - Jardim Mossapyra, Itaquaquecetuba - SP, 08570-000";
@@ -55,20 +107,30 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
   const googleMapsEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d228.7868357502089!2d-46.32073719989995!3d-23.43919608454872!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce7dab465c779d%3A0xe55f25ea7b533e3b!2sCap.Com!5e0!3m2!1spt-BR!2sbr!4v1760818394343!5m2!1spt-BR!2sbr";
   const wazeUrl = `https://waze.com/ul?q=${encodedAddress}&navigate=yes`;
 
+  const [categoriasRef, categoriasVisible] = useScrollAnimation({ threshold: 0.1 });
+  const [servicosRef, servicosVisible] = useScrollAnimation({ threshold: 0.1 });
+  const [sobreNosRef, sobreNosVisible] = useScrollAnimation({ threshold: 0.1 });
+  const [localizacaoRef, localizacaoVisible] = useScrollAnimation({ threshold: 0.1 });
+
   return (
     <>
       <SEO title="Início" />
 
       {/* ===== SEÇÃO HERO ===== */}
       <section className="relative flex items-center justify-center text-center h-[70vh] mb-16 overflow-hidden text-white rounded-lg shadow-xl">
-        <Image
+        <img
           src="/images/background-hero.jpg"
           alt="Fundo da seção de boas-vindas"
-          layout="fill"
-          objectFit="cover"
-          quality={85}
-          className="absolute inset-0 z-0"
-          priority
+          style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              zIndex: 0
+           }}
+          loading="eager" 
+          decoding="async"
         />
         <div className="absolute inset-0 bg-black bg-opacity-70 z-10"></div>
         <div className="relative z-20 p-6 max-w-3xl mx-auto animate-fade-in-up">
@@ -88,16 +150,19 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
       </section>
 
       {/* ===== SEÇÃO DAS CATEGORIAS ===== */}
-      <section id="categorias" className="mb-16">
-        <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+      <section
+        id="categorias"
+        ref={categoriasRef as React.RefObject<HTMLElement>}
+        className={`mb-16 animate-on-scroll ${categoriasVisible ? 'animate-slide-in-up' : ''}`}
+      >
+        <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-text-primary">Navegue por Categoria</h2>
         </div>
         <div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto animate-fade-in-up"
-          style={{ animationDelay: '300ms' }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"
         >
-          {mainCategories.map((category, index) => (
-            <div key={category.id} className="animate-fade-in-up" style={{ animationDelay: `${300 + index * 100}ms` }}>
+          {mainCategories.map((category) => (
+            <div key={category.id} >
               <CategoryCard category={category} />
             </div>
           ))}
@@ -108,7 +173,11 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
       <hr className="border-t-2 border-surface-border max-w-5xl mx-auto my-16" />
 
       {/* ===== SEÇÃO: NOSSOS SERVIÇOS ===== */}
-      <section id="servicos" className="mb-16 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
+      <section
+        id="servicos"
+        ref={servicosRef as React.RefObject<HTMLElement>}
+        className={`mb-16 animate-on-scroll ${servicosVisible ? 'animate-slide-in-up' : ''}`}
+      >
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-text-primary">Nossos Serviços</h2>
           <p className="text-lg text-text-secondary mt-2">Soluções completas para suas necessidades de impressão.</p>
@@ -141,7 +210,11 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
       <hr className="border-t-2 border-surface-border max-w-5xl mx-auto my-16" />
 
       {/* ===== SEÇÃO SOBRE NÓS ===== */}
-      <section id="sobre-nos" className="max-w-4xl mx-auto text-center mb-16 animate-fade-in-up" style={{ animationDelay: '500ms' }}>
+      <section
+        id="sobre-nos"
+        ref={sobreNosRef as React.RefObject<HTMLElement>}
+        className={`max-w-4xl mx-auto text-center mb-16 animate-on-scroll ${sobreNosVisible ? 'animate-slide-in-right' : ''}`}
+      >
         <h2 className="text-3xl font-bold text-text-primary mb-6">Sobre Nós</h2>
         <p className="text-lg text-text-secondary leading-relaxed">
           A Cap.Com em Itaquaquecetuba é uma empresa dedicada a soluções completas em impressão. Especializamo‑nos na remanufatura de cartuchos e toners, oferecendo alternativas econômicas e sustentáveis sem abrir mão da qualidade. Também realizamos manutenção preventiva e corretiva em uma ampla variedade de impressoras, além de serviços gerais de manutenção para garantir o pleno funcionamento dos seus equipamentos.
@@ -155,18 +228,22 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
       <hr className="border-t-2 border-surface-border max-w-5xl mx-auto my-16" />
 
       {/* ===== SEÇÃO DE LOCALIZAÇÃO COM IFRAME ===== */}
-      <section id="localizacao" className="text-center mb-16 animate-fade-in-up" style={{ animationDelay: '600ms' }}>
+      <section
+        id="localizacao"
+        ref={localizacaoRef as React.RefObject<HTMLElement>}
+        className={`text-center mb-16 animate-on-scroll ${localizacaoVisible ? 'animate-slide-in-up' : ''}`}
+      >
         <h2 className="text-3xl font-bold text-text-primary mb-6">Nossa Localização</h2>
         <p className="text-lg text-text-secondary mb-8">{storeAddress}</p>
 
         {/* Mapa Incorporado */}
         <div className="aspect-w-16 aspect-h-9 max-w-4xl mx-auto rounded-lg overflow-hidden shadow-lg border border-surface-border mb-8">
           <iframe
-            src={googleMapsEmbedUrl} 
+            src={googleMapsEmbedUrl}
             width="100%"
             height="450"
             style={{ border: 0 }}
-            allowFullScreen={false} // Mantido como false
+            allowFullScreen={false}
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
             title="Localização da Cap.Com Itaquaquecetuba no Google Maps"
@@ -191,3 +268,4 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
 }
 
 export default HomePage;
+

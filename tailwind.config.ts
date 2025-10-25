@@ -30,11 +30,23 @@ const config: Config = {
       },
       animation: {
         'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
+        // Novas animações
+        'slide-in-up': 'slideInUp 0.6s ease-out forwards',
+        'slide-in-right': 'slideInRight 0.6s ease-out forwards',
       },
       keyframes: {
         fadeInUp: {
           '0%': { opacity: '0', transform: 'translateY(20px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        // Novos keyframes
+        slideInUp: {
+          '0%': { opacity: '0', transform: 'translateY(50px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideInRight: {
+           '0%': { opacity: '0', transform: 'translateX(-50px)' }, // Começa à esquerda
+           '100%': { opacity: '1', transform: 'translateX(0)' },
         },
       },
     },
