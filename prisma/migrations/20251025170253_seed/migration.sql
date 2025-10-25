@@ -45,7 +45,8 @@ CREATE TABLE "PrinterCompatibility" (
 -- CreateTable
 CREATE TABLE "Brand" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "name" TEXT NOT NULL
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL
 );
 
 -- CreateIndex
@@ -62,3 +63,6 @@ CREATE UNIQUE INDEX "Printer_modelName_key" ON "Printer"("modelName");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Brand_name_key" ON "Brand"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Brand_slug_key" ON "Brand"("slug");
