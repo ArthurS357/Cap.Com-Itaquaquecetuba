@@ -90,8 +90,6 @@ export const getStaticProps: GetStaticProps<{
   }
 };
 
-// Componente da página que exibe a categoria
-// Ajustar tipo das props do componente
 function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
