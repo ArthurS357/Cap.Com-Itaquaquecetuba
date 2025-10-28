@@ -18,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const productId = parseInt(id as string, 10);
 
-    // Buscar o produto principal
+    // Buscar o produto principalll
     const product = await prisma.product.findUnique({
       where: { id: productId },
       include: { brand: true, category: true },
