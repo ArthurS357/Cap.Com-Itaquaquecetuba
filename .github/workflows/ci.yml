@@ -46,9 +46,6 @@ jobs:
       - name: 6. Run Production Build
         run: npm run build
       
-      # 7. Rodar Testes (Opcional)
-      # Seu package.json não tem um script "test".
-      # Se você adicionar testes (ex: com Jest ou Vitest), crie o script
-      # e descomente o passo abaixo.
-      # - name: 7. Run Tests
-      #   run: npm run test
+      # 7. Rodar Testes 
+      - name: 7. Run Tests
+        run: npm run test
