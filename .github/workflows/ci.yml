@@ -1,0 +1,51 @@
+name: CI (Build & Lint)
+
+# Gatilhos (Triggers)
+# Este workflow roda em todo push ou pull request para a branch 'main'
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+# Tarefas (Jobs)
+jobs:
+  build-and-lint:
+    # Sistema operacional onde a automação vai rodar
+    runs-on: ubuntu-latest
+
+    # Passos da automação
+    steps:
+      # 1. Faz o checkout do seu código do repositório
+      - name: 1. Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Configura o ambiente Node.js (usando v20 como padrão moderno)
+      - name: 2. Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          # Habilita o cache do npm para instalações mais rápidas
+          cache: 'npm'
+
+      # 3. Instala as dependências de forma limpa (rápido e seguro para CI)
+      - name: 3. Install Dependencies
+        run: npm ci
+
+      # 4. Gera o cliente Prisma (necessário para o 'npm run build')
+      # Note: Isso não se conecta ao banco de dados, apenas gera os tipos
+      - name: 4. Generate Prisma Client
+        run: npx prisma generate
+
+      # 5. Roda o ESLint (conforme script no package.json)
+      - name: 5. Run ESLint
+        run: npm run lint
+
+      # 6. Roda o build de produção (conforme script no package.json)
+      # Este é o teste mais importante, ele valida se o projeto compila
+      - name: 6. Run Production Build
+        run: npm run build
+      
+      # 7. Rodar Testes 
+      - name: 7. Run Tests
+        run: npm run test
