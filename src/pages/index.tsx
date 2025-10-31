@@ -140,12 +140,25 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
           <p className="text-xl md:text-2xl text-gray-200 mb-8 drop-shadow-md">
             O que você procura? Cartuchos, toners, impressoras e mais!
           </p>
-          <a
-            href="#categorias"
-            className="inline-block bg-brand-primary text-white font-semibold py-3 px-8 rounded-lg hover:bg-brand-dark transition-colors duration-300 shadow-lg transform hover:scale-105"
-          >
-            Ver Categorias
-          </a>
+          
+          {/* Container dos botões (MODIFICADO) */}
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+            {/* Botão Primário (Categorias) */}
+            <a
+              href="#categorias"
+              className="inline-block bg-brand-primary text-white font-semibold py-3 px-8 rounded-lg hover:bg-brand-dark transition-colors duration-300 shadow-lg transform hover:scale-105 w-full sm:w-auto"
+            >
+              Ver Categorias
+            </a>
+            
+            {/* Botão Secundário (Serviços) - (NOVO) */}
+            <a
+              href="#servicos"
+              className="inline-block bg-transparent border-2 border-white text-white font-semibold py-3 px-8 rounded-lg hover:bg-white hover:text-surface-background transition-colors duration-300 shadow-lg transform hover:scale-105 w-full sm:w-auto"
+            >
+              Nossos Serviços
+            </a>
+          </div>
         </div>
       </section>
 
@@ -157,6 +170,8 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
       >
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-text-primary">Navegue por Categoria</h2>
+          {/* LINHA ADICIONADA ABAIXO */}
+          <p className="text-lg text-text-secondary mt-2">Encontre o que você precisa.</p>
         </div>
         <div
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"

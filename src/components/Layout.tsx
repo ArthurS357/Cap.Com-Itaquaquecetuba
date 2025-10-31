@@ -7,9 +7,12 @@ type LayoutProps = {
   children: React.ReactNode;
 };
 
+// --- Componente Navbar ATUALIZADO ---
 const Navbar = () => (
-  <header className="bg-surface-card/80 backdrop-blur-sm sticky top-0 z-10 border-b border-surface-border">
+  <header className="bg-surface-card/80 backdrop-blur-sm sticky top-0 z-30 border-b border-surface-border">
     <div className="container mx-auto p-4 flex flex-col md:flex-row justify-between items-center gap-4">
+      
+      {/* Logo */}
       <Link href="/">
         <Image
           src="/images/logo-capcom.png"
@@ -19,6 +22,24 @@ const Navbar = () => (
           priority
         />
       </Link>
+
+      {/* Links de Navegação */}
+      <nav className="hidden md:flex items-center gap-6">
+        <Link href="/" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">
+          Início
+        </Link>
+        <Link href="/#categorias" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">
+          Categorias
+        </Link>
+        <Link href="/#servicos" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">
+          Serviços
+        </Link>
+        <Link href="/#localizacao" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">
+          Localização
+        </Link>
+      </nav>
+
+      {/* Barra de Busca */}
       <SearchBar />
     </div>
   </header>
