@@ -57,8 +57,6 @@ async function main() {
   const subSubCatTonerSamsung = await prisma.category.create({
     data: { name: 'Toner Samsung', slug: slugify('Toner Samsung'), parentId: subCatToner.id },
   });
-  console.log('Categorias criadas.');
-
 
   console.log('Criando produtos...');
   const productsInputData = [
@@ -120,7 +118,6 @@ async function main() {
   await prisma.product.createMany({
     data: productsToCreate,
   });
-  console.log(`${productsToCreate.length} produtos criados.`);
 
   // Busca produtos criados para mapeamento
   const allProducts = await prisma.product.findMany({ select: { id: true, name: true } });

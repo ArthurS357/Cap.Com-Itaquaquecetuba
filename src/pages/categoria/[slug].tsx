@@ -26,14 +26,18 @@ export const getStaticPaths: GetStaticPaths = async () => {
   let paths: { params: { slug: string } }[] = [];
   try {
       const categories = await prisma.category.findMany({
-        where: { slug: { not: undefined, not: null } }, 
-        select: { slug: true }
-      });
+  where: {
+    slug: {
+      // @ts-ignore - Prisma runtime accepts null here to check for non-null values
+      not: null
+    }
+  },
+  select: { slug: true }
+});
 
       paths = categories
-        .filter(category => category.slug) 
         .map((category) => ({
-          params: { slug: category.slug! }, 
+          params: { slug: category.slug! }, // slug! é seguro aqui
       }));
   } catch(error) {
       console.error("Erro ao gerar paths estáticos para categorias:", error);
@@ -41,7 +45,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
       await prisma.$disconnect();
   }
 
-  return { paths, fallback: 'blocking' }; 
+  return { paths, fallback: 'blocking' };
 };
 
 // Busca os dados da categoria específica
@@ -90,8 +94,6 @@ export const getStaticProps: GetStaticProps<{
   }
 };
 
-// Componente da página que exibe a categoria
-// Ajustar tipo das props do componente
 function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
