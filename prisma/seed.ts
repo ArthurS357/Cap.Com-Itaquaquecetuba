@@ -57,6 +57,8 @@ async function main() {
   const subSubCatTonerSamsung = await prisma.category.create({
     data: { name: 'Toner Samsung', slug: slugify('Toner Samsung'), parentId: subCatToner.id },
   });
+  console.log('Categorias criadas.');
+
 
   console.log('Criando produtos...');
   const productsInputData = [
