@@ -35,12 +35,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
   try {
     const products = await prisma.product.findMany({
-      where: { 
-        slug: { 
-          // @ts-expect-error - Prisma runtime aceita 'null' aqui para filtrar não nulos
-          not: null 
-        } 
-      },
       select: { slug: true },
     });
 

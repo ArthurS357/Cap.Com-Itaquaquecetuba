@@ -26,12 +26,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
   let paths: { params: { slug: string } }[] = [];
   try {
       const categories = await prisma.category.findMany({
-  where: {
-    slug: {
-      // @ts-expect-error - Prisma runtime accepts null here to check for non-null values
-      not: null
-    }
-  },
   select: { slug: true }
 });
 
