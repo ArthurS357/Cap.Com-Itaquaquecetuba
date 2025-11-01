@@ -28,7 +28,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
       const categories = await prisma.category.findMany({
   where: {
     slug: {
-      // @ts-ignore - Prisma runtime accepts null here to check for non-null values
+      // @ts-expect-error - Prisma runtime accepts null here to check for non-null values
       not: null
     }
   },
@@ -169,7 +169,7 @@ function CategoryPage({ category }: InferGetStaticPropsType<typeof getStaticProp
       {/* Mensagem se a busca por produto não retornar nada */}
       {!hasSubCategories && category.products && category.products.length > 0 && filteredProducts.length === 0 && searchTerm && (
         <div className="text-center col-span-full mt-8 animate-fade-in-up">
-          <p className="text-xl text-text-subtle">Nenhum produto encontrado para "{searchTerm}".</p>
+          <p className="text-xl text-text-subtle">Nenhum produto encontrado para &quot;{searchTerm}&quot;.</p>
         </div>
       )}
 

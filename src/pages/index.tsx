@@ -2,11 +2,12 @@ import type { GetStaticProps, InferGetStaticPropsType } from 'next';
 import SEO from '../components/Seo';
 import CategoryCard from '../components/cards/CategoryCard';
 import { useRef, useState, useEffect } from 'react';
+import Image from 'next/image';
 
 type Category = {
   id: number;
   name: string;
-  slug: string | null; 
+  slug: string | null;
   imageUrl: string | null;
   parentId: number | null;
 };
@@ -59,9 +60,9 @@ const IconWrench = () => (
 
 const IconWaze = () => (
   <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-     <path d="M12 0C7.8 0 4 3.8 4 8c0 5.4 7.8 15.8 8 16 0.2 0.2 8-10.6 8-16C20 3.8 16.2 0 12 0zM12 12c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3S13.7 12 12 12z" fill="white"/>
+    <path d="M12 0C7.8 0 4 3.8 4 8c0 5.4 7.8 15.8 8 16 0.2 0.2 8-10.6 8-16C20 3.8 16.2 0 12 0zM12 12c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3S13.7 12 12 12z" fill="white" />
   </svg>
-  );
+);
 
 // --- Lógica da Página ---
 export const getStaticProps: GetStaticProps<{
@@ -118,19 +119,13 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
 
       {/* ===== SEÇÃO HERO ===== */}
       <section className="relative flex items-center justify-center text-center h-[70vh] mb-16 overflow-hidden text-white rounded-lg shadow-xl">
-        <img
+        <Image
           src="/images/background-hero.jpg"
           alt="Fundo da seção de boas-vindas"
-          style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              zIndex: 0
-           }}
-          loading="eager" 
-          decoding="async"
+          fill
+          objectFit="cover"
+          style={{ zIndex: 0 }}
+          priority
         />
         <div className="absolute inset-0 bg-black bg-opacity-70 z-10"></div>
         <div className="relative z-20 p-6 max-w-3xl mx-auto animate-fade-in-up">
@@ -140,7 +135,7 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
           <p className="text-xl md:text-2xl text-gray-200 mb-8 drop-shadow-md">
             O que você procura? Cartuchos, toners, impressoras e mais!
           </p>
-          
+
           {/* Container dos botões (MODIFICADO) */}
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
             {/* Botão Primário (Categorias) */}
@@ -150,7 +145,7 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
             >
               Ver Categorias
             </a>
-            
+
             {/* Botão Secundário (Serviços) - (NOVO) */}
             <a
               href="#servicos"

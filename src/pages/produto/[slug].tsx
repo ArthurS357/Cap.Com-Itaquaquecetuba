@@ -37,7 +37,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
     const products = await prisma.product.findMany({
       where: { 
         slug: { 
-          // @ts-ignore - Prisma runtime aceita 'null' aqui para filtrar não nulos
+          // @ts-expect-error - Prisma runtime aceita 'null' aqui para filtrar não nulos
           not: null 
         } 
       },
@@ -228,7 +228,7 @@ function ProductPage({ product, similarProducts }: InferGetStaticPropsType<typeo
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {similarProducts.map((similarProduct, index) => (
               <div key={similarProduct.id} className="animate-fade-in-up" style={{ animationDelay: `${100 + index * 50}ms` }}>
-                <ProductCard product={similarProduct as any} />
+                <ProductCard product={similarProduct} />
               </div>
             ))}
           </div>

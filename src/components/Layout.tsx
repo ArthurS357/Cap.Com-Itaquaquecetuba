@@ -11,7 +11,7 @@ type LayoutProps = {
 const Navbar = () => (
   <header className="bg-surface-card/80 backdrop-blur-sm sticky top-0 z-30 border-b border-surface-border">
     <div className="container mx-auto p-4 flex flex-col md:flex-row justify-between items-center gap-4">
-      
+
       {/* Logo */}
       <Link href="/">
         <Image
@@ -89,9 +89,9 @@ const Footer = () => {
             <h4 className="font-semibold text-text-primary mb-3">Onde Estamos</h4>
             <p>{storeAddress}</p>
             {/* Link para o mapa */}
-            <a href="/#localizacao" className="text-sm text-brand-primary hover:text-brand-accent transition-colors mt-2 inline-block">
+            <Link href="/#localizacao" className="text-sm text-brand-primary hover:text-brand-accent transition-colors mt-2 inline-block">
               Ver no mapa
-            </a>
+            </Link>
           </div>
         </div>
 
