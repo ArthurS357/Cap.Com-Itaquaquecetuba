@@ -1,5 +1,4 @@
-import { slugify } from '@/lib/utils';
-import { PrismaClient, Prisma, Brand } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import type { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from 'next';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
@@ -7,6 +6,8 @@ import SEO from '@/components/Seo';
 import Link from 'next/link';
 import ProductCard from '@/components/cards/ProductCard';
 import LoadingSpinner from '@/components/LoadingSpinner';
+
+
 
 // Definir tipo usando Prisma.CategoryGetPayload
 type CategoryWithDetails = Prisma.CategoryGetPayload<{
@@ -31,7 +32,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
       paths = categories
         .map((category) => ({
-          params: { slug: category.slug! }, // slug! é seguro aqui
+          params: { slug: category.slug! }, 
       }));
   } catch(error) {
       console.error("Erro ao gerar paths estáticos para categorias:", error);
