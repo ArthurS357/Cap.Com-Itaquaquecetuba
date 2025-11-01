@@ -127,8 +127,8 @@ function ProductPage({ product, similarProducts }: InferGetStaticPropsType<typeo
   const router = useRouter();
 
   // Configs do WhatsApp
-  const whatsappNumber = "5511996388698"; 
-  const defaultMessage = "Olá, tenho uma duvida";
+  const whatsappNumber = "5511996388426"; 
+  const defaultMessage = "Olá! Visitei o site e gostaria de mais informações.";
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(defaultMessage)}`;
 
   if (router.isFallback) {
@@ -152,7 +152,7 @@ function ProductPage({ product, similarProducts }: InferGetStaticPropsType<typeo
         {/* Coluna da Imagem */}
         <div className="bg-surface-card p-6 rounded-xl shadow-lg border border-surface-border flex justify-center items-center h-full max-h-[500px]">
           <Image
-            src={product.imageUrl || '/images/logo-capcom.png'} // Fallback
+            src={product.imageUrl || '/images/logo-capcom.png'} 
             alt={product.name}
             width={400}
             height={400}

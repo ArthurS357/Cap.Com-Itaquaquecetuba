@@ -12,10 +12,10 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 // Definir tipo usando Prisma.CategoryGetPayload
 type CategoryWithDetails = Prisma.CategoryGetPayload<{
   include: {
-    subCategories: true; 
-    products: {        
+    subCategories: true;
+    products: {
       include: {
-        brand: true;   
+        brand: true;
       };
     };
   };
@@ -26,18 +26,18 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const prisma = new PrismaClient();
   let paths: { params: { slug: string } }[] = [];
   try {
-      const categories = await prisma.category.findMany({
-  select: { slug: true }
-});
+    const categories = await prisma.category.findMany({
+      select: { slug: true }
+    });
 
-      paths = categories
-        .map((category) => ({
-          params: { slug: category.slug! }, 
+    paths = categories
+      .map((category) => ({
+        params: { slug: category.slug! },
       }));
-  } catch(error) {
-      console.error("Erro ao gerar paths estáticos para categorias:", error);
+  } catch (error) {
+    console.error("Erro ao gerar paths estáticos para categorias:", error);
   } finally {
-      await prisma.$disconnect();
+    await prisma.$disconnect();
   }
 
   return { paths, fallback: 'blocking' };
@@ -46,7 +46,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 // Busca os dados da categoria específica
 // Ajustar tipo de retorno de getStaticProps
 export const getStaticProps: GetStaticProps<{
-  category: CategoryWithDetails | null; 
+  category: CategoryWithDetails | null;
 }> = async (context) => {
   const slug = context.params?.slug as string;
   if (!slug) return { notFound: true };
@@ -55,37 +55,37 @@ export const getStaticProps: GetStaticProps<{
   let categoryWithDetails: CategoryWithDetails | null = null;
 
   try {
-      // Busca a categoria pelo slug e inclui suas subcategorias e produtos
-      categoryWithDetails = await prisma.category.findUnique({
-        where: { slug: slug },
-        include: {
-          subCategories: { orderBy: { name: 'asc' } }, 
-          products: {
-            include: { brand: true }, 
-            orderBy: { name: 'asc' }  
-          },
+    // Busca a categoria pelo slug e inclui suas subcategorias e produtos
+    categoryWithDetails = await prisma.category.findUnique({
+      where: { slug: slug },
+      include: {
+        subCategories: { orderBy: { name: 'asc' } },
+        products: {
+          include: { brand: true },
+          orderBy: { name: 'asc' }
         },
-      });
+      },
+    });
 
-      if (!categoryWithDetails) {
-        await prisma.$disconnect();
-        return { notFound: true }; // Retorna 404 se não encontrar
-      }
-
-      // Serializa os dados
-      const serializableCategory = JSON.parse(JSON.stringify(categoryWithDetails));
+    if (!categoryWithDetails) {
       await prisma.$disconnect();
+      return { notFound: true }; // Retorna 404 se não encontrar
+    }
 
-      return {
-        props: {
-          category: serializableCategory,
-        },
-        revalidate: 60, // Revalida a cada 60 segundos (ISR)
-      };
+    // Serializa os dados
+    const serializableCategory = JSON.parse(JSON.stringify(categoryWithDetails));
+    await prisma.$disconnect();
+
+    return {
+      props: {
+        category: serializableCategory,
+      },
+      revalidate: 60, // Revalida a cada 60 segundos (ISR)
+    };
   } catch (error) {
-      console.error(`Erro ao buscar dados da categoria para slug "${slug}":`, error);
-      await prisma.$disconnect();
-      return { notFound: true }; // Retorna 404 em caso de erro
+    console.error(`Erro ao buscar dados da categoria para slug "${slug}":`, error);
+    await prisma.$disconnect();
+    return { notFound: true }; // Retorna 404 em caso de erro
   }
 };
 

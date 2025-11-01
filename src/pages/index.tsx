@@ -165,7 +165,6 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
       >
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-text-primary">Navegue por Categoria</h2>
-          {/* LINHA ADICIONADA ABAIXO */}
           <p className="text-lg text-text-secondary mt-2">Encontre o que você precisa.</p>
         </div>
         <div

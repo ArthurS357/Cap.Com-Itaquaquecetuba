@@ -36,7 +36,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
     paths = brands
       .filter(brand => brand.name)
       .map((brand) => ({
-          params: { brand: slugify(brand.name) },
+        params: { brand: slugify(brand.name) },
       }));
   } catch (error) {
     console.error("Erro ao gerar paths estáticos para marcas de impressora:", error);
@@ -56,13 +56,11 @@ export const getStaticProps: GetStaticProps<{
   let brandDetails: BrandWithPrintersDetails | null = null;
 
   try {
-    // Busca todas as marcas para encontrar o ID correspondente ao slug
-    // NOTA: Adicionar um campo `slug` @unique ao modelo `Brand` seria mais eficiente
     const allBrands = await prisma.brand.findMany({ select: { id: true, name: true } });
     const targetBrand = allBrands.find(b => slugify(b.name) === brandSlug);
 
     if (!targetBrand) {
-      return { notFound: true }; // Retorna 404 se a marca não for encontrada pelo slug (desconexão no finally)
+      return { notFound: true };
     }
 
     // Busca a marca pelo ID, incluindo impressoras e cartuchos compatíveis
@@ -90,7 +88,7 @@ export const getStaticProps: GetStaticProps<{
     });
 
     if (!brandDetails) {
-        return { notFound: true }; // Retorna 404 se não encontrar (desconexão no finally)
+      return { notFound: true };
     }
 
     // Serializa os dados
@@ -102,7 +100,7 @@ export const getStaticProps: GetStaticProps<{
     console.error(`Erro ao buscar dados da marca de impressora para slug "${brandSlug}":`, error);
     return { notFound: true }; // Retorna 404 em caso de erro (desconexão no finally)
   } finally {
-      await prisma.$disconnect(); // Garante desconexão em caso de sucesso ou erro
+    await prisma.$disconnect(); // Garante desconexão em caso de sucesso ou erro
   }
 };
 
@@ -114,7 +112,7 @@ function BrandPrintersPage({ brand }: InferGetStaticPropsType<typeof getStaticPr
   }
 
   if (!brand) {
-      return <div className="text-center text-xl text-text-secondary mt-10">Marca de impressora não encontrada.</div>;
+    return <div className="text-center text-xl text-text-secondary mt-10">Marca de impressora não encontrada.</div>;
   }
 
   return (
@@ -163,10 +161,10 @@ function BrandPrintersPage({ brand }: InferGetStaticPropsType<typeof getStaticPr
           ))}
         </div>
       ) : (
-         <div className="col-span-full text-center py-16 px-4 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-             <p className="text-xl text-text-secondary">Nenhuma impressora encontrada para a marca {brand.name} ainda.</p>
-             <p className="text-text-subtle mt-2">Verifique novamente mais tarde ou navegue por outras categorias.</p>
-         </div>
+        <div className="col-span-full text-center py-16 px-4 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+          <p className="text-xl text-text-secondary">Nenhuma impressora encontrada para a marca {brand.name} ainda.</p>
+          <p className="text-text-subtle mt-2">Verifique novamente mais tarde ou navegue por outras categorias.</p>
+        </div>
       )}
     </>
   );
