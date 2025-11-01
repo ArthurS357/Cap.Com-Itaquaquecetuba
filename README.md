@@ -1,33 +1,33 @@
------
-
 # Cap.Com Itaquaquecetuba - Catálogo Online
 
 Este é o repositório oficial do catálogo online e site institucional da **Cap.Com Itaquaquecetuba**, uma loja especializada em soluções de impressão, incluindo cartuchos, toners, impressoras e serviços de manutenção.
 
-O projeto é construído com **Next.js** e **Prisma**, utilizando **Geração de Site Estático Incremental (ISR)** para alta performance e **Renderização no Lado do Servidor (SSR)** para funcionalidades dinâmicas como a busca.
+O projeto é construído com **Next.js 15 (Turbopack)** e **Prisma**, utilizando **Geração de Site Estático Incremental (ISR)** para alta performance e **Renderização no Lado do Servidor (SSR)** para funcionalidades dinâmicas como a busca.
 
 ## ✨ Features Principais
 
 O site serve tanto como um portfólio de serviços quanto um catálogo de produtos detalhado.
 
-  * **Página Inicial Completa:** Apresenta a loja com seções de "Categorias", "Nossos Serviços" (Remanufatura e Manutenção), "Sobre Nós" e "Localização" interativa (Google Maps e Waze).
-  * **Catálogo de Produtos (ISR):** Páginas de produtos geradas estaticamente para performance máxima e SEO. As páginas são revalidadas periodicamente para buscar atualizações sem a necessidade de um novo deploy (`revalidate: 60`).tsx].
-  * **Navegação por Categoria (ISR):** As páginas de categoria (`/categoria/[slug]`) e subcategoria são geradas dinamicamente usando `getStaticPaths` e `getStaticProps`, garantindo que o site seja rápido e escalável.tsx].
-  * **Busca Inteligente (SSR):** A funcionalidade de busca (`/busca`) é renderizada no servidor (`getServerSideProps`) para resultados em tempo real. A busca é avançada: ela pesquisa não apenas nomes de produtos, mas também **modelos de impressora**, retornando os suprimentos compatíveis.
-  * **Compatibilidade de Impressoras:** O núcleo do sistema é um schema Prisma robusto que mapeia produtos (cartuchos/toners) a modelos de impressora específicos através da tabela `PrinterCompatibility`.
-  * **Design Responsivo com Tema Dark:** Utiliza Tailwind CSS com um tema customizado (dark mode) definido em `tailwind.config.ts`.
+  * **Página Inicial (`index.tsx`):** Utiliza `getStaticProps` (ISR) para alta performance. Apresenta a loja com uma seção *Hero*, listagem de "Categorias" principais, "Nossos Serviços" (Remanufatura e Manutenção), "Sobre Nós" e "Localização" interativa (Google Maps e Waze).
+  * **Catálogo de Produtos (ISR):** Páginas de produtos (`/produto/[slug]`) são geradas estaticamente para performance máxima e SEO. Elas incluem detalhes, descrição, imagem, marca, categoria e uma lista de impressoras compatíveis. As páginas são revalidadas periodicamente (`revalidate: 60`).
+  * **Navegação por Categoria (ISR):** As páginas de categoria (`/categoria/[slug]`) são geradas dinamicamente usando `getStaticPaths` e `getStaticProps`, permitindo a navegação por categorias e subcategorias (ex: Toners -\> Toner HP).
+  * **Páginas de Impressoras por Marca (ISR):** Uma nova seção (`/impressoras/[brand]`) lista todos os modelos de impressoras de uma determinada marca (HP, Brother, etc.) e os suprimentos compatíveis cadastrados para cada uma.
+  * **Busca Inteligente (SSR):** A funcionalidade de busca (`/busca`) é renderizada no servidor (`getServerSideProps`) para resultados em tempo real. A busca é avançada: ela pesquisa não apenas por nome de produto/descrição, mas também por **modelos de impressora**, retornando os suprimentos compatíveis corretos.
+  * **Schema Robusto (`schema.prisma`):** O núcleo do sistema é um schema Prisma que mapeia `Product` (cartuchos/toners) a modelos de `Printer` através da tabela de relação `PrinterCompatibility`.
+  * **Design Responsivo (Tailwind):** Utiliza Tailwind CSS com um tema customizado (dark mode) definido em `tailwind.config.ts`.
   * **SEO Otimizado:** Cada página utiliza um componente `SEO` customizado (`src/components/Seo.tsx`) para injetar tags `<title>` e `<meta description>` dinâmicas.
+  * **CI/CD (`ci.yml`):** Um workflow de GitHub Actions está configurado para rodar `lint`, `build` (com `prisma generate`) e `test` (com `vitest`) em cada push e pull request para a `main`.
 
 ## 🛠️ Stack de Tecnologias
 
-Este projeto utiliza um conjunto de tecnologias modernas para alta performance e excelente experiência de desenvolvimento.
-
-  * **Framework:** [Next.js](https://nextjs.org/) (usando --turbopack)
+  * **Framework:** [Next.js](https://nextjs.org/) (v15 com Turbopack)
   * **Linguagem:** [TypeScript](https://www.typescriptlang.org/)
   * **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
   * **ORM / Banco de Dados:** [Prisma](https://www.prisma.io/)
-  * **Dependências Principais:** [React](https://reactjs.org/), [React Icons](https://react-icons.github.io/react-icons/)
-  * **Linting/Formato:** [ESLint](https://eslint.org/)
+  * **Banco de Dados (Produção):** [PostgreSQL](https://www.postgresql.org/) (conforme `migration.sql`)
+  * **Testes:** [Vitest](https://vitest.dev/)
+  * **CI/CD:** [GitHub Actions](https://github.com/features/actions)
+  * **Linting:** [ESLint](https://eslint.org/)
 
 ## 🚀 Como Rodar Localmente
 
@@ -35,13 +35,14 @@ Siga os passos abaixo para configurar e executar o projeto em seu ambiente de de
 
 ### 1\. Pré-requisitos
 
-  * [Node.js](https://nodejs.org/) (v18.18 ou superior)
+  * [Node.js](https://nodejs.org/) (v20 ou superior, conforme `ci.yml`)
   * [npm](https://www.npmjs.com/) (ou yarn/pnpm)
+  * Um servidor PostgreSQL rodando (localmente ou em um serviço como [Neon](https://neon.tech/))
 
 ### 2\. Clonar o Repositório
 
 ```bash
-git clone https://github.com/seu-usuario/cap.com-itaquaquecetuba.git
+git clone https://github.com/arthurs357/cap.com-itaquaquecetuba.git
 cd cap.com-itaquaquecetuba
 ```
 
@@ -53,24 +54,23 @@ npm install
 
 ### 4\. Configurar o Banco de Dados (Prisma)
 
-Este projeto usa Prisma para gerenciamento do banco de dados. O setup inicial utiliza SQLite para facilidade de desenvolvimento.
+**a. Criar arquivo `.env`:**
+Crie um arquivo `.env` na raiz do projeto e adicione sua string de conexão do PostgreSQL:
 
-**a. Gerar o Cliente Prisma:**
-O primeiro passo é gerar o cliente Prisma com base no schema.
-
-```bash
-npx prisma generate
+```env
+# Exemplo de .env
+DATABASE_URL="postgresql://USUARIO:SENHA@HOST:PORTA/DATABASE"
 ```
 
 **b. Aplicar Migrações:**
-Isso criará o arquivo de banco de dados SQLite (`prisma/mydb.db`) e aplicará o schema das tabelas.
+Isso aplicará o schema do `prisma/schema.prisma` ao seu banco de dados PostgreSQL.
 
 ```bash
 npx prisma migrate dev
 ```
 
 **c. Popular o Banco de Dados (Seed):**
-O projeto inclui um script de `seed` para popular o banco com categorias, marcas, produtos e impressoras. O `package.json` já tem um script configurado para isso.
+O projeto inclui um script (`prisma/seed.ts`) para popular o banco com categorias, marcas, produtos e impressoras.
 
 ```bash
 npm run prisma:seed
@@ -92,24 +92,26 @@ Abra [http://localhost:3000](https://www.google.com/search?q=http://localhost:30
   * `npm run build`: Gera a build de produção otimizada.
   * `npm run start`: Inicia a build de produção.
   * `npm run lint`: Executa o ESLint para análise de código.
+  * `npm run test`: Executa os testes com Vitest.
   * `npm run prisma:seed`: Executa o script `prisma/seed.ts` para popular o banco de dados.
 
 ## 📂 Estrutura do Projeto (Simplificada)
 
 ```
 .
+├── .github/workflows/
+│   └── ci.yml              # Workflow de Integração Contínua
 ├── prisma/
-│   ├── migrations/         # Migrações do banco de dados
-│   ├── mydb.db             # Banco de dados SQLite (desenvolvimento)
-│   ├── schema.prisma       # Definição do schema do banco de dados
+│   ├── migrations/         # Migrações do PostgreSQL
+│   ├── schema.prisma       # Definição do schema do banco
 │   └── seed.ts             # Script para popular o banco
 │
 ├── public/
-│   ├── images/
-│   └── ...                 # Arquivos estáticos e imagens
+│   ├── images/             # Imagens de produtos, categorias, etc.
+│   └── ...
 │
 ├── src/
-│   ├── components/         # Componentes React reutilizáveis (Layout, Cards, SEO)
+│   ├── components/         # Componentes React (Layout, Cards, SEO, etc.)
 │   ├── lib/
 │   │   └── utils.ts        # Funções utilitárias (ex: slugify)
 │   ├── pages/
@@ -130,38 +132,20 @@ Abra [http://localhost:3000](https://www.google.com/search?q=http://localhost:30
 └── tailwind.config.ts      # Configuração do tema do Tailwind
 ```
 
-## 🌐 Deploy na Vercel (Importante)
+## 🌐 Deploy na Vercel
 
-Este projeto está pronto para o deploy na Vercel, mas requer **uma etapa crucial**:
+Este projeto está pronto para o deploy na Vercel, pois já utiliza PostgreSQL.
 
-O banco de dados de desenvolvimento é um arquivo **SQLite** (`prisma/mydb.db`). Este tipo de banco de dados **não funciona** em ambientes Serverless como a Vercel, pois o sistema de arquivos é efêmero (temporário).
+1.  **Conectar Repositório:** Importe seu projeto Git na Vercel.
 
-**Para fazer o deploy, você DEVE migrar para um banco de dados hospedado.**
+2.  **Configurar Variáveis de Ambiente:** No painel do seu projeto na Vercel, vá em "Settings" \> "Environment Variables" e adicione a `DATABASE_URL` do seu banco de dados (ex: Vercel Postgres, Neon, etc.).
 
-### Passos para o Deploy:
-
-1.  **Criar um Banco de Dados:** Crie um banco de dados **PostgreSQL** em um serviço como [Vercel Postgres](https://www.google.com/search?q=https://vercel.com/postgres), [Neon](https://neon.tech/) ou [Supabase](https://supabase.com/).
-
-2.  **Alterar o Schema:** Mude o provider no seu `prisma/schema.prisma`:
-
-    ```prisma
-    // prisma/schema.prisma
-    datasource db {
-      provider = "postgresql" // Mude de "sqlite" para "postgresql"
-      url      = env("DATABASE_URL")
-    }
-    ```
-
-3.  **Configurar Variáveis de Ambiente:** No painel do seu projeto na Vercel, vá em "Settings" \> "Environment Variables" e adicione a `DATABASE_URL` que você obteve do seu provedor de banco (ex: Vercel Postgres).
-
-4.  **Ajustar o Comando de Build:** Altere o comando de build na Vercel para aplicar as migrações e (opcionalmente) popular o banco antes de construir o site:
+3.  **Ajustar o Comando de Build:** Altere o "Build Command" nas configurações do projeto na Vercel para aplicar as migrações e popular o banco antes de construir o site:
 
     ```bash
     npx prisma migrate deploy && npx prisma db seed && npm run build
     ```
 
       * `prisma migrate deploy`: Aplica as migrações no banco de produção.
-      * `prisma db seed`: (Opcional) Popula seu banco de produção com os dados do `seed.ts`.
+      * `prisma db seed`: Popula seu banco de produção com os dados do `seed.ts`.
       * `npm run build`: Constrói o site Next.js.
-
-Feito isso, seu projeto funcionará perfeitamente na Vercel, aproveitando ao máximo o ISR, SSR e as Funções Serverless.
