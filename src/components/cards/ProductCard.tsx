@@ -1,10 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
-// import { slugify } from '@/lib/utils';
-// Rmover a importação dos tipos completos do Prisma
-// import type { Product, Brand } from '@prisma/client'; 
 
-// Novo tipo, que define o MÍNIMO que o card precisa
+// Define o tipo mínimo que o ProductCard precisa para renderizar
 type MinimalProduct = {
   id: number;
   name: string;
@@ -15,92 +12,92 @@ type MinimalProduct = {
   };
 };
 
-// ProductCardProps para usar o novo tipo
 type ProductCardProps = {
   product: MinimalProduct | null | undefined;
 };
 
 const ProductCard = ({ product }: ProductCardProps) => {
-  // O console.log que você tinha (ótimo para debug!)
-  console.log('Rendering ProductCard with product:', product);
+  // console.log('Rendering ProductCard with product:', product); // Debug
 
-  // Atlz para esta verificação para ser mais segura
+  // Renderização principal (produto válido com slug e marca)
   if (product && product.slug && product.brand) {
     return (
-      // Link para a página do produto usando o slug
       <Link href={`/produto/${product.slug}`} key={product.id}>
         <div className="group bg-surface-card rounded-xl p-4 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer h-full flex flex-col justify-between items-center text-center border border-surface-border hover:scale-105">
-          {/* Mostra a imagem do produto ou um placeholder */}
+          
+          {/* Imagem do produto */}
           {product.imageUrl ? (
-            <div className="bg-white p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px] bg-surface-border">
+            <div className="bg-white p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
               <Image
                 src={product.imageUrl}
-                alt={product.name} // Alt text descritivo
-                width={200}
-                height={200}
-                className="object-contain" // Garante que a imagem caiba sem distorcer
-              />
-            </div>
-          ) : (
-             // Placeholder caso não haja imageUrl
-             <div className="bg-surface-border p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
-               <span className="text-text-subtle text-sm">Sem imagem</span>
-             </div>
-          )}
-          {/* Informações do produto */}
-          <div className="w-full">
-            <h2 className="text-lg font-semibold text-text-primary">{product.name}</h2>
-            <p className="text-sm text-text-subtle mt-2">{product.brand.name}</p>
-          </div>
-          {/* Efeito visual de linha no hover */}
-          <div className="w-1/2 h-1 bg-brand-accent rounded-full mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        </div>
-      </Link>
-    );
-  } else {
-    // ---- Fallback: Renderiza um placeholder não clicável ----
-    // Loga um aviso para ajudar a depurar por que chegou aqui.
-    if (!product) {
-      console.warn('Rendering non-link ProductCard because product prop is undefined/null.');
-    } else if (!product.slug) {
-      console.warn('Rendering non-link ProductCard because slug is missing:', product);
-    } else if (!product.brand){
-       console.warn('Rendering non-link ProductCard because brand is missing:', product);
-    }
-
-    // Define valores padrão seguros para evitar erros
-    const key = product ? product.id : Math.random();
-    const name = product ? product.name : 'Produto Inválido';
-    // Verifica se brand existe antes de acessar name
-    const brandName = product && product.brand ? product.brand.name : 'Marca Desconhecida';
-    const imageUrl = product ? product.imageUrl : null;
-
-    return (
-      // Div que simula o card, mas não é clicável e tem opacidade reduzida
-      <div key={key} className="bg-surface-card rounded-xl p-4 shadow-lg border border-surface-border flex flex-col justify-between items-center text-center opacity-50 cursor-not-allowed h-full">
-           {/* Imagem ou placeholder */}
-           {imageUrl ? (
-            <div className="bg-white p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px] bg-surface-border">
-              <Image
-                src={imageUrl}
-                alt={name}
+                alt={product.name}
                 width={200}
                 height={200}
                 className="object-contain"
               />
             </div>
           ) : (
-             <div className="bg-surface-border p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
-               <span className="text-text-subtle text-sm">Sem imagem</span>
-             </div>
+            // Placeholder (sem imagem)
+            <div className="bg-surface-border p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
+              <span className="text-text-subtle text-sm">Sem imagem</span>
+            </div>
           )}
-           {/* Informações (com valores padrão) */}
-           <div className="w-full">
-            <h2 className="text-lg font-semibold text-text-primary">{name}</h2>
-            <p className="text-sm text-text-subtle mt-2">{brandName}</p>
+
+          {/* Informações do produto */}
+          <div className="w-full">
+            <h2 className="text-lg font-semibold text-text-primary">{product.name}</h2>
+            <p className="text-sm text-text-subtle mt-2">{product.brand.name}</p>
           </div>
-           {/* Linha cinza indicando estado desabilitado/inválido */}
-           <div className="w-1/2 h-1 bg-gray-500 rounded-full mt-4"></div>
+
+          {/* Efeito de hover */}
+          <div className="w-1/2 h-1 bg-brand-accent rounded-full mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </div>
+      </Link>
+    );
+  } 
+
+  else {
+    if (!product) {
+      console.warn('Rendering non-link ProductCard: product prop is null/undefined.');
+    } else if (!product.slug) {
+      console.warn('Rendering non-link ProductCard: slug is missing.', product);
+    } else if (!product.brand) {
+      console.warn('Rendering non-link ProductCard: brand is missing.', product);
+    }
+
+    const key = product ? product.id : Math.random();
+    const name = product ? product.name : 'Produto Inválido';
+    const brandName = product && product.brand ? product.brand.name : 'Marca Desconhecida';
+    const imageUrl = product ? product.imageUrl : null;
+
+    return (
+      <div key={key} className="bg-surface-card rounded-xl p-4 shadow-lg border border-surface-border flex flex-col justify-between items-center text-center opacity-50 cursor-not-allowed h-full">
+        
+        {/* Imagem ou placeholder (Fallback) */}
+        {imageUrl ? (
+          <div className="bg-white p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
+            <Image
+              src={imageUrl}
+              alt={name}
+              width={200}
+              height={200}
+              className="object-contain"
+            />
+          </div>
+        ) : (
+          <div className="bg-surface-border p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
+            <span className="text-text-subtle text-sm">Sem imagem</span>
+          </div>
+        )}
+
+        {/* Informações (Fallback) */}
+        <div className="w-full">
+          <h2 className="text-lg font-semibold text-text-primary">{name}</h2>
+          <p className="text-sm text-text-subtle mt-2">{brandName}</p>
+        </div>
+
+        {/* Linha (Fallback) */}
+        <div className="w-1/2 h-1 bg-gray-500 rounded-full mt-4"></div>
       </div>
     );
   }
