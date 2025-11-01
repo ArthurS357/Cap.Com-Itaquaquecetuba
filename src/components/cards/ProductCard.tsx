@@ -1,24 +1,31 @@
 import Link from 'next/link';
 import Image from 'next/image';
-// A função slugify não é usada neste componente, pode ser removida se não for usada em futuras modificações.
 // import { slugify } from '@/lib/utils';
-import type { Product, Brand } from '@prisma/client'; // Importa os tipos completos
+// Rmover a importação dos tipos completos do Prisma
+// import type { Product, Brand } from '@prisma/client'; 
 
-// Define o tipo esperado como o tipo Product completo mais a Brand completa
+// Novo tipo, que define o MÍNIMO que o card precisa
+type MinimalProduct = {
+  id: number;
+  name: string;
+  slug: string | null;
+  imageUrl: string | null;
+  brand: {
+    name: string;
+  };
+};
+
+// ProductCardProps para usar o novo tipo
 type ProductCardProps = {
-  // Permite que product seja potencialmente nulo ou indefinido para melhor tratamento de erro
-  product: (Product & { brand: Brand }) | null | undefined;
+  product: MinimalProduct | null | undefined;
 };
 
 const ProductCard = ({ product }: ProductCardProps) => {
-  // ***** DEBUG: Logar o produto recebido *****
-  // Este log ajudará a identificar qual 'product' está causando o erro no console do navegador/servidor.
+  // O console.log que você tinha (ótimo para debug!)
   console.log('Rendering ProductCard with product:', product);
-  // *******************************************
 
-  // Verifica se 'product' existe, se 'product.brand' existe E se 'product.slug' existe antes de criar o Link
-  // Isso protege contra 'product' ser undefined/null, 'brand' ser null (pouco provável com include) e contra 'slug' ser null
-  if (product && product.brand && product.slug) {
+  // Atlz para esta verificação para ser mais segura
+  if (product && product.slug && product.brand) {
     return (
       // Link para a página do produto usando o slug
       <Link href={`/produto/${product.slug}`} key={product.id}>
@@ -100,4 +107,3 @@ const ProductCard = ({ product }: ProductCardProps) => {
 };
 
 export default ProductCard;
-
