@@ -7,7 +7,7 @@ import Image from 'next/image';
 type Category = {
   id: number;
   name: string;
-  slug: string | null;
+  slug: string;
   imageUrl: string | null;
   parentId: number | null;
 };
@@ -136,7 +136,7 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
             O que você procura? Cartuchos, toners, impressoras e mais!
           </p>
 
-          {/* Container dos botões (MODIFICADO) */}
+          {/* Container dos botões */}
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
             {/* Botão Primário (Categorias) */}
             <a
@@ -146,7 +146,7 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
               Ver Categorias
             </a>
 
-            {/* Botão Secundário (Serviços) - (NOVO) */}
+            {/* Botão Secundário (Serviços)*/}
             <a
               href="#servicos"
               className="inline-block bg-transparent border-2 border-white text-white font-semibold py-3 px-8 rounded-lg hover:bg-white hover:text-surface-background transition-colors duration-300 shadow-lg transform hover:scale-105 w-full sm:w-auto"
