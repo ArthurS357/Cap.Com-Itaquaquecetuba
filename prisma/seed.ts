@@ -1,5 +1,11 @@
 import { PrismaClient } from '@prisma/client';
-import { slugify } from '../src/lib/utils';
+
+const slugify = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]+/g, '');
+
 
 const prisma = new PrismaClient();
 
@@ -96,13 +102,13 @@ async function main() {
     // ========= Toners Brother =========
     { name: 'TN-1060', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER', description: 'Toner Brother TN-1060. Monocromático de rendimento padrão, ideal para impressoras compactas. Custo-benefício para uso doméstico ou pequeno escritório.', imageUrl: '/images/produtos/TonerBrother/tn1060.png' },
     { name: 'TN-210', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER', description: 'Toner Brother TN-210. Cartucho de toner colorido para impressoras laser coloridas da Brother, disponível em Ciano, Magenta e Amarelo.', imageUrl: '/images/produtos/TonerBrother/tn210.png' },
-    { name: 'TN-360', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER', description: 'Toner Brother TN-360. Monocromático de alta capacidade, projetado para impressoras e multifuncionais com maior volume de impressão.', imageUrl: '/images/produtos/TonerBrother/tn360.png'  },
+    { name: 'TN-360', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER', description: 'Toner Brother TN-360. Monocromático de alta capacidade, projetado para impressoras e multifuncionais com maior volume de impressão.', imageUrl: '/images/produtos/TonerBrother/tn360.png' },
     { name: 'TN-660', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER', description: 'Toner Brother TN-660. Monocromático de alto rendimento, uma escolha popular para escritórios que buscam reduzir custos por página.', imageUrl: '/images/produtos/TonerBrother/tn660.png' },
     { name: 'TN-760', brandId: brother.id, categoryId: subSubCatTonerBrother.id, type: 'TONER', description: 'Toner Brother TN-760. Monocromático de alto rendimento, sucessor de modelos mais antigos, oferecendo ainda mais páginas por cartucho.', imageUrl: '/images/produtos/TonerBrother/tn760.png' },
 
     // ========= Toners Samsung =========
-    { name: 'D101', brandId: samsung.id, categoryId: subSubCatTonerSamsung.id, type: 'TONER', description: 'Toner Samsung D101. Monocromático para uma variedade de impressoras laser e multifuncionais Samsung, oferecendo impressões nítidas e confiáveis.', imageUrl: '/images/produtos/TonerSamsung/D101.png'  },
-    { name: 'D111', brandId: samsung.id, categoryId: subSubCatTonerSamsung.id, type: 'TONER', description: 'Toner Samsung D111. Monocromático compatível com as impressoras Samsung Xpress, conhecido pela fácil instalação e qualidade consistente.', imageUrl: '/images/produtos/TonerSamsung/D111.png'  },
+    { name: 'D101', brandId: samsung.id, categoryId: subSubCatTonerSamsung.id, type: 'TONER', description: 'Toner Samsung D101. Monocromático para uma variedade de impressoras laser e multifuncionais Samsung, oferecendo impressões nítidas e confiáveis.', imageUrl: '/images/produtos/TonerSamsung/D101.png' },
+    { name: 'D111', brandId: samsung.id, categoryId: subSubCatTonerSamsung.id, type: 'TONER', description: 'Toner Samsung D111. Monocromático compatível com as impressoras Samsung Xpress, conhecido pela fácil instalação e qualidade consistente.', imageUrl: '/images/produtos/TonerSamsung/D111.png' },
 
     // ========= Produtos de Tinta =========
     { name: 'Tinta Epson', brandId: epson.id, categoryId: catTintas.id, type: 'TINTA_REFIL', description: 'Tinta refil para a linha Epson EcoTank. Cores vibrantes e alta qualidade, ideal para quem busca economia máxima sem abrir mão da performance.', imageUrl: '/images/produtos/Tintas/tinta-epson.png' },
@@ -152,16 +158,16 @@ async function main() {
 
   // Mapeia nomes únicos para objetos com brandId
   const printersToCreateData = uniquePrinterModelNames.map(modelName => {
-      let brandId;
-      // Associa o ID da marca baseado no início do nome do modelo
-      if (modelName.toLowerCase().startsWith('hp')) brandId = hp.id;
-      else if (modelName.toLowerCase().startsWith('brother')) brandId = brother.id;
-      else if (modelName.toLowerCase().startsWith('samsung')) brandId = samsung.id;
-      else if (modelName.toLowerCase().startsWith('epson')) brandId = epson.id;
-      else if (modelName.toLowerCase().startsWith('canon')) brandId = canon.id;
-      else brandId = hp.id; // Assume HP como padrão se não identificar a marca
-      return { modelName, brandId };
-    });
+    let brandId;
+    // Associa o ID da marca baseado no início do nome do modelo
+    if (modelName.toLowerCase().startsWith('hp')) brandId = hp.id;
+    else if (modelName.toLowerCase().startsWith('brother')) brandId = brother.id;
+    else if (modelName.toLowerCase().startsWith('samsung')) brandId = samsung.id;
+    else if (modelName.toLowerCase().startsWith('epson')) brandId = epson.id;
+    else if (modelName.toLowerCase().startsWith('canon')) brandId = canon.id;
+    else brandId = hp.id; // Assume HP como padrão se não identificar a marca
+    return { modelName, brandId };
+  });
 
   console.log("Data to be inserted into Printer table (unique modelName):", JSON.stringify(printersToCreateData, null, 2));
 
@@ -232,7 +238,7 @@ async function main() {
     } catch (error) {
       console.error("Erro ao criar relações de compatibilidade:", error);
       if (error instanceof Error && 'code' in error && error.code === 'P2003') {
-           console.error("Detalhe: Erro de chave estrangeira. Verifique IDs.");
+        console.error("Detalhe: Erro de chave estrangeira. Verifique IDs.");
       }
     }
   } else {
