@@ -41,11 +41,13 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: 3. Install Dependencies
-        run: npm ci
-
-      - name: 4. Generate Prisma Client
-        run: npx prisma generate
+      # 3. O build agora funcionará, pois tem acesso ao DB
+      - name: 7. Run Production Build
+        run: npm run build
+      
+      # 4. Altere esta linha
+      - name: 8. Run Tests
+        run: npm run test
 
       # 2. Aplica as migrações no banco de teste
       - name: 5. Apply Database Migrations
