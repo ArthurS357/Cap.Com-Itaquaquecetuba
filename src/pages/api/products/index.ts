@@ -8,12 +8,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const products = await prisma.product.findMany({
         include: {
-          brand: true, // Inclui dados da marca
-          category: true, // Inclui dados da categoria
+          brand: true, 
+          category: true, 
         },
       });
       res.status(200).json(products);
-    } catch (error) {
+    } catch (error) { // Correção: use a variável 'error'
+      console.error("Failed to fetch products:", error); 
       res.status(500).json({ error: 'Failed to fetch products' });
     }
   } else {
