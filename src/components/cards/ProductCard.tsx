@@ -9,7 +9,7 @@ type MinimalProduct = {
   imageUrl: string | null;
   brand: {
     name: string;
-  };
+  } | null; 
 };
 
 type ProductCardProps = {
