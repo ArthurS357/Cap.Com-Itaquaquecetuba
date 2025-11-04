@@ -88,17 +88,17 @@ describe('Componente ProductCard', () => {
 
   // Teste 5: Produto de fallback sem marca
   it('deve renderizar o fallback corretamente se o produto não tiver marca', () => {
-    // 1. Mock de produto sem marca (mas com slug)
-    const mockProductNoBrand = {
+    // 1. Mock de produto sem marca (agora é um tipo válido)
+    const mockProductNoBrand: MinimalProduct = { // <-- Pode até tipar se quiser
       id: 4,
       name: 'Produto Sem Marca',
       slug: 'produto-sem-marca',
       imageUrl: null,
-      brand: null, // <--- O gatilho
+      brand: null, // <-- Isso agora é permitido pelo tipo
     };
 
-    // 2. Renderiza o componente (forçando o tipo, pois a prop não aceita 'null')
-    render(<ProductCard product={mockProductNoBrand as any} />);
+    // 2. Renderiza o componente SEM 'as any'
+    render(<ProductCard product={mockProductNoBrand} />); // <-- CORREÇÃO AQUI
 
     // 3. Verifica se os nomes de fallback são usados
     expect(screen.getByText('Produto Sem Marca')).toBeInTheDocument();
