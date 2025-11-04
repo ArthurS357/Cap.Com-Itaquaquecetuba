@@ -1,6 +1,168 @@
-# Cap.Com Itaquaquecetuba - Catálogo Online
+# Cap.Com Itaquaquecetuba - Online Catalog
 
-[](https://www.google.com/search?q=https://github.com/arthurs357/cap.com-itaquaquecetuba/actions/workflows/ci.yml)
+[![CI (Build, Lint & Test)](https://github.com/arthurs357/cap.com-itaquaquecetuba/actions/workflows/ci.yml/badge.svg)](https://github.com/arthurs357/cap.com-itaquaquecetuba/actions/workflows/ci.yml)
+
+<p align="center">
+  <strong><a href="#-capcom-itaquaquecetuba---online-catalog">English</a></strong> | <strong><a href="#-capcom-itaquaquecetuba---catálogo-online">Português</a></strong>
+</p>
+
+This is the official repository for the online catalog and institutional website of **Cap.Com Itaquaquecetuba**, a store specializing in printing solutions, including cartridges, toners, printers, and maintenance services.
+
+The project is built with **Next.js 15 (Turbopack)** and **Prisma**, utilizing **Incremental Static Regeneration (ISR)** for high performance and **Server-Side Rendering (SSR)** for dynamic features like search.
+
+## ✨ Key Features
+
+The site serves as both a service portfolio and a detailed product catalog.
+
+* **Homepage (ISR):** Introduces the store with "Categories," "Our Services" (Remanufacturing and Maintenance), "About Us," and an interactive "Location" section.
+* **Product Catalog (ISR):** Product pages (`/produto/[slug]`) are statically generated for maximum performance and [SEO](src/components/Seo.tsx). Pages are revalidated periodically (`revalidate: 60`).
+* **Category Navigation (ISR):** Pages (`/categoria/[slug]`) are dynamically generated using `getStaticPaths` and `getStaticProps`, allowing navigation through categories and subcategories.
+* **Smart Search (SSR):** The search functionality (`/busca`) is server-side rendered (`getServerSideProps`) for real-time results. The search is advanced: it queries product names and also **printer models**, returning compatible supplies.
+* **Robust Schema (`schema.prisma`):** The system's core is a Prisma schema that maps `Product` (cartridges/toners) to `Printer` models via the `PrinterCompatibility` relation table.
+* **Automated Testing:** The project is covered by unit and component tests using **Vitest** and **React Testing Library**.
+* **Continuous Integration (CI):** A GitHub Actions workflow runs `lint`, `build`, and `test` on every push and pull request to `main`, ensuring code quality.
+* **Responsive Design (Tailwind):** Uses Tailwind CSS with a custom dark mode theme defined in `tailwind.config.ts`.
+* **Optimized SEO:** Each page uses a custom `SEO` component (`src/components/Seo.tsx`) to inject dynamic `<title>` and `<meta description>` tags.
+
+## 🛠️ Tech Stack
+
+* **Framework:** [Next.js](https://nextjs.org/) (v15 w/ Turbopack) ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+* **Language:** [TypeScript](https://www.typescriptlang.org/) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+* **Styling:** [Tailwind CSS](https://tailwindcss.com/) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+* **ORM / DB:** [Prisma](https://www.prisma.io/) ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
+* **Database (Production):** [PostgreSQL](https://www.postgresql.org/) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+* **Testing:** [Vitest](https://vitest.dev/) ![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white) & [React Testing Library](https://testing-library.com/) ![Testing Library](https://img.shields.io/badge/Testing_Library-E33332?style=for-the-badge&logo=testinglibrary&logoColor=white)
+* **CI/CD:** [GitHub Actions](https://github.com/features/actions) ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
+* **Linting:** [ESLint](https://eslint.org/) ![ESLint](https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)
+
+## 🚀 Running Locally
+
+Follow the steps below to set up and run the project in your development environment.
+
+### 1. Prerequisites
+
+* [Node.js](https://nodejs.org/) (v20 or higher, as per `ci.yml`)
+* [npm](https://www.npmjs.com/) (or yarn/pnpm)
+* A running **PostgreSQL** server (locally or on a service like [Neon](https://neon.tech/))
+
+### 2. Clone the Repository
+
+```bash
+git clone [https://github.com/arthurs357/cap.com-itaquaquecetuba.git](https://github.com/arthurs357/cap.com-itaquaquecetuba.git)
+cd cap.com-itaquaquecetuba
+````
+
+### 3\. Install Dependencies
+
+```bash
+npm install
+```
+
+### 4\. Configure the Database (Prisma)
+
+**a. Create `.env` file:**
+Create a `.env` file in the project root and add your PostgreSQL connection string:
+
+```env
+# Example .env
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+```
+
+**b. Apply Migrations:**
+This will apply the schema from `prisma/schema.prisma` to your PostgreSQL database.
+
+```bash
+npx prisma migrate dev
+```
+
+**c. Populate the Database (Seed):**
+The project includes a script (`prisma/seed.ts`) to populate the database with categories, brands, products, and printers.
+
+```bash
+npm run prisma:seed
+```
+
+### 5\. Run the Development Server
+
+Now you can start the development server (with Turbopack).
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](https://www.google.com/search?q=http://localhost:3000) in your browser to see the project running.
+
+## 📦 Available Scripts
+
+  * `npm run dev`: Starts the development server with Turbopack.
+  * `npm run build`: Generates the optimized production build.
+  * `npm run start`: Starts the production build.
+  * `npm run lint`: Runs ESLint for code analysis.
+  * `npm run test`: Runs the test suite with Vitest and generates a coverage report.
+  * `npm run prisma:seed`: Executes the `prisma/seed.ts` script to populate the database.
+
+## 📂 Project Structure (Simplified)
+
+```
+.
+├── .github/workflows/
+│   └── ci.yml              # Continuous Integration Workflow
+├── prisma/
+│   ├── migrations/         # PostgreSQL Migrations
+│   ├── schema.prisma       # Database schema definition
+│   └── seed.ts             # Database seeding script
+│
+├── public/
+│   ├── images/             # Product images, categories, etc.
+│   └── ...
+│
+├── src/
+│   ├── components/         # React components (Layout, Cards, SEO)
+│   │   └── ...
+│   │   └── *.test.tsx      # Component tests
+│   ├── lib/
+│   │   ├── utils.ts        # Utility functions
+│   │   └── utils.test.ts   # Utility tests
+│   ├── pages/
+│   │   ├── api/            # API Routes
+│   │   ├── categoria/
+│   │   │   └── [slug].tsx  # Category Page (ISR)
+│   │   ├── produto/
+│   │   │   └── [slug].tsx  # Product Page (ISR)
+│   │   ├── _app.tsx        # Global App (Layout, Splash Screen)
+│   │   ├── busca.tsx       # Search Page (SSR)
+│   │   └── index.tsx       # Homepage (ISR)
+│   └── globals.css         # Tailwind global styles
+│
+├── package.json            # Dependencies and scripts
+├── tailwind.config.ts      # Tailwind theme configuration
+├── vitest.config.ts        # Vitest configuration
+└── vitest.setup.ts         # Global test setup (jest-dom)
+```
+
+## 🌐 Deploy on Vercel
+
+This project is ready for deployment on Vercel (or similar platforms) as it already uses PostgreSQL.
+
+1.  **Connect Repository:** Import your Git project into Vercel.
+
+2.  **Configure Environment Variables:** In your Vercel project dashboard, go to "Settings" \> "Environment Variables" and add the `DATABASE_URL` for your production database (e.g., Vercel Postgres, Neon, etc.).
+
+3.  **Adjust the Build Command:** Change the "Build Command" in Vercel's project settings to apply migrations and (optionally) seed the database before building the site:
+
+    ```bash
+    npx prisma migrate deploy && npx prisma db seed && npm run build
+    ```
+
+      * `prisma migrate deploy`: Applies migrations to the production database.
+      * `prisma db seed`: (Optional) Populates your production database with data from `seed.ts`.
+      * `npm run build`: Builds the Next.js site.
+
+-----
+
+# 🇧🇷 Cap.Com Itaquaquecetuba - Catálogo Online
+
+[](https://www.google.com/url?sa=E&source=gmail&q=https://github.com/arthurs357/cap.com-itaquaquecetuba/actions/workflows/ci.yml)
 
 Este é o repositório oficial do catálogo online e site institucional da **Cap.Com Itaquaquecetuba**, uma loja especializada em soluções de impressão, incluindo cartuchos, toners, impressoras e serviços de manutenção.
 
@@ -11,8 +173,8 @@ O projeto é construído com **Next.js 15 (Turbopack)** e **Prisma**, utilizando
 O site serve tanto como um portfólio de serviços quanto um catálogo de produtos detalhado.
 
   * **Página Inicial (ISR):** Apresenta a loja com seções de "Categorias", "Nossos Serviços" (Remanufatura e Manutenção), "Sobre Nós" e "Localização" interativa.
-  * **Catálogo de Produtos (ISR):** Páginas de produtos (`/produto/[slug]`) geradas estaticamente para performance máxima e SEO.tsx]. As páginas são revalidadas periodicamente (`revalidate: 60`).
-  * **Navegação por Categoria (ISR):** As páginas (`/categoria/[slug]`) são geradas dinamicamente usando `getStaticPaths` e `getStaticProps`, permitindo a navegação por categorias e subcategorias.tsx].
+  * **Catálogo de Produtos (ISR):** Páginas de produtos (`/produto/[slug]`) geradas estaticamente para performance máxima e [SEO](https://www.google.com/search?q=src/components/Seo.tsx). As páginas são revalidadas periodicamente (`revalidate: 60`).
+  * **Navegação por Categoria (ISR):** As páginas (`/categoria/[slug]`) são geradas dinamicamente usando `getStaticPaths` e `getStaticProps`, permitindo a navegação por categorias e subcategorias.
   * **Busca Inteligente (SSR):** A funcionalidade de busca (`/busca`) é renderizada no servidor (`getServerSideProps`) para resultados em tempo real. A busca é avançada: ela pesquisa nomes de produtos e também **modelos de impressora**, retornando os suprimentos compatíveis.
   * **Schema Robusto (`schema.prisma`):** O núcleo do sistema é um schema Prisma que mapeia `Product` (cartuchos/toners) a modelos de `Printer` através da tabela de relação `PrinterCompatibility`.
   * **Testes Automatizados:** O projeto é coberto por testes de unidade e de componentes usando **Vitest** e **React Testing Library**.
@@ -22,14 +184,14 @@ O site serve tanto como um portfólio de serviços quanto um catálogo de produt
 
 ## 🛠️ Stack de Tecnologias
 
-  * **Framework:** [Next.js](https://nextjs.org/) (v15 com Turbopack)
-  * **Linguagem:** [TypeScript](https://www.typescriptlang.org/)
-  * **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
-  * **ORM / Banco de Dados:** [Prisma](https://www.prisma.io/)
-  * **Banco de Dados (Produção):** [PostgreSQL](https://www.postgresql.org/)
-  * **Testes:** [Vitest](https://vitest.dev/), [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
-  * **CI/CD:** [GitHub Actions](https://github.com/features/actions)
-  * **Linting:** [ESLint](https://eslint.org/)
+  * **Framework:** [Next.js](https://nextjs.org/) (v15 c/ Turbopack) 
+  * **Linguagem:** [TypeScript](https://www.typescriptlang.org/) 
+  * **Estilização:** [Tailwind CSS](https://tailwindcss.com/) 
+  * **ORM / Banco de Dados:** [Prisma](https://www.prisma.io/) 
+  * **Banco de Dados (Produção):** [PostgreSQL](https://www.postgresql.org/) 
+  * **Testes:** [Vitest](https://vitest.dev/)  & [React Testing Library](https://testing-library.com/) 
+  * **CI/CD:** [GitHub Actions](https://github.com/features/actions) 
+  * **Linting:** [ESLint](https://eslint.org/) 
 
 ## 🚀 Como Rodar Localmente
 
@@ -44,7 +206,7 @@ Siga os passos abaixo para configurar e executar o projeto em seu ambiente de de
 ### 2\. Clonar o Repositório
 
 ```bash
-git clone https://github.com/arthurs357/cap.com-itaquaquecetuba.git
+git clone [https://github.com/arthurs357/cap.com-itaquaquecetuba.git](https://github.com/arthurs357/cap.com-itaquaquecetuba.git)
 cd cap.com-itaquaquecetuba
 ```
 
@@ -153,3 +315,8 @@ Este projeto está pronto para o deploy na Vercel (ou plataformas similares), po
       * `prisma migrate deploy`: Aplica as migrações no banco de produção.
       * `prisma db seed`: (Opcional) Popula seu banco de produção com os dados do `seed.ts`.
       * `npm run build`: Constrói o site Next.js.
+
+<!-- end list -->
+
+```
+```
