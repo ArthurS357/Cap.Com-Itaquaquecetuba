@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
       });
       res.status(200).json(products);
-    } catch (error) { // Correção: use a variável 'error'
+    } catch (error) { 
       console.error("Failed to fetch products:", error); 
       res.status(500).json({ error: 'Failed to fetch products' });
     }

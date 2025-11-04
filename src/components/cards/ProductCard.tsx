@@ -2,7 +2,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 // Define o tipo mínimo que o ProductCard precisa para renderizar
-type MinimalProduct = {
+// Exporta o tipo para que os arquivos de teste possam usá-lo
+export type MinimalProduct = {
   id: number;
   name: string;
   slug: string | null;
@@ -17,7 +18,6 @@ type ProductCardProps = {
 };
 
 const ProductCard = ({ product }: ProductCardProps) => {
-  // console.log('Rendering ProductCard with product:', product); // Debug
 
   // Renderização principal (produto válido com slug e marca)
   if (product && product.slug && product.brand) {
@@ -56,6 +56,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
     );
   } 
 
+  // Renderização de Fallback (produto inválido ou incompleto)
   else {
     if (!product) {
       console.warn('Rendering non-link ProductCard: product prop is null/undefined.');
