@@ -2,12 +2,20 @@ import Link from 'next/link';
 import Image from 'next/image';
 import React from 'react';
 import SearchBar from './SearchBar';
-import ThemeToggleButton from './ThemeToggleButton'; 
+import ThemeToggleButton from './ThemeToggleButton';
+import { Inter } from 'next/font/google'; // 1. Importar a fonte
+
+// 2. Configurar a fonte para usar uma variável CSS
+const inter = Inter({ 
+  subsets: ['latin'], 
+  variable: '--font-inter', // Nome da variável que usaremos no Tailwind
+});
 
 type LayoutProps = {
   children: React.ReactNode;
 };
 
+// ... (Componente Navbar não muda) ...
 const Navbar = () => (
   <header className="bg-surface-card/80 backdrop-blur-sm sticky top-0 z-30 border-b border-surface-border">
     <div className="container mx-auto p-4 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -25,7 +33,6 @@ const Navbar = () => (
 
       {/* Links de Navegação */}
       <nav className="hidden md:flex items-center gap-6">
-        {/* ... links ... */}
         <Link href="/" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">
           Início
         </Link>
@@ -40,7 +47,7 @@ const Navbar = () => (
         </Link>
       </nav>
 
-      {/* 2. Agrupar Busca e Seletor de Tema */}
+      {/* Agrupar Busca e Seletor de Tema */}
       <div className="flex items-center gap-4 w-full md:w-auto">
         <SearchBar />
         <ThemeToggleButton />
@@ -49,13 +56,16 @@ const Navbar = () => (
   </header>
 );
 
-// --- Componente Footer Corrigido ---
+// --- Componente Footer ---
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const storeAddress = "Estr. dos Índios, 765 - Jardim Mossapyra, Itaquaquecetuba - SP, 08570-000";
   const phoneNumber = "(11) 99638-8426";
   
+  // Mensagem padrão para o WhatsApp
   const defaultMessage = "Olá! Visitei o site e gostaria de mais informações.";
+
+  // Formata o número e cria o link
   const whatsappNumberOnly = phoneNumber.replace(/\D/g, '');
   const fullWhatsappNumber = `55${whatsappNumberOnly}`;
   const whatsappLink = `https://wa.me/${fullWhatsappNumber}?text=${encodeURIComponent(defaultMessage)}`;
@@ -81,6 +91,7 @@ const Footer = () => {
             <h4 className="font-semibold text-text-primary mb-3">Contato</h4>
             <p>Não encontrou o seu produto?</p>
             <p className="font-semibold text-text-primary mt-1">Fale conosco:</p>
+            {/* O link inclui mensagem pronta */}
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="block text-lg text-brand-primary hover:text-brand-accent transition-colors my-2">
               {phoneNumber} (WhatsApp)
             </a>
@@ -104,12 +115,11 @@ const Footer = () => {
     </footer>
   );
 };
-// --- Fim do Componente Footer ---
-
 
 export default function Layout({ children }: LayoutProps) {
   return (
-    <div className="min-h-screen flex flex-col font-sans bg-surface-background">
+    // 3. Adicionar a variável da fonte ao wrapper principal
+    <div className={`${inter.variable} min-h-screen flex flex-col font-sans bg-surface-background`}>
       <Navbar />
       <main className="flex-grow container mx-auto p-4 md:p-8">
         {children}

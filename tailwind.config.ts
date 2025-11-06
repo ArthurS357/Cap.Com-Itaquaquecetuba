@@ -1,8 +1,8 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
-  darkMode: 'class', 
-  
+  darkMode: 'class',
+
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -10,14 +10,14 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['var(--font-inter)', 'sans-serif'],
       },
       colors: {
         brand: {
-          primary: '#00529B',   
-          accent: '#1d7dcf',    
-          dark: '#003d73',     
-          light: '#E6F0F9',   
+          primary: '#00529B',
+          accent: '#1d7dcf',
+          dark: '#003d73',
+          light: '#E6F0F9',
         },
         surface: {
           background: 'var(--color-surface-background)',
@@ -34,8 +34,8 @@ const config: Config = {
         'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
         'slide-in-up': 'slideInUp 0.6s ease-out forwards',
         'slide-in-right': 'slideInRight 0.6s ease-out forwards',
-        'fadeIn': 'fadeIn 1s ease-out forwards', 
-        'fadeOut': 'fadeOut 0.5s ease-out forwards', 
+        'fadeIn': 'fadeIn 1s ease-out forwards',
+        'fadeOut': 'fadeOut 0.5s ease-out forwards',
       },
       keyframes: {
         fadeInUp: {
@@ -47,14 +47,14 @@ const config: Config = {
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         slideInRight: {
-           '0%': { opacity: '0', transform: 'translateX(-50px)' },
-           '100%': { opacity: '1', transform: 'translateX(0)' },
+          '0%': { opacity: '0', transform: 'translateX(-50px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
         },
-        fadeIn: { 
+        fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
-        fadeOut: { 
+        fadeOut: {
           '0%': { opacity: '1' },
           '100%': { opacity: '0' },
         },
