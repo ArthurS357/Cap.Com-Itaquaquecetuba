@@ -105,9 +105,8 @@ export const getStaticProps: GetStaticProps<{
 function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticProps>) {
   const storeAddress = "Estr. dos Índios, 765 - Jardim Mossapyra, Itaquaquecetuba - SP, 08570-000";
   const encodedAddress = encodeURIComponent(storeAddress);
-  const googleMapsEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3659.518420436943!2d-46.35711718449624!3d-23.47761036329774!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce7a321948b81b%3A0x6b9868e0d4c8d506!2sCap.Com%20Itaquaquecetuba!5e0!3m2!1spt-BR!2sbr!4v1675883201234!5m2!1spt-BR!2sbr";
+  const googleMapsEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d228.7868357502089!2d-46.32073719989995!3d-23.43919608454872!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce7dab465c779d%3A0xe55f25ea7b533e3b!2sCap.Com!5e0!3m2!1spt-BR!2sbr!4v1760818394343!5m2!1spt-BR!2sbr";  
   const wazeUrl = `https://waze.com/ul?q=${encodedAddress}&navigate=yes`;
-
   const [categoriasRef, categoriasVisible] = useScrollAnimation({ threshold: 0.1 });
   const [servicosRef, servicosVisible] = useScrollAnimation({ threshold: 0.1 });
   const [sobreNosRef, sobreNosVisible] = useScrollAnimation({ threshold: 0.1 });
