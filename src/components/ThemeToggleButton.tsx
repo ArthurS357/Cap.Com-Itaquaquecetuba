@@ -4,13 +4,13 @@ import { FaSun, FaMoon } from 'react-icons/fa';
 
 const ThemeToggleButton = () => {
   const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
+  
+  // Obter o 'resolvedTheme'
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
-  // Garante que o componente só renderize no cliente
   useEffect(() => setMounted(true), []);
 
   if (!mounted) {
-    // Renderiza um placeholder ou nada para evitar "hydration mismatch"
     return (
       <button 
         aria-label="Carregando tema"
@@ -22,7 +22,8 @@ const ThemeToggleButton = () => {
     );
   }
 
-  const isDarkMode = theme === 'dark';
+  // 'resolvedTheme' (em vez de 'theme') para decidir qual ícone mostrar
+  const isDarkMode = resolvedTheme === 'dark';
 
   const toggleTheme = () => {
     setTheme(isDarkMode ? 'light' : 'dark');
