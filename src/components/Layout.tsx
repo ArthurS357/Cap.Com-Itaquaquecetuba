@@ -3,35 +3,34 @@ import Image from 'next/image';
 import React from 'react';
 import SearchBar from './SearchBar';
 import ThemeToggleButton from './ThemeToggleButton';
-import { Inter } from 'next/font/google'; // 1. Importar a fonte
+import { Inter } from 'next/font/google';
 
-// 2. Configurar a fonte para usar uma variável CSS
-const inter = Inter({ 
-  subsets: ['latin'], 
-  variable: '--font-inter', // Nome da variável que usaremos no Tailwind
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
 });
 
 type LayoutProps = {
   children: React.ReactNode;
 };
 
-// ... (Componente Navbar não muda) ...
 const Navbar = () => (
   <header className="bg-surface-card/80 backdrop-blur-sm sticky top-0 z-30 border-b border-surface-border">
-    <div className="container mx-auto p-4 flex flex-col md:flex-row justify-between items-center gap-4">
-      
+    <div className="container mx-auto p-4 flex flex-row flex-wrap md:flex-nowrap justify-between items-center gap-4">
+
       {/* Logo */}
       <Link href="/">
         <Image
           src="/images/logo-capcom.png"
           alt="Logo da Cap.Com Itaquaquecetuba"
-          width={140}
-          height={140}
+          width={100}
+          height={100}
+          className="h-auto"
           priority
         />
       </Link>
 
-      {/* Links de Navegação */}
+      {/* Links de Navegação (sem alteração) */}
       <nav className="hidden md:flex items-center gap-6">
         <Link href="/" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">
           Início
@@ -47,8 +46,7 @@ const Navbar = () => (
         </Link>
       </nav>
 
-      {/* Agrupar Busca e Seletor de Tema */}
-      <div className="flex items-center gap-4 w-full md:w-auto">
+      <div className="flex items-center gap-4 w-full md:w-auto basis-full md:basis-auto">
         <SearchBar />
         <ThemeToggleButton />
       </div>
@@ -56,16 +54,14 @@ const Navbar = () => (
   </header>
 );
 
+
 // --- Componente Footer ---
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const storeAddress = "Estr. dos Índios, 765 - Jardim Mossapyra, Itaquaquecetuba - SP, 08570-000";
   const phoneNumber = "(11) 99638-8426";
-  
-  // Mensagem padrão para o WhatsApp
-  const defaultMessage = "Olá! Visitei o site e gostaria de mais informações.";
 
-  // Formata o número e cria o link
+  const defaultMessage = "Olá! Visitei o site e gostaria de mais informações.";
   const whatsappNumberOnly = phoneNumber.replace(/\D/g, '');
   const fullWhatsappNumber = `55${whatsappNumberOnly}`;
   const whatsappLink = `https://wa.me/${fullWhatsappNumber}?text=${encodeURIComponent(defaultMessage)}`;
@@ -74,7 +70,7 @@ const Footer = () => {
     <footer className="bg-surface-card border-t border-surface-border mt-16 py-8">
       <div className="container mx-auto px-4 text-center text-text-secondary">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          
+
           {/* Navegação Rápida */}
           <div>
             <h4 className="font-semibold text-text-primary mb-3">Navegação</h4>
@@ -91,7 +87,6 @@ const Footer = () => {
             <h4 className="font-semibold text-text-primary mb-3">Contato</h4>
             <p>Não encontrou o seu produto?</p>
             <p className="font-semibold text-text-primary mt-1">Fale conosco:</p>
-            {/* O link inclui mensagem pronta */}
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="block text-lg text-brand-primary hover:text-brand-accent transition-colors my-2">
               {phoneNumber} (WhatsApp)
             </a>
@@ -116,9 +111,9 @@ const Footer = () => {
   );
 };
 
+
 export default function Layout({ children }: LayoutProps) {
   return (
-    // 3. Adicionar a variável da fonte ao wrapper principal
     <div className={`${inter.variable} min-h-screen flex flex-col font-sans bg-surface-background`}>
       <Navbar />
       <main className="flex-grow container mx-auto p-4 md:p-8">
