@@ -3,6 +3,7 @@ import SEO from '../components/Seo';
 import CategoryCard from '../components/cards/CategoryCard';
 import { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
+import { FaAward, FaRegClock } from 'react-icons/fa'; 
 
 type Category = {
   id: number;
@@ -76,7 +77,6 @@ export const getStaticProps: GetStaticProps<{
       parentId: null,
       slug: { not: undefined }
     },
-    // Selecionar apenas os campos necessários para o tipo Category definido acima
     select: {
       id: true,
       name: true,
@@ -105,7 +105,7 @@ export const getStaticProps: GetStaticProps<{
 function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticProps>) {
   const storeAddress = "Estr. dos Índios, 765 - Jardim Mossapyra, Itaquaquecetuba - SP, 08570-000";
   const encodedAddress = encodeURIComponent(storeAddress);
-  const googleMapsEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d228.7868357502089!2d-46.32073719989995!3d-23.43919608454872!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce7dab465c779d%3A0xe55f25ea7b533e3b!2sCap.Com!5e0!3m2!1spt-BR!2sbr!4v1760818394343!5m2!1spt-BR!2sbr";
+  const googleMapsEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3659.518420436943!2d-46.35711718449624!3d-23.47761036329774!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce7a321948b81b%3A0x6b9868e0d4c8d506!2sCap.Com%20Itaquaquecetuba!5e0!3m2!1spt-BR!2sbr!4v1675883201234!5m2!1spt-BR!2sbr";
   const wazeUrl = `https://waze.com/ul?q=${encodedAddress}&navigate=yes`;
 
   const [categoriasRef, categoriasVisible] = useScrollAnimation({ threshold: 0.1 });
@@ -135,18 +135,13 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
           <p className="text-xl md:text-2xl text-gray-200 mb-8 drop-shadow-md">
             O que você procura? Cartuchos, toners, impressoras e mais!
           </p>
-
-          {/* Container dos botões */}
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-            {/* Botão Primário (Categorias) */}
             <a
               href="#categorias"
               className="inline-block bg-brand-primary text-white font-semibold py-3 px-8 rounded-lg hover:bg-brand-dark transition-colors duration-300 shadow-lg transform hover:scale-105 w-full sm:w-auto"
             >
               Ver Categorias
             </a>
-
-            {/* Botão Secundário (Serviços)*/}
             <a
               href="#servicos"
               className="inline-block bg-transparent border-2 border-white text-white font-semibold py-3 px-8 rounded-lg hover:bg-white hover:text-surface-background transition-colors duration-300 shadow-lg transform hover:scale-105 w-full sm:w-auto"
@@ -192,7 +187,6 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
           <p className="text-lg text-text-secondary mt-2">Soluções completas para suas necessidades de impressão.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Card Serviço 1: Remanufatura */}
           <div className="bg-surface-card p-6 rounded-xl shadow-lg border border-surface-border flex items-start gap-4 hover:border-brand-primary/50 transition-colors">
             <IconRecycle />
             <div>
@@ -202,7 +196,6 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
               </p>
             </div>
           </div>
-          {/* Card Serviço 2: Manutenção */}
           <div className="bg-surface-card p-6 rounded-xl shadow-lg border border-surface-border flex items-start gap-4 hover:border-brand-primary/50 transition-colors">
             <IconWrench />
             <div>
@@ -218,19 +211,65 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
       {/* ===== BARRA SEPARADORA ===== */}
       <hr className="border-t-2 border-surface-border max-w-5xl mx-auto my-16" />
 
-      {/* ===== SEÇÃO SOBRE NÓS ===== */}
+      {/* ===== 2. SEÇÃO "SOBRE NÓS" ===== */}
       <section
         id="sobre-nos"
         ref={sobreNosRef as React.RefObject<HTMLElement>}
-        className={`max-w-4xl mx-auto text-center mb-16 animate-on-scroll ${sobreNosVisible ? 'animate-slide-in-right' : ''}`}
+        className={`max-w-6xl mx-auto mb-16 animate-on-scroll ${sobreNosVisible ? 'animate-slide-in-right' : ''}`}
       >
-        <h2 className="text-3xl font-bold text-text-primary mb-6">Sobre Nós</h2>
-        <p className="text-lg text-text-secondary leading-relaxed">
-          A Cap.Com em Itaquaquecetuba é uma empresa dedicada a soluções completas em impressão. Especializamo‑nos na remanufatura de cartuchos e toners, oferecendo alternativas econômicas e sustentáveis sem abrir mão da qualidade. Também realizamos manutenção preventiva e corretiva em uma ampla variedade de impressoras, além de serviços gerais de manutenção para garantir o pleno funcionamento dos seus equipamentos.
-        </p>
-        <p className="text-lg text-text-secondary leading-relaxed mt-4">
-          A empresa é representada por Ezequias e Edila, proprietários da loja, que atuam diretamente como prestadores de serviços — oferecendo atendimento personalizado, transparência e compromisso com resultados. Venha nos conhecer!
-        </p>
+        <h2 className="text-3xl font-bold text-text-primary mb-12 text-center">Sobre Nós</h2>
+        
+        {/* Grid de 2 colunas: Texto na esquerda, Card de Infos na direita */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+          
+          {/* Coluna 1: Texto Descritivo */}
+          <div className="text-lg text-text-secondary leading-relaxed space-y-4">
+            <p>
+              A Cap.Com em Itaquaquecetuba é uma empresa dedicada a soluções completas em impressão. Especializamo‑nos na remanufatura de cartuchos e toners, oferecendo alternativas econômicas e sustentáveis sem abrir mão da qualidade. 
+            </p>
+            <p>
+              Também realizamos manutenção preventiva e corretiva em uma ampla variedade de impressoras, além de serviços gerais de manutenção para garantir o pleno funcionamento dos seus equipamentos.
+            </p>
+            <p>
+              A empresa é representada por Ezequias e Edila, proprietários da loja, que atuam diretamente como prestadores de serviços — oferecendo atendimento personalizado, transparência e compromisso com resultados. Venha nos conhecer!
+            </p>
+          </div>
+
+          {/* Coluna 2: Card de Informações (Experiência e Horários) */}
+          <div className="bg-surface-card p-6 rounded-xl shadow-lg border border-surface-border sticky top-28">
+            
+            {/* Item 1: Experiência */}
+            <div className="flex items-start gap-4 mb-6 pb-6 border-b border-surface-border">
+              <FaAward className="w-10 h-10 text-brand-primary flex-shrink-0 mt-1" />
+              <div>
+                <h3 className="text-xl font-semibold text-text-primary mb-1">Mais de 10 Anos no Mercado</h3>
+                <p className="text-text-secondary">Tradição e confiança em Itaquaquecetuba, oferecendo os melhores serviços de impressão e manutenção.</p>
+              </div>
+            </div>
+
+            {/* Item 2: Horários */}
+            <div className="flex items-start gap-4">
+              <FaRegClock className="w-10 h-10 text-brand-primary flex-shrink-0 mt-1" />
+              <div>
+                <h3 className="text-xl font-semibold text-text-primary mb-3">Horário de Atendimento</h3>
+                <ul className="space-y-2 text-text-secondary">
+                  <li className="flex justify-between">
+                    <strong>Segunda a Sexta:</strong>
+                    <span>9h00 – 18h00</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <strong>Sábado:</strong>
+                    <span>9h00 – 13h00</span>
+                  </li>
+                  <li className="mt-2 text-sm text-text-subtle">
+                    *Exceto feriados
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </div>
       </section>
 
       {/* ===== BARRA SEPARADORA ===== */}
@@ -245,7 +284,6 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
         <h2 className="text-3xl font-bold text-text-primary mb-6">Nossa Localização</h2>
         <p className="text-lg text-text-secondary mb-8">{storeAddress}</p>
 
-        {/* Mapa Incorporado */}
         <div className="aspect-w-16 aspect-h-9 max-w-4xl mx-auto rounded-lg overflow-hidden shadow-lg border border-surface-border mb-8">
           <iframe
             src={googleMapsEmbedUrl}
@@ -259,7 +297,6 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
           ></iframe>
         </div>
 
-        {/* Botão Waze */}
         <div className="flex justify-center items-center">
           <a
             href={wazeUrl}
@@ -277,4 +314,3 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
 }
 
 export default HomePage;
-
