@@ -3,27 +3,30 @@ import type { AppProps } from 'next/app';
 import Layout from '@/components/Layout';
 import { useState, useEffect } from 'react'; 
 import WelcomeSplash from '@/components/WelcomeSplash'; 
+import { ThemeProvider } from 'next-themes';
 
 export default function App({ Component, pageProps }: AppProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Define um timer para remover a tela de splash
-    // 2000ms (delay) + 500ms (duration) = 2500ms
+    // Tempo reduzido para 700ms para carregamento mais rápido
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2500); // 2.5 segundos
+    }, 700); // 0.7 segundos
 
     return () => clearTimeout(timer);
-  }, []); // O array vazio [] garante que isso rode apenas uma vez
+  }, []); // O array vazio [] garante que isso rode apenas uma vez 
 
   if (isLoading) {
     return <WelcomeSplash />;
   }
 
   return (
-    <Layout>
-      <Component {...pageProps} />
-    </Layout>
+    <ThemeProvider attribute="class" defaultTheme="dark">
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+    </ThemeProvider>
   );
 }

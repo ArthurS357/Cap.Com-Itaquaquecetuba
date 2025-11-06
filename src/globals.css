@@ -3,6 +3,28 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  /* Cores do Light Mode (Padrão) */
+  :root {
+    --color-surface-background: #FFFFFF; /* Fundo Branco */
+    --color-surface-card: #F9FAFB;       /* Card Cinza claro */
+    --color-surface-border: #E5E7EB;     /* Borda Cinza */
+    --color-text-primary: #1F2937;       /* Texto Escuro */
+    --color-text-secondary: #4B5563;     /* Texto Cinza Escuro */
+    --color-text-subtle: #6B7280;        /* Texto Cinza Médio */
+  }
+
+  /* Cores do Dark Mode (cores originais) */
+  .dark {
+    --color-surface-background: #121212;
+    --color-surface-card: #1E1E1E;
+    --color-surface-border: #2C2C2C;
+    --color-text-primary: #E0E0E0;
+    --color-text-secondary: #A0A0A0;
+    --color-text-subtle: #707070;
+  }
+}
+
 .animate-on-scroll {
-  opacity: 0; /* Começa invisível */
+  opacity: 0; 
 }
