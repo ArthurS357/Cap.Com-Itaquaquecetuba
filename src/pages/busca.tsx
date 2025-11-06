@@ -36,40 +36,35 @@ export const getServerSideProps: GetServerSideProps<{
   let results: SearchResultProduct[] = [];
 
   try {
-    console.log(`Buscando por: "${query}"`);
+    console.log(`Buscando (otimizado) por: "${query}"`);
 
-    // Busca impressoras compatíveis
-    const matchingPrinters = await prisma.printer.findMany({
-      where: {
-        modelName: {
-          contains: query,
-          // mode: 'insensitive', // Para busca case-insensitive
-        },
-      },
-      select: { id: true },
-    });
-    const printerIds = matchingPrinters.map(p => p.id);
-
-    // Busca IDs de produtos compatíveis com as impressoras
-    let compatibleProductIds: number[] = [];
-    if (printerIds.length > 0) {
-      const compatibilities = await prisma.printerCompatibility.findMany({
-        where: {
-          printerId: { in: printerIds },
-        },
-        select: { cartridgeId: true },
-      });
-      compatibleProductIds = [...new Set(compatibilities.map(c => c.cartridgeId))];
-    }
-
-    // Busca produtos por nome, descrição, marca OU por compatibilidade
+    // Consulta ÚNICA: Busca produtos que correspondem diretamente
+    // OU que são compatíveis com impressoras que correspondem.
+    // Adicionado mode: 'insensitive' para busca case-insensitive
     const productResults = await prisma.product.findMany({
       where: {
         OR: [
-          { name: { contains: query } },
-          { description: { contains: query } },
-          { brand: { name: { contains: query } } },
-          { id: { in: compatibleProductIds } },
+          // 1. Busca direta no produto (nome, descrição, marca)
+          { name: { contains: query, mode: 'insensitive' } },
+          { description: { contains: query, mode: 'insensitive' } },
+          { brand: { name: { contains: query, mode: 'insensitive' } } },
+          
+          // 2. Busca relacional:
+          // Encontra produtos que tenham 'alguma' compatibilidade
+          // onde a impressora associada tenha o 'modelName'
+          // que contém a string de busca.
+          {
+            compatibleWith: {
+              some: {
+                printer: {
+                  modelName: {
+                    contains: query,
+                    mode: 'insensitive',
+                  },
+                },
+              },
+            },
+          },
         ],
       },
       select: {
