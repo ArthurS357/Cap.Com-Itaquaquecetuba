@@ -37,7 +37,7 @@ const ThemeToggleButton = () => {
                  hover:text-brand-primary hover:bg-surface-border 
                  transition-colors duration-200"
     >
-      {isDarkMode ? <FaSun size={20} /> : <FaMoon size={20} />}
+      {isDarkMode ? <FaMoon size={20} /> : <FaSun size={20} />}
     </button>
   );
 };
