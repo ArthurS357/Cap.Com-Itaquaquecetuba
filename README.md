@@ -8,9 +8,7 @@ A complete online catalog and institutional website for Cap.Com Itaquaquecetuba,
 -----
 
 \<details\>
-\<summary\>
-\<img src="https://img.shields.io/badge/-🇧🇷%20README%20em%20Português-informational?style=flat\&logo=github\&logoColor=white" alt="Português"\>
-\</summary\>
+\<summary\>\<img src="https://www.google.com/search?q=https://img.shields.io/badge/🇧🇷%20README%20em%20Português-informational?style=flat\&logo=github\&logoColor=white" alt="Português"\>\</summary\>
 
 ## 🇧🇷 Cap.Com Itaquaquecetuba - Catálogo Online
 
@@ -24,52 +22,52 @@ O projeto é construído com **Next.js 15 (Turbopack)**, **React 19.1.0** e **Pr
 
 O site serve tanto como um portfólio de serviços quanto um catálogo de produtos detalhado.
 
-  * **Página Inicial (ISR):** Apresenta a loja com seções de "Categorias", "Nossos Serviços" (Remanufatura e Manutenção), "Sobre Nós" e "Localização" interativa. Gerada estaticamente com `getStaticProps` para carregamento instantâneo.
-  * **Catálogo de Produtos (ISR):** Páginas de produtos (`/produto/[slug]`) geradas estaticamente para performance máxima e SEO. Elas exibem detalhes, imagens e uma lista de impressoras compatíveis. As páginas são revalidadas periodicamente (`revalidate: 60`).
-  * **Navegação por Categoria (ISR):** As páginas (`/categoria/[slug]`) são geradas dinamicamente usando `getStaticPaths` e `getStaticProps`, permitindo a navegação por categorias e subcategorias (ex: Cartuchos \> Toner \> Toner HP).
-  * **Páginas de Impressoras (ISR):** Uma seção dedicada (`/impressoras/[brand]`) que lista todas as impressoras de uma marca (HP, Brother, etc.) e os suprimentos compatíveis com cada modelo, facilitando a busca do usuário por seu equipamento.
-  * **Busca Inteligente (SSR):** A funcionalidade de busca (`/busca`) é renderizada no servidor (`getServerSideProps`) para resultados em tempo real. A busca é avançada: ela pesquisa nomes de produtos e também **modelos de impressora**, retornando os suprimentos compatíveis (ex: buscar por "L3250" retorna a "Tinta Epson").
-  * **Schema Robusto (`schema.prisma`):** O núcleo do sistema é um schema Prisma que mapeia `Product` (cartuchos/toners) a modelos de `Printer` através da tabela de relação `PrinterCompatibility`.
-  * **Testes Automatizados:** O projeto é coberto por testes de unidade e de componentes usando **Vitest** e **React Testing Library** (configurados em `vitest.config.ts`).
-  * **Integração Contínua (CI):** Um workflow de GitHub Actions (`.github/workflows/ci.yml`) roda `lint`, `build` e `test` em cada push e pull request para a `main`, garantindo a qualidade do código.
-  * **Design Responsivo (Tailwind):** Utiliza Tailwind CSS com um tema customizado (dark mode) definido em `tailwind.config.ts` e `globals.css`.
-  * **SEO Otimizado:** Cada página utiliza um componente `SEO` customizado (`src/components/Seo.tsx`) para injetar tags `<title>` e `<meta description>` dinâmicas.
+  * 🏠 **Página Inicial (ISR):** Apresenta a loja com seções de "Categorias", "Nossos Serviços" (Remanufatura e Manutenção), "Sobre Nós" e "Localização" interativa. Gerada estaticamente com `getStaticProps` para carregamento instantâneo.
+  * 🛒 **Catálogo de Produtos (ISR):** Páginas de produtos (`/produto/[slug]`) geradas estaticamente para performance máxima e SEO. Elas exibem detalhes, imagens e uma lista de impressoras compatíveis. As páginas são revalidadas periodicamente (`revalidate: 60`).
+  * 🗂️ **Navegação por Categoria (ISR):** As páginas (`/categoria/[slug]`) são geradas dinamicamente usando `getStaticPaths` e `getStaticProps`, permitindo a navegação por categorias e subcategorias (ex: Cartuchos \> Toner \> Toner HP).
+  * 🖨️ **Páginas de Impressoras (ISR):** Uma seção dedicada (`/impressoras/[brand]`) que lista todas as impressoras de uma marca (HP, Brother, etc.) e os suprimentos compatíveis com cada modelo, facilitando a busca do usuário por seu equipamento.
+  * 🔍 **Busca Inteligente (SSR):** A funcionalidade de busca (`/busca`) é renderizada no servidor (`getServerSideProps`) para resultados em tempo real. A busca é avançada: ela pesquisa nomes de produtos e também **modelos de impressora**, retornando os suprimentos compatíveis (ex: buscar por "L3250" retorna a "Tinta Epson").
+  * 🔗 **Schema Robusto (`schema.prisma`):** O núcleo do sistema é um schema Prisma que mapeia `Product` (cartuchos/toners) a modelos de `Printer` através da tabela de relação `PrinterCompatibility`.
+  * 🧪 **Testes Automatizados:** O projeto é coberto por testes de unidade e de componentes usando **Vitest** e **React Testing Library** (configurados em `vitest.config.ts`).
+  * 🔄 **Integração Contínua (CI):** Um workflow de GitHub Actions (`.github/workflows/ci.yml`) roda `lint`, `build` e `test` em cada push e pull request para a `main`, garantindo a qualidade do código.
+  * 🎨 **Design Responsivo (Tailwind):** Utiliza Tailwind CSS com um tema customizado (dark mode) definido em `tailwind.config.ts` e `globals.css`.
+  * 📈 **SEO Otimizado:** Cada página utiliza um componente `SEO` customizado (`src/components/Seo.tsx`) para injetar tags `<title>` e `<meta description>` dinâmicas.
 
 ### 🛠️ Stack de Tecnologias
 
-  * **Framework:** [Next.js](https://nextjs.org/) (v15.5.5 c/ Turbopack) & [React](https://react.dev/) (v19.1.0)
-  * **Linguagem:** [TypeScript](https://www.typescriptlang.org/)
-  * **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
-  * **ORM / Banco de Dados:** [Prisma](https://www.prisma.io/)
-  * **Banco de Dados (Produção):** [PostgreSQL](https://www.postgresql.org/)
-  * **Testes:** [Vitest](https://vitest.dev/) & [React Testing Library](https://testing-library.com/)
-  * **CI/CD:** [GitHub Actions](https://github.com/features/actions)
-  * **Linting:** [ESLint](https://eslint.org/) (com `eslint-config-next`)
+  * 🖼️ **Framework:** [Next.js](https://nextjs.org/) (v15.5.5 c/ Turbopack) & [React](https://react.dev/) (v19.1.0)
+  * 🟦 **Linguagem:** [TypeScript](https://www.typescriptlang.org/)
+  * 🎨 **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
+  * 🗄️ **ORM / Banco de Dados:** [Prisma](https://www.prisma.io/)
+  * 🐘 **Banco de Dados (Produção):** [PostgreSQL](https://www.postgresql.org/)
+  * ✅ **Testes:** [Vitest](https://vitest.dev/) & [React Testing Library](https://testing-library.com/)
+  * 🤖 **CI/CD:** [GitHub Actions](https://github.com/features/actions)
+  * 🧹 **Linting:** [ESLint](https://eslint.org/) (com `eslint-config-next`)
 
 ### 🚀 Como Rodar Localmente
 
 Siga os passos abaixo para configurar e executar o projeto em seu ambiente de desenvolvimento.
 
-#### 1\. Pré-requisitos
+#### 1\. Pré-requisitos 📋
 
   * [Node.js](https://nodejs.org/) (v20 ou superior, conforme `ci.yml`)
   * [npm](https://www.npmjs.com/) (ou yarn/pnpm)
   * Um servidor **PostgreSQL** rodando (localmente ou em um serviço como [Neon](https://neon.tech/))
 
-#### 2\. Clonar o Repositório
+#### 2\. Clonar o Repositório 📥
 
 ```bash
 git clone https://github.com/arthurs357/cap.com-itaquaquecetuba.git
 cd cap.com-itaquaquecetuba
 ```
 
-#### 3\. Instalar Dependências
+#### 3\. Instalar Dependências ⚙️
 
 ```bash
 npm install
 ```
 
-#### 4\. Configurar o Banco de Dados (Prisma)
+#### 4\. Configurar o Banco de Dados (Prisma) 💾
 
 **a. Criar arquivo `.env`:**
 Crie um arquivo `.env` na raiz do projeto e adicione sua string de conexão do PostgreSQL:
@@ -93,7 +91,7 @@ O projeto inclui um script (`prisma/seed.ts`) para popular o banco com categoria
 npm run prisma:seed
 ```
 
-#### 5\. Rodar o Servidor de Desenvolvimento
+#### 5\. Rodar o Servidor de Desenvolvimento ▶️
 
 Agora você pode iniciar o servidor de desenvolvimento (com Turbopack).
 
@@ -156,11 +154,11 @@ Abra [http://localhost:3000](https://www.google.com/search?q=http://localhost:30
 
 Este projeto está pronto para o deploy na Vercel (ou plataformas similares).
 
-1.  **Conectar Repositório:** Importe seu projeto Git na Vercel.
+1.  🔗 **Conectar Repositório:** Importe seu projeto Git na Vercel.
 
-2.  **Configurar Variáveis de Ambiente:** No painel do seu projeto na Vercel, vá em "Settings" \> "Environment Variables" e adicione a `DATABASE_URL` do seu banco de dados de produção (ex: Vercel Postgres, Neon, etc.).
+2.  🔒 **Configurar Variáveis de Ambiente:** No painel do seu projeto na Vercel, vá em "Settings" \> "Environment Variables" e adicione a `DATABASE_URL` do seu banco de dados de produção (ex: Vercel Postgres, Neon, etc.).
 
-3.  **Ajustar o Comando de Build:** Altere o "Build Command" nas configurações do projeto na Vercel para aplicar as migrações e popular o banco antes de construir o site:
+3.  🏗️ **Ajustar o Comando de Build:** Altere o "Build Command" nas configurações do projeto na Vercel para aplicar as migrações e popular o banco antes de construir o site:
 
     ```bash
     npx prisma migrate deploy && npm run prisma:seed && npm run build
@@ -173,9 +171,7 @@ Este projeto está pronto para o deploy na Vercel (ou plataformas similares).
 \</details\>
 
 \<details\>
-\<summary\>
-\<img src="[https://img.shields.io/badge/-](https://img.shields.io/badge/-)🇬🇧%20README%20in%20English-informational?style=flat\&logo=github\&logoColor=white" alt="English"\>
-\</summary\>
+\<summary\>\<img src="[https://img.shields.io/badge/](https://www.google.com/search?q=https://img.shields.io/badge/)🇬🇧%20README%20in%20English-informational?style=flat\&logo=github\&logoColor=white" alt="English"\>\</summary\>
 
 ## 🇬🇧 Cap.Com Itaquaquecetuba - Online Catalog
 
@@ -189,52 +185,52 @@ The project is built with **Next.js 15 (Turbopack)**, **React 19.1.0**, and **Pr
 
 The site serves as both a service portfolio and a detailed product catalog.
 
-  * **Homepage (ISR):** Introduces the store with "Categories," "Our Services" (Remanufacturing and Maintenance), "About Us," and an interactive "Location" section. Statically generated with `getStaticProps` for instant loading.
-  * **Product Catalog (ISR):** Product pages (`/produto/[slug]`) are statically generated for maximum performance and SEO. They display details, images, and a list of compatible printers. Pages are revalidated periodically (`revalidate: 60`).
-  * **Category Navigation (ISR):** Pages (`/categoria/[slug]`) are dynamically generated using `getStaticPaths` and `getStaticProps`, allowing navigation through categories and subcategories (e.g., Cartridges \> Toner \> Toner HP).
-  * **Printer Pages (ISR):** A dedicated section (`/impressoras/[brand]`) that lists all printers for a specific brand (HP, Brother, etc.) and the compatible supplies for each model.
-  * **Smart Search (SSR):** The search functionality (`/busca`) is server-side rendered (`getServerSideProps`) for real-time results. The search is advanced: it queries product names and also **printer models**, returning compatible supplies (e.g., searching "L3250" returns "Epson Ink").
-  * **Robust Schema (`schema.prisma`):** The system's core is a Prisma schema that maps `Product` (cartridges/toners) to `Printer` models via the `PrinterCompatibility` relation table.
-  * **Automated Testing:** The project is covered by unit and component tests using **Vitest** and **React Testing Library** (configured in `vitest.config.ts`).
-  * **Continuous Integration (CI):** A GitHub Actions workflow (`.github/workflows/ci.yml`) runs `lint`, `build`, and `test` on every push and pull request to `main`, ensuring code quality.
-  * **Responsive Design (Tailwind):** Uses Tailwind CSS with a custom dark mode theme defined in `tailwind.config.ts` and `globals.css`.
-  * **Optimized SEO:** Each page uses a custom `SEO` component (`src/components/Seo.tsx`) to inject dynamic `<title>` and `<meta description>` tags.
+  * 🏠 **Homepage (ISR):** Introduces the store with "Categories," "Our Services" (Remanufacturing and Maintenance), "About Us," and an interactive "Location" section. Statically generated with `getStaticProps` for instant loading.
+  * 🛒 **Product Catalog (ISR):** Product pages (`/produto/[slug]`) are statically generated for maximum performance and SEO. They display details, images, and a list of compatible printers. Pages are revalidated periodically (`revalidate: 60`).
+  * 🗂️ **Category Navigation (ISR):** Pages (`/categoria/[slug]`) are dynamically generated using `getStaticPaths` and `getStaticProps`, allowing navigation through categories and subcategories (e.g., Cartridges \> Toner \> Toner HP).
+  * 🖨️ **Printer Pages (ISR):** A dedicated section (`/impressoras/[brand]`) that lists all printers for a specific brand (HP, Brother, etc.) and the compatible supplies for each model.
+  * 🔍 **Smart Search (SSR):** The search functionality (`/busca`) is server-side rendered (`getServerSideProps`) for real-time results. The search is advanced: it queries product names and also **printer models**, returning compatible supplies (e.g., searching "L3250" returns "Epson Ink").
+  * 🔗 **Robust Schema (`schema.prisma`):** The system's core is a Prisma schema that maps `Product` (cartridges/toners) to `Printer` models via the `PrinterCompatibility` relation table.
+  * 🧪 **Automated Testing:** The project is covered by unit and component tests using **Vitest** and **React Testing Library** (configured in `vitest.config.ts`).
+  * 🔄 **Continuous Integration (CI):** A GitHub Actions workflow (`.github/workflows/ci.yml`) runs `lint`, `build`, and `test` on every push and pull request to `main`, ensuring code quality.
+  * 🎨 **Responsive Design (Tailwind):** Uses Tailwind CSS with a custom dark mode theme defined in `tailwind.config.ts` and `globals.css`.
+  * 📈 **Optimized SEO:** Each page uses a custom `SEO` component (`src/components/Seo.tsx`) to inject dynamic `<title>` and `<meta description>` tags.
 
 ### 🛠️ Tech Stack
 
-  * **Framework:** [Next.js](https://nextjs.org/) (v15.5.5 w/ Turbopack) & [React](https://react.dev/) (v19.1.0)
-  * **Language:** [TypeScript](https://www.typescriptlang.org/)
-  * **Styling:** [Tailwind CSS](https://tailwindcss.com/)
-  * **ORM / DB:** [Prisma](https://www.prisma.io/)
-  * **Database (Production):** [PostgreSQL](https://www.postgresql.org/)
-  * **Testing:** [Vitest](https://vitest.dev/) & [React Testing Library](https://testing-library.com/)
-  * **CI/CD:** [GitHub Actions](https://github.com/features/actions)
-  * **Linting:** [ESLint](https://eslint.org/) (with `eslint-config-next`)
+  * 🖼️ **Framework:** [Next.js](https://nextjs.org/) (v15.5.5 w/ Turbopack) & [React](https://react.dev/) (v19.1.0)
+  * 🟦 **Language:** [TypeScript](https://www.typescriptlang.org/)
+  * 🎨 **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+  * 🗄️ **ORM / DB:** [Prisma](https://www.prisma.io/)
+  * 🐘 **Database (Production):** [PostgreSQL](https://www.postgresql.org/)
+  * ✅ **Testing:** [Vitest](https://vitest.dev/) & [React Testing Library](https://testing-library.com/)
+  * 🤖 **CI/CD:** [GitHub Actions](https://github.com/features/actions)
+  * 🧹 **Linting:** [ESLint](https://eslint.org/) (with `eslint-config-next`)
 
 ### 🚀 Running Locally
 
 Follow the steps below to set up and run the project in your development environment.
 
-#### 1\. Prerequisites
+#### 1\. Prerequisites 📋
 
   * [Node.js](https://nodejs.org/) (v20 or higher, as per `ci.yml`)
   * [npm](https://www.npmjs.com/) (or yarn/pnpm)
   * A running **PostgreSQL** server (locally or on a service like [Neon](https://neon.tech/))
 
-#### 2\. Clone the Repository
+#### 2\. Clone the Repository 📥
 
 ```bash
 git clone https://github.com/arthurs357/cap.com-itaquaquecetuba.git
 cd cap.com-itaquaquecetuba
 ```
 
-#### 3\. Install Dependencies
+#### 3\. Install Dependencies ⚙️
 
 ```bash
 npm install
 ```
 
-#### 4\. Configure the Database (Prisma)
+#### 4\. Configure the Database (Prisma) 💾
 
 **a. Create `.env` file:**
 Create a `.env` file in the project root and add your PostgreSQL connection string:
@@ -258,7 +254,7 @@ The project includes a script (`prisma/seed.ts`) to populate the database with c
 npm run prisma:seed
 ```
 
-#### 5\. Run the Development Server
+#### 5\. Run the Development Server ▶️
 
 Now you can start the development server (with Turbopack).
 
@@ -321,11 +317,11 @@ Open [http://localhost:3000](https://www.google.com/search?q=http://localhost:30
 
 This project is ready for deployment on Vercel (or similar platforms).
 
-1.  **Connect Repository:** Import your Git project into Vercel.
+1.  🔗 **Connect Repository:** Import your Git project into Vercel.
 
-2.  **Configure Environment Variables:** In your Vercel project dashboard, go to "Settings" \> "Environment Variables" and add the `DATABASE_URL` for your production database (e.g., Vercel Postgres, Neon, etc.).
+2.  🔒 **Configure Environment Variables:** In your Vercel project dashboard, go to "Settings" \> "Environment Variables" and add the `DATABASE_URL` for your production database (e.g., Vercel Postgres, Neon, etc.).
 
-3.  **Adjust the Build Command:** Change the "Build Command" in Vercel's project settings to apply migrations and seed the database before building the site:
+3.  🏗️ **Adjust the Build Command:** Change the "Build Command" in Vercel's project settings to apply migrations and seed the database before building the site:
 
     ```bash
     npx prisma migrate deploy && npm run prisma:seed && npm run build
