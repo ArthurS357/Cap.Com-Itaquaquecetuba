@@ -2,11 +2,6 @@
 # 🔗 Cap.Com Itaquaquecetuba - Catálogo Online
 
 <p align="center">
-  Um catálogo online e site institucional completo para Cap.Com Itaquaquecetuba, demonstrando as melhores práticas de desenvolvimento web moderno com Next.js 15 (Turbopack).<br>
-  A complete online catalog and institutional website for Cap.Com Itaquaquecetuba, demonstrating modern web development best practices with Next.js 15 (Turbopack).
-</p>
-
-<p align="center">
   <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js">
   <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React">
   <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
@@ -17,15 +12,19 @@
 </p>
 
 <p align="center">
+  Um catálogo online e site institucional completo para Cap.Com Itaquaquecetuba, demonstrando as melhores práticas de desenvolvimento web moderno com Next.js 15 (Turbopack).<br>
+  A complete online catalog and institutional website for Cap.Com Itaquaquecetuba, demonstrating modern web development best practices with Next.js 15 (Turbopack).
+</p>
+
+<p align="center">
   <strong><a href="https://cap-com-itaquaquecetuba.vercel.app/">Ver Demo</a></strong> / <strong><a href="https://cap-com-itaquaquecetuba.vercel.app/">View Demo</a></strong>
 </p>
 
 ---
-
+<br>
 <details>
-  <summary>
-    <img src="https://img.shields.io/badge/-🇧🇷%20README%20em%20Português-informational?style=flat&logo=github&logoColor=white" alt="Português">
-  </summary>
+<summary><strong>🇧🇷 README em Português</strong></summary>
+<br>
 
 # 🇧🇷 Cap.Com Itaquaquecetuba - Catálogo Online
 
@@ -186,10 +185,11 @@ Este projeto está pronto para o deploy na Vercel (ou plataformas similares), po
       * `npm run build`: Constrói o site Next.js.
 </details>
 
-<details>   
-  <summary>     
-    <img src="https://img.shields.io/badge/-🇬🇧%20README%20in%20English-informational?style=flat&logo=github&logoColor=white" alt="English">   
-  </summary>
+<br>
+
+<details>
+<summary><strong>🇬🇧 README in English</strong></summary>
+<br>
   
 # 🇬🇧 🔗 Cap.Com Itaquaquecetuba - Online Catalog
 
