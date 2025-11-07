@@ -1,22 +1,16 @@
 # 🔗 Cap.Com Itaquaquecetuba - Catálogo Online
 
-\<p align="center"\>
-Um catálogo online e site institucional completo para Cap.Com Itaquaquecetuba, demonstrando as melhores práticas de desenvolvimento web moderno com Next.js 15 (Turbopack), React 19 e Prisma.<br>
+Um catálogo online e site institucional completo para Cap.Com Itaquaquecetuba, demonstrando as melhores práticas de desenvolvimento web moderno com Next.js 15 (Turbopack), React 19 e Prisma.
 A complete online catalog and institutional website for Cap.Com Itaquaquecetuba, demonstrating modern web development best practices with Next.js 15 (Turbopack), React 19, and Prisma.
-\</p\>
 
-\<p align="center"\>
-\<img src="[https://img.shields.io/badge/Next.js-000000?style=for-the-badge\&logo=nextdotjs\&logoColor=white](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)" alt="Next.js"\>
-\<img src="[https://img.shields.io/badge/React-19-20232A?style=for-the-badge\&logo=react\&logoColor=61DAFB](https://www.google.com/search?q=https://img.shields.io/badge/React-19-20232A%3Fstyle%3Dfor-the-badge%26logo%3Dreact%26logoColor%3D61DAFB)" alt="React 19"\>
-\<img src="[https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge\&logo=typescript\&logoColor=white](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)" alt="TypeScript"\>
-\<img src="[https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge\&logo=prisma\&logoColor=white](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)" alt="Prisma"\>
-\<img src="[https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge\&logo=postgresql\&logoColor=white](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)" alt="PostgreSQL"\>
-\<img src="[https://img.shields.io/badge/Tailwind\_CSS-06B6D4?style=for-the-badge\&logo=tailwindcss\&logoColor=white](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)" alt="Tailwind CSS"\>
-\</p\>
+![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![React 19](https://img.shields.io/badge/React-19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 
-\<p align="center"\>
-\<strong\>\<a href="[https://cap-com-itaquaquecetuba.vercel.app/](https://cap-com-itaquaquecetuba.vercel.app/)"\>Ver Demo (Ainda não disponível)\</a\>\</strong\>
-\</p\>
+**[Ver Site](https://cap-com-itaquaquecetuba.vercel.app/)**
 
 -----
 
