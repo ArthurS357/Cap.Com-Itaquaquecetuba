@@ -3,29 +3,22 @@
 Um catálogo online e site institucional completo para Cap.Com Itaquaquecetuba, demonstrando as melhores práticas de desenvolvimento web moderno com Next.js 15 (Turbopack), React 19 e Prisma.
 A complete online catalog and institutional website for Cap.Com Itaquaquecetuba, demonstrating modern web development best practices with Next.js 15 (Turbopack), React 19, and Prisma.
 
-![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
-![React 19](https://img.shields.io/badge/React-19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
-
 **[Ver Site](https://cap-com-itaquaquecetuba.vercel.app/)**
 
 -----
 
 \<details\>
 \<summary\>
-\<img src="[https://img.shields.io/badge/-](https://img.shields.io/badge/-)🇧🇷%20README%20em%20Português-informational?style=flat\&logo=github\&logoColor=white" alt="Português"\>
+\<img src="https://img.shields.io/badge/-🇧🇷%20README%20em%20Português-informational?style=flat\&logo=github\&logoColor=white" alt="Português"\>
 \</summary\>
 
 ## 🇧🇷 Cap.Com Itaquaquecetuba - Catálogo Online
 
-[](https://www.google.com/search?q=%5Bhttps://github.com/arthurs357/cap.com-itaquaquecetuba/actions/workflows/ci.yml%5D\(https://github.com/arthurs357/cap.com-itaquaquecetuba/actions/workflows/ci.yml\))
+[](https://github.com/arthurs357/cap.com-itaquaquecetuba/actions/workflows/ci.yml)
 
 Este é o repositório oficial do catálogo online e site institucional da **Cap.Com Itaquaquecetuba**, uma loja especializada em soluções de impressão, incluindo cartuchos, toners, impressoras e serviços de manutenção.
 
-O projeto é construído com **Next.js 15 (Turbopack)**, **React 19** e **Prisma**, utilizando **Geração de Site Estático Incremental (ISR)** para alta performance e **Renderização no Lado do Servidor (SSR)** para funcionalidades dinâmicas como a busca.
+O projeto é construído com **Next.js 15 (Turbopack)**, **React 19.1.0** e **Prisma**, utilizando **Geração de Site Estático Incremental (ISR)** para alta performance e **Renderização no Lado do Servidor (SSR)** para funcionalidades dinâmicas como a busca.
 
 ### ✨ Features Principais
 
@@ -44,7 +37,7 @@ O site serve tanto como um portfólio de serviços quanto um catálogo de produt
 
 ### 🛠️ Stack de Tecnologias
 
-  * **Framework:** [Next.js](https://nextjs.org/) (v15.5.5 c/ Turbopack) & [React](https://react.dev/) (v19)
+  * **Framework:** [Next.js](https://nextjs.org/) (v15.5.5 c/ Turbopack) & [React](https://react.dev/) (v19.1.0)
   * **Linguagem:** [TypeScript](https://www.typescriptlang.org/)
   * **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
   * **ORM / Banco de Dados:** [Prisma](https://www.prisma.io/)
@@ -170,11 +163,11 @@ Este projeto está pronto para o deploy na Vercel (ou plataformas similares).
 3.  **Ajustar o Comando de Build:** Altere o "Build Command" nas configurações do projeto na Vercel para aplicar as migrações e popular o banco antes de construir o site:
 
     ```bash
-    npx prisma migrate deploy && npx prisma db seed && npm run build
+    npx prisma migrate deploy && npm run prisma:seed && npm run build
     ```
 
       * `prisma migrate deploy`: Aplica as migrações no banco de produção.
-      * `prisma db seed`: (Opcional) Popula seu banco de produção com os dados do `seed.ts`.
+      * `npm run prisma:seed`: (Opcional) Popula seu banco de produção com os dados do `prisma/seed.ts`.
       * `npm run build`: Constrói o site Next.js.
 
 \</details\>
@@ -190,7 +183,7 @@ Este projeto está pronto para o deploy na Vercel (ou plataformas similares).
 
 This is the official repository for the online catalog and institutional website of **Cap.Com Itaquaquecetuba**, a store specializing in printing solutions, including cartridges, toners, printers, and maintenance services.
 
-The project is built with **Next.js 15 (Turbopack)**, **React 19**, and **Prisma**, utilizing **Incremental Static Regeneration (ISR)** for high performance and **Server-Side Rendering (SSR)** for dynamic features like search.
+The project is built with **Next.js 15 (Turbopack)**, **React 19.1.0**, and **Prisma**, utilizing **Incremental Static Regeneration (ISR)** for high performance and **Server-Side Rendering (SSR)** for dynamic features like search.
 
 ### ✨ Key Features
 
@@ -209,7 +202,7 @@ The site serves as both a service portfolio and a detailed product catalog.
 
 ### 🛠️ Tech Stack
 
-  * **Framework:** [Next.js](https://nextjs.org/) (v15.5.5 w/ Turbopack) & [React](https://react.dev/) (v19)
+  * **Framework:** [Next.js](https://nextjs.org/) (v15.5.5 w/ Turbopack) & [React](https://react.dev/) (v19.1.0)
   * **Language:** [TypeScript](https://www.typescriptlang.org/)
   * **Styling:** [Tailwind CSS](https://tailwindcss.com/)
   * **ORM / DB:** [Prisma](https://www.prisma.io/)
@@ -335,11 +328,11 @@ This project is ready for deployment on Vercel (or similar platforms).
 3.  **Adjust the Build Command:** Change the "Build Command" in Vercel's project settings to apply migrations and seed the database before building the site:
 
     ```bash
-    npx prisma migrate deploy && npx prisma db seed && npm run build
+    npx prisma migrate deploy && npm run prisma:seed && npm run build
     ```
 
       * `prisma migrate deploy`: Applies migrations to the production database.
-      * `prisma db seed`: (Optional) Populates your production database with data from `seed.ts`.
+      * `npm run prisma:seed`: (Optional) Populates your production database with data from `prisma/seed.ts`.
       * `npm run build`: Builds the Next.js site.
 
 \</details\>
