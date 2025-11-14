@@ -2,20 +2,23 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SearchBar from './SearchBar';
-import { useRouter } from 'next/router';
+import { useRouter, type NextRouter } from 'next/router'; 
 
 // Mock do hook useRouter, já que o componente depende dele
 vi.mock('next/router', () => ({
   useRouter: vi.fn(),
 }));
 
-// "Spy" para a função push
 const mockRouterPush = vi.fn();
 
-// Mock configuradp para retornar nossa função 'push' espiã
+// Mock configurado para retornar nossa função 'push' espiã
 vi.mocked(useRouter).mockReturnValue({
   push: mockRouterPush,
-} as any);
+  route: '/', // Adiciona propriedades mínimas para satisfazer o tipo
+  pathname: '/',
+  query: {},
+  asPath: '/',
+} as unknown as NextRouter); // 2. Força a tipagem para NextRouter
 
 
 describe('Componente SearchBar', () => {

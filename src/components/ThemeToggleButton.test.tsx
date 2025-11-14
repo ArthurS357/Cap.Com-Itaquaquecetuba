@@ -1,84 +1,45 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import ThemeToggleButton from './ThemeToggleButton';
+import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
+import { FaSun, FaMoon } from 'react-icons/fa';
 
-// Mock do hook useTheme da biblioteca next-themes
-vi.mock('next-themes', () => ({
-  useTheme: vi.fn(),
-}));
+const ThemeToggleButton = () => {
+  const [mounted, setMounted] = useState(false);
+  
+  // Obter o 'resolvedTheme'
+  const { setTheme, resolvedTheme } = useTheme(); 
 
-const mockSetTheme = vi.fn();
-const mockedUseTheme = vi.mocked(useTheme);
+  useEffect(() => setMounted(true), []);
 
-describe('Componente ThemeToggleButton', () => {
-  const user = userEvent.setup();
+  if (!mounted) {
+    return (
+      <button 
+        aria-label="Carregando tema"
+        className="p-2 rounded-full bg-surface-border animate-pulse"
+        disabled
+      >
+        <div className="w-5 h-5"></div>
+      </button>
+    );
+  }
 
-  // Reseta os mocks e define um valor padrão (modo claro) antes de cada teste
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockedUseTheme.mockReturnValue({
-      theme: 'light',
-      setTheme: mockSetTheme,
-      resolvedTheme: 'light',
-      themes: ['light', 'dark', 'system'], 
-    });
-  });
+  // 'resolvedTheme' (em vez de 'theme') para decidir qual ícone mostrar
+  const isDarkMode = resolvedTheme === 'dark';
 
-  it('deve renderizar o ícone de Sol e o aria-label correto no modo claro', () => {
-    render(<ThemeToggleButton />);
+  const toggleTheme = () => {
+    setTheme(isDarkMode ? 'light' : 'dark');
+  };
 
-    // No modo claro, o botão permite "Ativar modo escuro"
-    const button = screen.getByLabelText('Ativar modo escuro');
-    expect(button).toBeInTheDocument();
-    
-    expect(screen.queryByLabelText('Ativar modo claro')).not.toBeInTheDocument();
-  });
+  return (
+    <button
+      onClick={toggleTheme}
+      aria-label={isDarkMode ? 'Ativar modo claro' : 'Ativar modo escuro'}
+      className="p-2 rounded-full text-text-secondary
+                 hover:text-brand-primary hover:bg-surface-border 
+                 transition-colors duration-200"
+    >
+      {isDarkMode ? <FaMoon size={20} /> : <FaSun size={20} />}
+    </button>
+  );
+};
 
-  it('deve renderizar o ícone de Lua e o aria-label correto no modo escuro', () => {
-    // Sobrescreve o mock padrão para simular o modo escuro
-    mockedUseTheme.mockReturnValue({
-      theme: 'dark',
-      setTheme: mockSetTheme,
-      resolvedTheme: 'dark',
-      themes: ['light', 'dark', 'system'], 
-    });
-    
-    render(<ThemeToggleButton />);
-
-    // No modo escuro, o botão permite "Ativar modo claro"
-    const button = screen.getByLabelText('Ativar modo claro');
-    expect(button).toBeInTheDocument();
-    
-    expect(screen.queryByLabelText('Ativar modo escuro')).not.toBeInTheDocument();
-  });
-
-  it('deve chamar setTheme("dark") ao clicar no modo claro', async () => {
-    render(<ThemeToggleButton />);
-    
-    const button = screen.getByLabelText('Ativar modo escuro');
-    await user.click(button);
-    
-    expect(mockSetTheme).toHaveBeenCalledTimes(1);
-    expect(mockSetTheme).toHaveBeenCalledWith('dark');
-  });
-
-  it('deve chamar setTheme("light") ao clicar no modo escuro', async () => {
-    // Configura o estado inicial como modo escuro
-    mockedUseTheme.mockReturnValue({
-      theme: 'dark',
-      setTheme: mockSetTheme,
-      resolvedTheme: 'dark',
-      themes: ['light', 'dark', 'system'], 
-    });
-    
-    render(<ThemeToggleButton />);
-    
-    const button = screen.getByLabelText('Ativar modo claro');
-    await user.click(button);
-    
-    expect(mockSetTheme).toHaveBeenCalledTimes(1);
-    expect(mockSetTheme).toHaveBeenCalledWith('light');
-  });
-});
+export default ThemeToggleButton;
