@@ -3,6 +3,7 @@ import SEO from '../components/Seo';
 import CategoryCard from '../components/cards/CategoryCard';
 import { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link'; 
 import { FaAward, FaRegClock } from 'react-icons/fa'; 
 import { STORE_INFO, GOOGLE_MAPS_EMBED_URL } from '@/config/store';
 
@@ -47,7 +48,7 @@ const useScrollAnimation = (options?: IntersectionObserverInit) => {
 };
 
 
-// --- Ícones SVG como componentes simples ---
+// --- Ícones SVG ---
 const IconRecycle = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 text-brand-primary flex-shrink-0 mt-1">
     <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
@@ -194,15 +195,24 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
               </p>
             </div>
           </div>
-          <div className="bg-surface-card p-6 rounded-xl shadow-lg border border-surface-border flex items-start gap-4 hover:border-brand-primary/50 transition-colors">
+          
+          {/* --- CARTÃO DE MANUTENÇÃO ATUALIZADO COM LINK --- */}
+          <div className="bg-surface-card p-6 rounded-xl shadow-lg border border-surface-border flex items-start gap-4 hover:border-brand-primary/50 transition-colors group cursor-pointer">
             <IconWrench />
             <div>
-              <h3 className="text-2xl font-semibold text-text-primary mb-2">Manutenção de Impressoras</h3>
+              <h3 className="text-2xl font-semibold text-text-primary mb-2 group-hover:text-brand-primary transition-colors">
+                <Link href="/servicos/manutencao">Manutenção de Impressoras</Link>
+              </h3>
               <p className="text-text-secondary">
                 Realizamos manutenção preventiva e corretiva em uma ampla variedade de impressoras para garantir o pleno funcionamento.
+                <br/>
+                <Link href="/servicos/manutencao" className="text-brand-accent text-sm font-semibold mt-2 inline-block hover:underline">
+                   Saiba mais &rarr;
+                </Link>
               </p>
             </div>
           </div>
+          
         </div>
       </section>
 
