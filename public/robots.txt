@@ -1,0 +1,9 @@
+# Permitir que todos os robôs (Google, Bing, etc) leiam o site
+User-agent: *
+Allow: /
+
+# Bloquear acesso a áreas privadas ou de API 
+Disallow: /api/
+
+# Apontar para o sitemap 
+Sitemap: https://cap-com-itaquaquecetuba.vercel.app/sitemap.xml
