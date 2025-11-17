@@ -107,6 +107,7 @@ export const getStaticProps: GetStaticProps<{
 function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticProps>) {
   const encodedAddress = encodeURIComponent(STORE_INFO.address);
   const wazeUrl = `https://waze.com/ul?q=${encodedAddress}&navigate=yes`;
+  
   const [categoriasRef, categoriasVisible] = useScrollAnimation({ threshold: 0.1 });
   const [servicosRef, servicosVisible] = useScrollAnimation({ threshold: 0.1 });
   const [sobreNosRef, sobreNosVisible] = useScrollAnimation({ threshold: 0.1 });
@@ -231,7 +232,8 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
       <section
         id="sobre-nos"
         ref={sobreNosRef as React.RefObject<HTMLElement>}
-        className={`max-w-6xl mx-auto mb-16 animate-on-scroll ${sobreNosVisible ? 'animate-slide-in-right' : ''}`}
+        // ALTERAÇÃO AQUI: Mudamos de 'animate-slide-in-right' para 'animate-slide-in-up'
+        className={`max-w-6xl mx-auto mb-16 animate-on-scroll ${sobreNosVisible ? 'animate-slide-in-up' : ''}`}
       >
         <h2 className="text-3xl font-bold text-text-primary mb-12 text-center">Sobre Nós</h2>
         
