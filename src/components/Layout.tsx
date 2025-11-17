@@ -3,6 +3,7 @@ import Image from 'next/image';
 import React from 'react';
 import SearchBar from './SearchBar';
 import ThemeToggleButton from './ThemeToggleButton';
+import WhatsAppButton from './WhatsAppButton'; 
 import { Inter } from 'next/font/google';
 import { STORE_INFO, getWhatsappLink } from '@/config/store';
 
@@ -52,12 +53,15 @@ const Footer = () => {
     <footer className="bg-surface-card border-t border-surface-border mt-16 py-8">
       <div className="container mx-auto px-4 text-center text-text-secondary">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          
+          {/* Coluna de Navegação */}
           <div>
             <h4 className="font-semibold text-text-primary mb-3">Navegação</h4>
             <ul className="space-y-2">
               <li><Link href="/" className="hover:text-brand-primary transition-colors">Início</Link></li>
               <li><Link href="/#categorias" className="hover:text-brand-primary transition-colors">Categorias</Link></li>
               <li><Link href="/#servicos" className="hover:text-brand-primary transition-colors">Serviços</Link></li>
+              <li><Link href="/faq" className="hover:text-brand-primary transition-colors">Perguntas Frequentes</Link></li>
               <li><Link href="/#localizacao" className="hover:text-brand-primary transition-colors">Localização</Link></li>
             </ul>
           </div>
@@ -96,6 +100,8 @@ export default function Layout({ children }: LayoutProps) {
         {children}
       </main>
       <Footer />
+      {/* Botão Flutuante incluído aqui */}
+      <WhatsAppButton />
     </div>
   );
 }
