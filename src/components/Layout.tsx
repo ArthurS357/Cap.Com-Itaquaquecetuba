@@ -3,7 +3,8 @@ import Image from 'next/image';
 import React from 'react';
 import SearchBar from './SearchBar';
 import ThemeToggleButton from './ThemeToggleButton';
-import WhatsAppButton from './WhatsAppButton'; 
+import WhatsAppButton from './WhatsAppButton';
+import Breadcrumbs from './Breadcrumbs'; 
 import { Inter } from 'next/font/google';
 import { STORE_INFO, getWhatsappLink } from '@/config/store';
 
@@ -97,10 +98,10 @@ export default function Layout({ children }: LayoutProps) {
     <div className={`${inter.variable} min-h-screen flex flex-col font-sans bg-surface-background`}>
       <Navbar />
       <main className="flex-grow container mx-auto p-4 md:p-8">
+        <Breadcrumbs /> 
         {children}
       </main>
       <Footer />
-      {/* Botão Flutuante incluído aqui */}
       <WhatsAppButton />
     </div>
   );
