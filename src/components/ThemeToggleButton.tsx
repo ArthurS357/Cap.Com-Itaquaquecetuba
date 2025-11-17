@@ -6,7 +6,7 @@ const ThemeToggleButton = () => {
   const [mounted, setMounted] = useState(false);
   
   // Obter o 'resolvedTheme'
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
 
   useEffect(() => setMounted(true), []);
 
