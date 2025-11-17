@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import ProductCard from '@/components/cards/ProductCard';
 import { FaWhatsapp } from 'react-icons/fa';
+import { getWhatsappLink } from '@/config/store';
 
 // --- 1. Definição de Tipos ---
 type ProductWithDetails = Prisma.ProductGetPayload<{
@@ -126,10 +127,8 @@ export const getStaticProps: GetStaticProps<{
 function ProductPage({ product, similarProducts }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
 
-  // Configs do WhatsApp
-  const whatsappNumber = "5511996388426"; 
-  const defaultMessage = "Olá! Visitei o site e gostaria de mais informações.";
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(defaultMessage)}`;
+  // Gera o link do WhatsApp usando a função helper
+  const whatsappLink = getWhatsappLink();
 
   if (router.isFallback) {
     return <LoadingSpinner />;
