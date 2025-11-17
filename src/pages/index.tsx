@@ -4,6 +4,7 @@ import CategoryCard from '../components/cards/CategoryCard';
 import { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { FaAward, FaRegClock } from 'react-icons/fa'; 
+import { STORE_INFO, GOOGLE_MAPS_EMBED_URL } from '@/config/store';
 
 type Category = {
   id: number;
@@ -103,9 +104,7 @@ export const getStaticProps: GetStaticProps<{
 
 
 function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const storeAddress = "Estr. dos Índios, 765 - Jardim Mossapyra, Itaquaquecetuba - SP, 08570-000";
-  const encodedAddress = encodeURIComponent(storeAddress);
-  const googleMapsEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d228.7868357502089!2d-46.32073719989995!3d-23.43919608454872!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce7dab465c779d%3A0xe55f25ea7b533e3b!2sCap.Com!5e0!3m2!1spt-BR!2sbr!4v1760818394343!5m2!1spt-BR!2sbr";  
+  const encodedAddress = encodeURIComponent(STORE_INFO.address);
   const wazeUrl = `https://waze.com/ul?q=${encodedAddress}&navigate=yes`;
   const [categoriasRef, categoriasVisible] = useScrollAnimation({ threshold: 0.1 });
   const [servicosRef, servicosVisible] = useScrollAnimation({ threshold: 0.1 });
@@ -281,18 +280,18 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
         className={`text-center mb-16 animate-on-scroll ${localizacaoVisible ? 'animate-slide-in-up' : ''}`}
       >
         <h2 className="text-3xl font-bold text-text-primary mb-6">Nossa Localização</h2>
-        <p className="text-lg text-text-secondary mb-8">{storeAddress}</p>
+        <p className="text-lg text-text-secondary mb-8">{STORE_INFO.address}</p>
 
         <div className="aspect-w-16 aspect-h-9 max-w-4xl mx-auto rounded-lg overflow-hidden shadow-lg border border-surface-border mb-8">
           <iframe
-            src={googleMapsEmbedUrl}
+            src={GOOGLE_MAPS_EMBED_URL}
             width="100%"
             height="450"
             style={{ border: 0 }}
             allowFullScreen={false}
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-            title="Localização da Cap.Com Itaquaquecetuba no Google Maps"
+            title={`Localização da ${STORE_INFO.name} no Google Maps`}
           ></iframe>
         </div>
 
