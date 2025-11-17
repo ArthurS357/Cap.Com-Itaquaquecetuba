@@ -1,6 +1,5 @@
 import React from 'react';
 import SEO from '@/components/Seo';
-import Link from 'next/link';
 import { FaQuestionCircle, FaWhatsapp } from 'react-icons/fa';
 import { getWhatsappLink } from '@/config/store';
 
@@ -44,7 +43,8 @@ const FAQPage = () => {
       {/* Cabeçalho */}
       <div className="text-center max-w-3xl mx-auto mb-12">
         <div className="flex justify-center mb-4">
-            <FaQuestionCircle className="text-brand-primary text-5xl opacity-20" />
+            {/* Ícone agora em verde (green-600) */}
+            <FaQuestionCircle className="text-green-600 text-5xl opacity-20" />
         </div>
         <h1 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
           Perguntas Frequentes
@@ -59,30 +59,33 @@ const FAQPage = () => {
         {faqs.map((item, index) => (
           <div 
             key={index} 
-            className="bg-surface-card rounded-xl p-6 border border-surface-border shadow-sm hover:shadow-md transition-shadow"
+            // Borda verde suave ao passar o mouse
+            className="bg-surface-card rounded-xl p-6 border border-surface-border shadow-sm hover:shadow-md hover:border-green-300 transition-all duration-300"
           >
             <h3 className="text-xl font-semibold text-text-primary mb-3 flex items-start gap-3">
-              <span className="text-brand-accent font-bold">?</span>
+              {/* Ponto de interrogação em verde vibrante */}
+              <span className="text-green-500 font-bold">?</span>
               {item.question}
             </h3>
-            <p className="text-text-secondary pl-6 border-l-2 border-surface-border">
+            {/* Linha lateral verde */}
+            <p className="text-text-secondary pl-6 border-l-2 border-green-200">
               {item.answer}
             </p>
           </div>
         ))}
       </div>
 
-      {/* CTA Dúvida não respondida */}
-      <div className="bg-brand-light rounded-xl p-8 text-center border border-brand-primary/20 max-w-2xl mx-auto">
-        <h3 className="text-xl font-bold text-brand-dark mb-2">Ainda tem dúvidas?</h3>
-        <p className="text-brand-dark/80 mb-6">
+      {/* CTA Dúvida não respondida - Tudo em tons de verde */}
+      <div className="bg-green-50 rounded-xl p-8 text-center border border-green-200 max-w-2xl mx-auto">
+        <h3 className="text-xl font-bold text-green-800 mb-2">Ainda tem dúvidas?</h3>
+        <p className="text-green-700 mb-6">
           A nossa equipa está pronta para responder a qualquer outra questão.
         </p>
         <a
           href={whatsappLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 bg-brand-primary hover:bg-brand-dark text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-sm"
         >
           <FaWhatsapp size={20} />
           Falar no WhatsApp
