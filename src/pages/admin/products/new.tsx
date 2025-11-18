@@ -5,7 +5,8 @@ import { getSession } from 'next-auth/react';
 import { PrismaClient, Brand, Category } from '@prisma/client';
 import SEO from '@/components/Seo';
 import Link from 'next/link';
-import { FaArrowLeft, FaSave } from 'react-icons/fa';
+import { FaArrowLeft, FaSave, FaTimes } from 'react-icons/fa';
+import { UploadButton } from '@/utils/uploadthing'; 
 
 type NewProductProps = {
   brands: Brand[];
@@ -77,6 +78,46 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
             {error}
           </div>
         )}
+
+        {/* --- ÁREA DE UPLOAD DE IMAGEM --- */}
+        <div>
+          <label className="block text-sm font-medium text-text-secondary mb-2">Imagem do Produto</label>
+          
+          {formData.imageUrl ? (
+            // Se já tem imagem, mostra o preview
+            <div className="relative w-40 h-40 border-2 border-surface-border rounded-lg overflow-hidden bg-white flex items-center justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={formData.imageUrl} alt="Preview" className="max-w-full max-h-full object-contain" />
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, imageUrl: '' })}
+                className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition-colors"
+                title="Remover imagem"
+              >
+                <FaTimes size={12} />
+              </button>
+            </div>
+          ) : (
+            // Se não tem, mostra o botão de upload
+            <div className="border-2 border-dashed border-surface-border rounded-lg p-8 flex flex-col items-center justify-center bg-surface-background hover:bg-surface-card transition-colors">
+              <UploadButton
+                endpoint="imageUploader"
+                onClientUploadComplete={(res) => {
+                  if (res && res[0]) {
+                    setFormData({ ...formData, imageUrl: res[0].url });
+                  }
+                }}
+                onUploadError={(error: Error) => {
+                  alert(`Erro no upload: ${error.message}`);
+                }}
+              />
+              <p className="text-xs text-text-subtle mt-2">Suporta: PNG, JPG (máx 4MB)</p>
+            </div>
+          )}
+          {/* Input oculto para garantir que o valor vai no form */}
+          <input type="hidden" name="imageUrl" value={formData.imageUrl} />
+        </div>
+        {/* -------------------------------- */}
 
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-1">Nome do Produto</label>
@@ -165,18 +206,6 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
               ))}
             </select>
           </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1">URL da Imagem</label>
-          <input
-            name="imageUrl"
-            type="text"
-            value={formData.imageUrl}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded-lg border border-surface-border bg-surface-background focus:ring-2 focus:ring-brand-primary outline-none"
-            placeholder="/images/produtos/..."
-          />
         </div>
 
         <div className="flex justify-end pt-4">
