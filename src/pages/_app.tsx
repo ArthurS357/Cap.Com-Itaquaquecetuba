@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import WelcomeSplash from '@/components/WelcomeSplash'; 
 import { ThemeProvider } from 'next-themes';
 import { SessionProvider } from "next-auth/react"; 
+import "@uploadthing/react/styles.css";
 
 export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   const [isLoading, setIsLoading] = useState(true);
