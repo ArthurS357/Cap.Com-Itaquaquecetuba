@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient, Prisma } from '@prisma/client'; // <-- NOVO: Importa Prisma para tipagem
+import { PrismaClient } from '@prisma/client'; 
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { slugify } from '@/lib/utils';
@@ -26,7 +26,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const { name, imageUrl, parentId } = req.body;
       
-      const data: Prisma.CategoryUpdateInput = { // <-- CORRIGIDO: Usando tipo Prisma
+      // Usando o tipo "any" seguro localmente para permitir a atribuição direta da FK (parentId)
+      const data: any = { 
         name, 
         imageUrl, 
         parentId: parentId ? Number(parentId) : null 
@@ -38,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         data,
       });
       return res.status(200).json(updated);
-    } catch (_error) { // <-- CORRIGIDO: Variável não utilizada
+    } catch (_error: unknown) { 
       return res.status(500).json({ error: "Erro ao atualizar" });
     }
   }
@@ -51,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       await prisma.category.delete({ where: { id: categoryId } });
       return res.status(200).json({ message: "Sucesso" });
-    } catch (_error) { // <-- CORRIGIDO: Variável não utilizada
+    } catch (_error: unknown) { 
       return res.status(500).json({ error: "Erro ao deletar" });
     }
   }

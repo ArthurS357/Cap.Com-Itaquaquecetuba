@@ -37,7 +37,7 @@ export default function SettingsPage() {
 
       if (res.ok) setMessage('Configurações salvas com sucesso!');
       else throw new Error('Erro ao salvar');
-    } catch (_err) { // <-- CORRIGIDO: Variável não utilizada
+    } catch (_err: unknown) {
       setMessage('Erro ao salvar configurações.');
     } finally {
       setIsLoading(false);
