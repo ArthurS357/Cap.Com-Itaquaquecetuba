@@ -5,21 +5,17 @@ import Link from 'next/link';
 import { FaArrowLeft, FaPlus, FaEdit } from 'react-icons/fa';
 import SEO from '@/components/Seo';
 
-// Definição do tipo para incluir a Marca (Brand)
 type ProductWithBrand = Product & { brand: Brand };
 
-// --- FIX: Prisma Singleton para evitar muitas conexões no Server Side ---
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 const prisma = globalForPrisma.prisma || new PrismaClient();
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
-// ----------------------------------------------------------------------
 
 export default function AdminProductsList({ products }: { products: ProductWithBrand[] }) {
   return (
     <div className="animate-fade-in-up">
       <SEO title="Gerenciar Produtos" />
 
-      {/* Cabeçalho da Página */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <div className="flex items-center gap-4">
           <Link href="/admin" className="p-2 hover:bg-surface-border rounded-full transition-colors">
@@ -36,7 +32,6 @@ export default function AdminProductsList({ products }: { products: ProductWithB
         </Link>
       </div>
 
-      {/* Tabela de Listagem */}
       <div className="bg-surface-card border border-surface-border rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
@@ -56,6 +51,7 @@ export default function AdminProductsList({ products }: { products: ProductWithB
                   <td className="p-4 text-text-subtle">#{product.id}</td>
                   <td className="p-4">
                     {product.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img src={product.imageUrl} alt={product.name} className="w-10 h-10 object-contain rounded bg-white p-1 border" />
                     ) : (
                       <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">N/A</div>
@@ -86,7 +82,7 @@ export default function AdminProductsList({ products }: { products: ProductWithB
         </div>
         {products.length === 0 && (
           <div className="p-8 text-center text-text-secondary">
-            Nenhum produto encontrado. Clique em "Novo Produto" para começar.
+            Nenhum produto encontrado. Clique em &quot;Novo Produto&quot; para começar.
           </div>
         )}
       </div>
@@ -97,7 +93,6 @@ export default function AdminProductsList({ products }: { products: ProductWithB
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context);
 
-  // Proteção de Rota: Se não logado, manda pro login
   if (!session) {
     return {
       redirect: {
@@ -107,7 +102,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 
-  // Buscar produtos
   const products = await prisma.product.findMany({
     include: { brand: true },
     orderBy: { id: 'desc' }, 

@@ -7,11 +7,9 @@ import SEO from '@/components/Seo';
 import Link from 'next/link';
 import { FaArrowLeft, FaSave, FaTrash, FaExclamationTriangle } from 'react-icons/fa';
 
-// --- FIX: Prisma Singleton (Evita travar o banco em desenvolvimento) ---
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 const prisma = globalForPrisma.prisma || new PrismaClient();
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
-// ----------------------------------------------------------------------
 
 type EditProductProps = {
   product: Product;
@@ -25,7 +23,6 @@ export default function EditProduct({ product, brands, categories }: EditProduct
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState('');
 
-  // Estado inicial com os dados do produto
   const [formData, setFormData] = useState({
     name: product.name,
     description: product.description || '',
@@ -40,7 +37,6 @@ export default function EditProduct({ product, brands, categories }: EditProduct
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Função de Atualizar (PUT)
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -58,15 +54,17 @@ export default function EditProduct({ product, brands, categories }: EditProduct
         throw new Error(data.error || 'Erro ao atualizar');
       }
 
-      // Redireciona após sucesso
       router.push('/admin/products');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Ocorreu um erro ao atualizar.');
+      }
       setIsLoading(false);
     }
   };
 
-  // Função de Deletar (DELETE)
   const handleDelete = async () => {
     if (!confirm('Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita.')) return;
     
@@ -82,9 +80,10 @@ export default function EditProduct({ product, brands, categories }: EditProduct
       }
 
       router.push('/admin/products');
-    } catch (err: any) {
-      alert(err.message);
-      setIsDeleting(false);
+    } catch (err: unknown) {
+       const msg = err instanceof Error ? err.message : 'Erro ao excluir';
+       alert(msg);
+       setIsDeleting(false);
     }
   };
 
@@ -118,7 +117,6 @@ export default function EditProduct({ product, brands, categories }: EditProduct
           </div>
         )}
 
-        {/* Nome */}
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-1">Nome do Produto</label>
           <input
@@ -131,7 +129,6 @@ export default function EditProduct({ product, brands, categories }: EditProduct
           />
         </div>
 
-        {/* Descrição */}
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-1">Descrição</label>
           <textarea
@@ -144,7 +141,6 @@ export default function EditProduct({ product, brands, categories }: EditProduct
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Preço */}
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">Preço (R$)</label>
             <input
@@ -157,7 +153,6 @@ export default function EditProduct({ product, brands, categories }: EditProduct
             />
           </div>
 
-          {/* Tipo */}
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">Tipo</label>
             <select
@@ -175,7 +170,6 @@ export default function EditProduct({ product, brands, categories }: EditProduct
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Marca */}
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">Marca</label>
             <select
@@ -191,7 +185,6 @@ export default function EditProduct({ product, brands, categories }: EditProduct
             </select>
           </div>
 
-          {/* Categoria */}
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">Categoria</label>
             <select
@@ -208,7 +201,6 @@ export default function EditProduct({ product, brands, categories }: EditProduct
           </div>
         </div>
 
-        {/* URL Imagem */}
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-1">URL da Imagem</label>
           <input
@@ -220,7 +212,6 @@ export default function EditProduct({ product, brands, categories }: EditProduct
           />
         </div>
 
-        {/* Botão Salvar */}
         <div className="flex justify-end pt-4">
           <button
             type="submit"
@@ -240,13 +231,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context);
   const { id } = context.params as { id: string };
 
-  // Proteção de Rota
   if (!session) {
     return { redirect: { destination: '/api/auth/signin', permanent: false } };
   }
 
-  // --- FIX: Usar a instância global do Prisma (não criar uma nova) ---
-  // Busca tudo em paralelo para ser rápido
   const [product, brands, categories] = await Promise.all([
     prisma.product.findUnique({ where: { id: Number(id) } }),
     prisma.brand.findMany({ orderBy: { name: 'asc' } }),
@@ -259,7 +247,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   return {
     props: {
-      // JSON.parse(JSON.stringify(...)) é necessário para serializar objetos Date do Prisma
       product: JSON.parse(JSON.stringify(product)),
       brands: JSON.parse(JSON.stringify(brands)),
       categories: JSON.parse(JSON.stringify(categories)),

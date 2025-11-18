@@ -1,6 +1,5 @@
 import React from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import SEO from '@/components/Seo';
 import { FaWrench, FaCheckCircle, FaWhatsapp } from 'react-icons/fa';
 import { getWhatsappLink } from '@/config/store';

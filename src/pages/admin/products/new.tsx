@@ -17,12 +17,11 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Estado do formulário
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     price: '',
-    type: 'TONER', // Valor padrão
+    type: 'TONER',
     brandId: brands.length > 0 ? brands[0].id : '',
     categoryId: categories.length > 0 ? categories[0].id : '',
     imageUrl: '',
@@ -49,10 +48,13 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
         throw new Error(data.error || 'Erro ao criar produto');
       }
 
-      // Sucesso: voltar para a lista
       router.push('/admin/products');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Ocorreu um erro desconhecido.');
+      }
       setIsLoading(false);
     }
   };
@@ -76,7 +78,6 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
           </div>
         )}
 
-        {/* Nome */}
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-1">Nome do Produto</label>
           <input
@@ -90,7 +91,6 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
           />
         </div>
 
-        {/* Descrição */}
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-1">Descrição</label>
           <textarea
@@ -104,7 +104,6 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Preço */}
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">Preço (R$)</label>
             <input
@@ -118,7 +117,6 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
             />
           </div>
 
-          {/* Tipo */}
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">Tipo</label>
             <select
@@ -136,7 +134,6 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Marca */}
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">Marca</label>
             <select
@@ -153,7 +150,6 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
             </select>
           </div>
 
-          {/* Categoria */}
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">Categoria</label>
             <select
@@ -171,9 +167,8 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
           </div>
         </div>
 
-        {/* URL da Imagem (Temporário até fazermos upload real) */}
         <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1">URL da Imagem (ou caminho local)</label>
+          <label className="block text-sm font-medium text-text-secondary mb-1">URL da Imagem</label>
           <input
             name="imageUrl"
             type="text"
@@ -182,12 +177,8 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
             className="w-full px-4 py-2 rounded-lg border border-surface-border bg-surface-background focus:ring-2 focus:ring-brand-primary outline-none"
             placeholder="/images/produtos/..."
           />
-          <p className="text-xs text-text-subtle mt-1">
-            Dica: Você pode usar imagens que já estão na pasta public ou links externos.
-          </p>
         </div>
 
-        {/* Botão Salvar */}
         <div className="flex justify-end pt-4">
           <button
             type="submit"
@@ -207,7 +198,6 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
   );
 }
 
-// Carregar Marcas e Categorias no Servidor para preencher os Selects
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context);
 
