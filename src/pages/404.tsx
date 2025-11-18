@@ -4,6 +4,7 @@ import { FaExclamationTriangle, FaHome } from 'react-icons/fa';
 
 export default function Custom404() {
   return (
+    // Centraliza o conteúdo e garante altura mínima
     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 animate-fade-in-up">
       <SEO 
         title="Página Não Encontrada" 
