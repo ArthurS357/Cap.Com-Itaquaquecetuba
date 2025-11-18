@@ -1,12 +1,12 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import { useRouter } from 'next/router';
+import React, { useState } from 'react'; 
 import SEO from '@/components/Seo';
 import ProductCard from '@/components/cards/ProductCard';
-import { useState } from 'react';
-// --- A IMPORTAÇÃO QUE ESTAVA FALTANDO ESTÁ AQUI EMBAIXO ---
-import { FaFilter, FaTimes } from 'react-icons/fa'; 
+import { FaFilter, FaTimes } from 'react-icons/fa';
 
+// --- Tipos ---
 type SearchResultProduct = Prisma.ProductGetPayload<{
   select: {
     id: true;
@@ -27,6 +27,7 @@ type FilterOption = {
   name: string;
 };
 
+// --- Backend (Server Side) ---
 export const getServerSideProps: GetServerSideProps<{
   results: SearchResultProduct[];
   query: string;
@@ -48,6 +49,7 @@ export const getServerSideProps: GetServerSideProps<{
   let allTypes: string[] = [];
 
   try {
+    // Busca filtros disponíveis
     const brandsData = await prisma.brand.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } });
     allBrands = brandsData.map(b => ({ id: b.id, name: b.name }));
 
@@ -58,6 +60,7 @@ export const getServerSideProps: GetServerSideProps<{
     });
     allTypes = typesData.map(t => t.type);
 
+    // Condição de Busca por Texto
     const textSearchCondition: Prisma.ProductWhereInput = query.trim() ? {
       OR: [
         { name: { contains: query, mode: 'insensitive' } },
@@ -75,6 +78,7 @@ export const getServerSideProps: GetServerSideProps<{
       ],
     } : {};
 
+    // Cláusula WHERE final combinando tudo
     const whereClause: Prisma.ProductWhereInput = {
       AND: [
         textSearchCondition,
@@ -87,6 +91,7 @@ export const getServerSideProps: GetServerSideProps<{
       ]
     };
 
+    // Busca Produtos
     results = await prisma.product.findMany({
       where: whereClause,
       select: {
@@ -104,18 +109,20 @@ export const getServerSideProps: GetServerSideProps<{
 
   } catch (error) {
     console.error("Erro na busca:", error);
-    await prisma.$disconnect();
     return { props: { results: [], query, brands: [], types: [], error: "Erro ao buscar dados." } };
+  } finally {
+    await prisma.$disconnect();
   }
 
-  await prisma.$disconnect();
   return { props: { results, query, brands: allBrands, types: allTypes } };
 };
 
+// --- Frontend (Componente) ---
 export default function SearchPage({ results, query, brands, types, error }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
+  // Helpers de UI
   const isBrandSelected = (brandName: string) => {
     const current = router.query.brand;
     if (Array.isArray(current)) return current.includes(brandName);
@@ -128,6 +135,11 @@ export default function SearchPage({ results, query, brands, types, error }: Inf
     return current === typeName;
   };
 
+  const formatType = (type: string) => {
+    return type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  // Lógica de Navegação/Filtro
   const toggleFilter = (key: 'brand' | 'type', value: string) => {
     const currentQuery = { ...router.query };
     let currentValues = currentQuery[key];
@@ -144,6 +156,7 @@ export default function SearchPage({ results, query, brands, types, error }: Inf
         : [...currentValues, value];
     }
 
+    // Limpa a paginação ou outros estados se necessário (aqui mantemos simples)
     if (newValues.length > 0) {
       currentQuery[key] = newValues;
     } else {
@@ -157,10 +170,6 @@ export default function SearchPage({ results, query, brands, types, error }: Inf
     router.push({ pathname: '/busca', query: { q: query } }, undefined, { scroll: false });
   };
 
-  const formatType = (type: string) => {
-    return type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
-  };
-
   return (
     <>
       <SEO
@@ -170,11 +179,12 @@ export default function SearchPage({ results, query, brands, types, error }: Inf
 
       <div className="flex flex-col md:flex-row gap-8 animate-fade-in-up">
         
-        {/* === BARRA LATERAL DE FILTROS === */}
+        {/* === SIDEBAR DE FILTROS === */}
         <aside className={`
           md:w-1/4 
           ${showMobileFilters ? 'fixed inset-0 z-50 bg-surface-background p-6 overflow-y-auto' : 'hidden md:block'}
         `}>
+          {/* Cabeçalho Mobile */}
           <div className="flex justify-between items-center mb-6 md:hidden">
              <h2 className="text-2xl font-bold text-text-primary">Filtros</h2>
              <button onClick={() => setShowMobileFilters(false)} className="text-text-secondary p-2">
@@ -183,6 +193,7 @@ export default function SearchPage({ results, query, brands, types, error }: Inf
           </div>
 
           <div className="sticky top-24 space-y-8">
+            {/* Cabeçalho Desktop */}
             <div className="flex justify-between items-center">
                 <h3 className="font-bold text-xl text-text-primary hidden md:block">Filtros</h3>
                 {(router.query.brand || router.query.type) && (
@@ -192,13 +203,13 @@ export default function SearchPage({ results, query, brands, types, error }: Inf
                 )}
             </div>
 
-            {/* Filtro por Marca */}
-            <div className="bg-surface-card p-4 rounded-lg border border-surface-border">
-              <h4 className="font-semibold text-text-primary mb-3">Marca</h4>
+            {/* Grupo: Marca */}
+            <div className="bg-surface-card p-4 rounded-lg border border-surface-border shadow-sm">
+              <h4 className="font-semibold text-text-primary mb-3 border-b border-surface-border pb-2">Marca</h4>
               <ul className="space-y-3">
                 {brands.map((brand) => (
                   <li key={brand.id}>
-                    <label className="flex items-center gap-3 cursor-pointer group">
+                    <label className="flex items-center gap-3 cursor-pointer group select-none">
                       <input
                         type="checkbox"
                         checked={isBrandSelected(brand.name)}
@@ -214,13 +225,13 @@ export default function SearchPage({ results, query, brands, types, error }: Inf
               </ul>
             </div>
 
-            {/* Filtro por Tipo */}
-            <div className="bg-surface-card p-4 rounded-lg border border-surface-border">
-              <h4 className="font-semibold text-text-primary mb-3">Tipo de Produto</h4>
+            {/* Grupo: Tipo */}
+            <div className="bg-surface-card p-4 rounded-lg border border-surface-border shadow-sm">
+              <h4 className="font-semibold text-text-primary mb-3 border-b border-surface-border pb-2">Tipo de Produto</h4>
               <ul className="space-y-3">
                 {types.map((type) => (
                   <li key={type}>
-                    <label className="flex items-center gap-3 cursor-pointer group">
+                    <label className="flex items-center gap-3 cursor-pointer group select-none">
                       <input
                         type="checkbox"
                         checked={isTypeSelected(type)}
@@ -238,9 +249,10 @@ export default function SearchPage({ results, query, brands, types, error }: Inf
           </div>
         </aside>
 
-        {/* === CONTEÚDO PRINCIPAL === */}
+        {/* === ÁREA PRINCIPAL === */}
         <div className="flex-1">
           
+          {/* Topo da Lista */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             <h1 className="text-2xl font-bold text-text-primary">
               {query ? (
@@ -251,38 +263,45 @@ export default function SearchPage({ results, query, brands, types, error }: Inf
               <span className="text-sm font-normal text-text-subtle ml-3">({results.length} produtos)</span>
             </h1>
             
+            {/* Botão Mobile */}
             <button 
                 onClick={() => setShowMobileFilters(true)}
-                className="md:hidden flex items-center gap-2 px-4 py-2 bg-surface-card border border-surface-border rounded-lg text-text-primary hover:bg-surface-border transition-colors w-full sm:w-auto justify-center font-medium"
+                className="md:hidden flex items-center gap-2 px-4 py-2 bg-surface-card border border-surface-border rounded-lg text-text-primary hover:bg-surface-border transition-colors w-full sm:w-auto justify-center font-medium shadow-sm"
             >
                 <FaFilter /> Filtrar
             </button>
           </div>
 
+          {/* Mensagem de Erro */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg text-center">
+            <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg text-center animate-pulse">
                 {error}
             </div>
           )}
 
+          {/* Grid de Produtos */}
           {!error && results.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {results.map((product) => (
-                 <div key={product.id}>
+                 <div key={product.id} className="h-full">
                    <ProductCard product={product} />
                  </div>
               ))}
             </div>
           ) : (
+            /* Estado Vazio */
             !error && (
                 <div className="text-center py-20 bg-surface-card rounded-xl border border-dashed border-surface-border">
-                <p className="text-xl text-text-secondary font-semibold">Nenhum produto encontrado.</p>
-                <p className="text-text-subtle mt-2">Tente remover alguns filtros ou buscar por outro termo.</p>
-                {(router.query.brand || router.query.type) && (
-                    <button onClick={clearFilters} className="mt-4 text-brand-primary font-medium hover:underline">
-                        Limpar todos os filtros
-                    </button>
-                )}
+                  <div className="mb-4 text-gray-300">
+                     <FaFilter size={48} className="mx-auto" />
+                  </div>
+                  <p className="text-xl text-text-secondary font-semibold">Nenhum produto encontrado.</p>
+                  <p className="text-text-subtle mt-2 max-w-xs mx-auto">Tente remover alguns filtros ou buscar por outro termo mais genérico.</p>
+                  {(router.query.brand || router.query.type) && (
+                      <button onClick={clearFilters} className="mt-6 px-6 py-2 bg-brand-primary text-white rounded-full font-medium hover:bg-brand-dark transition-colors shadow-md">
+                          Limpar todos os filtros
+                      </button>
+                  )}
                 </div>
             )
           )}
