@@ -13,65 +13,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { id } = req.query;
   const categoryId = Number(id);
 
-  if (!id || isNaN(categoryId)) return res.status(400).json({ error: 'ID inválido.' });
-
-  // --- GET: Buscar 1 Categoria ---
   if (method === 'GET') {
-    const category = await prisma.category.findUnique({
-      where: { id: categoryId },
-      include: { parent: true },
-    });
+    const category = await prisma.category.findUnique({ where: { id: categoryId } });
     if (!category) return res.status(404).json({ error: 'Categoria não encontrada' });
     return res.status(200).json(category);
   }
 
-  // Proteção para PUT e DELETE
   const session = await getServerSession(req, res, authOptions);
   if (!session) return res.status(401).json({ error: "Não autorizado" });
 
-  // --- PUT: Atualizar ---
   if (method === 'PUT') {
     try {
       const { name, imageUrl, parentId } = req.body;
-      
-      // Evitar que uma categoria seja pai dela mesma
-      if (parentId && Number(parentId) === categoryId) {
-        return res.status(400).json({ error: "Uma categoria não pode ser pai dela mesma." });
-      }
+      const data: any = { name, imageUrl, parentId: parentId ? Number(parentId) : null };
+      if (name) data.slug = slugify(name);
 
-      const dataToUpdate: any = {
-        name,
-        imageUrl,
-        parentId: parentId ? Number(parentId) : null,
-      };
-
-      if (name) dataToUpdate.slug = slugify(name);
-
-      const updatedCategory = await prisma.category.update({
+      const updated = await prisma.category.update({
         where: { id: categoryId },
-        data: dataToUpdate,
+        data,
       });
-
-      return res.status(200).json(updatedCategory);
-    } catch (error: any) {
-      if (error.code === 'P2002') return res.status(409).json({ error: "Nome duplicado." });
-      return res.status(500).json({ error: "Erro ao atualizar categoria" });
+      return res.status(200).json(updated);
+    } catch (error) {
+      return res.status(500).json({ error: "Erro ao atualizar" });
     }
   }
 
-  // --- DELETE: Apagar ---
   else if (method === 'DELETE') {
     try {
-      // Verificar se tem produto
-      const productCount = await prisma.product.count({ where: { categoryId } });
-      if (productCount > 0) {
-        return res.status(400).json({ error: `Não é possível excluir: Esta categoria possui ${productCount} produtos vinculados.` });
-      }
+      // Verifica se tem produtos antes de deletar
+      const count = await prisma.product.count({ where: { categoryId } });
+      if (count > 0) return res.status(400).json({ error: `Esta categoria tem ${count} produtos.` });
 
       await prisma.category.delete({ where: { id: categoryId } });
-      return res.status(200).json({ message: "Categoria removida com sucesso" });
+      return res.status(200).json({ message: "Sucesso" });
     } catch (error) {
-      return res.status(500).json({ error: "Erro ao deletar categoria" });
+      return res.status(500).json({ error: "Erro ao deletar" });
     }
   }
 
