@@ -4,36 +4,24 @@ import userEvent from '@testing-library/user-event';
 import SearchBar from './SearchBar';
 import { useRouter } from 'next/router';
 
-// Mock do módulo
+// 1. Mockamos o módulo, mas deixamos a implementação vazia por enquanto
 vi.mock('next/router', () => ({
   useRouter: vi.fn(),
 }));
 
 describe('Componente SearchBar', () => {
   const user = userEvent.setup();
+  // Criamos o espião aqui, onde é seguro
   const pushMock = vi.fn();
 
+  // 2. Antes de cada teste, definimos o que o useRouter deve retornar
   beforeEach(() => {
-    // Configura o mock antes de cada teste
-    // vi.mocked ajuda o TypeScript a entender que useRouter é um mock
-    vi.mocked(useRouter).mockReturnValue({
+    (useRouter as unknown as { mockReturnValue: (arg: any) => void }).mockReturnValue({
       push: pushMock,
       route: '/',
       pathname: '/',
       query: {},
       asPath: '/',
-      basePath: '',
-      events: { on: vi.fn(), off: vi.fn(), emit: vi.fn() },
-      isFallback: false,
-      isReady: true,
-      isLocaleDomain: false,
-      isPreview: false,
-      back: vi.fn(),
-      beforePopState: vi.fn(),
-      prefetch: vi.fn().mockResolvedValue(undefined),
-      reload: vi.fn(),
-      replace: vi.fn(),
-      forward: vi.fn(),
     });
   });
 
@@ -60,8 +48,9 @@ describe('Componente SearchBar', () => {
     render(<SearchBar />);
     const input = screen.getByPlaceholderText('Buscar por produto, marca ou impressora...');
     
-    // DICA: Digitar e apertar Enter no mesmo comando costuma ser mais robusto
-    await user.type(input, 'Epson L3250{Enter}');
+    // Simula digitar e pressionar Enter
+    await user.type(input, 'Epson L3250');
+    await user.keyboard('{Enter}');
     
     expect(pushMock).toHaveBeenCalledTimes(1);
     expect(pushMock).toHaveBeenCalledWith('/busca?q=Epson%20L3250');
@@ -71,6 +60,7 @@ describe('Componente SearchBar', () => {
     render(<SearchBar />);
     const input = screen.getByPlaceholderText('Buscar por produto, marca ou impressora...');
     
+    // Apenas clica e pressiona Enter
     await user.click(input);
     await user.keyboard('{Enter}');
     

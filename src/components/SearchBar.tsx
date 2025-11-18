@@ -5,7 +5,8 @@ const SearchBar = () => {
   const [query, setQuery] = useState('');
   const router = useRouter();
 
-  const handleSearch = (e: FormEvent) => { // Usar FormEvent diretamente
+  // Removemos 'React.' e usamos apenas 'FormEvent'
+  const handleSearch = (e: FormEvent) => { 
     e.preventDefault();
     if (query.trim()) {
       router.push(`/busca?q=${encodeURIComponent(query.trim())}`);
@@ -13,8 +14,7 @@ const SearchBar = () => {
   };
 
   return (
-    // role="search" para facilitar o teste
-    <form onSubmit={handleSearch} className="w-full max-w-md" role="search">
+    <form onSubmit={handleSearch} className="w-full max-w-md">
       <input
         type="search"
         value={query}
