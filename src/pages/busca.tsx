@@ -142,7 +142,7 @@ export default function SearchPage({ results, query, brands, types, error }: Inf
   // Lógica de Navegação/Filtro
   const toggleFilter = (key: 'brand' | 'type', value: string) => {
     const currentQuery = { ...router.query };
-    let currentValues = currentQuery[key];
+    const currentValues = currentQuery[key]; // CORREÇÃO 1: trocado 'let' por 'const'
 
     let newValues: string[] = [];
     
@@ -256,7 +256,8 @@ export default function SearchPage({ results, query, brands, types, error }: Inf
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             <h1 className="text-2xl font-bold text-text-primary">
               {query ? (
-                  <>Resultados para: <span className="text-brand-primary">"{query}"</span></>
+                  // CORREÇÃO 2: trocado " por &quot;
+                  <>Resultados para: <span className="text-brand-primary">&quot;{query}&quot;</span></>
               ) : (
                   'Todos os Produtos'
               )}
