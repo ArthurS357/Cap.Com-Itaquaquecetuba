@@ -4,14 +4,15 @@ import Layout from '@/components/Layout';
 import { useState, useEffect } from 'react'; 
 import WelcomeSplash from '@/components/WelcomeSplash'; 
 import { ThemeProvider } from 'next-themes';
+import { SessionProvider } from "next-auth/react"; 
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 700); // 0.7 segundos
+    }, 700); 
 
     return () => clearTimeout(timer);
   }, []); 
@@ -21,10 +22,13 @@ export default function App({ Component, pageProps }: AppProps) {
   }
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system">
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
-    </ThemeProvider>
+    // Envolvemos tudo com o SessionProvider
+    <SessionProvider session={session}>
+      <ThemeProvider attribute="class" defaultTheme="system">
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </ThemeProvider>
+    </SessionProvider>
   );
 }
