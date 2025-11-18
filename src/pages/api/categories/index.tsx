@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '@prisma/client'; 
+import { PrismaClient, Prisma } from '@prisma/client'; // Mantém Prisma para tipos
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { slugify } from '@/lib/utils';
@@ -19,7 +19,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         include: { parent: true } // Inclui categoria pai se quiser mostrar
       });
       return res.status(200).json(categories);
-    } catch (_error: unknown) { 
+    } catch (error) { // <-- CORRIGIDO: Usa 'error' para log
+      console.error(error);
       return res.status(500).json({ error: "Erro ao buscar categorias" });
     }
   }
@@ -32,7 +33,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const { name, imageUrl, parentId } = req.body;
       
-      const data: any = { 
+      // Tipo explícito para aceitar a FK 'parentId' diretamente, e 'slug'
+      const data: Partial<Prisma.CategoryCreateInput> & { parentId?: number, slug: string } = { 
         name,
         slug: slugify(name),
         imageUrl,
@@ -43,11 +45,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       const newCategory = await prisma.category.create({
-        data,
+        data: data as Prisma.CategoryCreateInput,
       });
 
       return res.status(201).json(newCategory);
-    } catch (error: unknown) {
+    } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Erro ao criar categoria" });
     }
