@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import React from 'react';
+import React, { useState, useEffect } from 'react'; 
 import ThemeToggleButton from './ThemeToggleButton';
 import WhatsAppButton from './WhatsAppButton';
 import Breadcrumbs from './Breadcrumbs';
@@ -16,34 +16,73 @@ type LayoutProps = {
   children: React.ReactNode;
 };
 
-const Navbar = () => (
-  <header className="bg-surface-card/80 backdrop-blur-sm sticky top-0 z-30 border-b border-surface-border">
-    <div className="container mx-auto p-4 flex flex-row flex-wrap md:flex-nowrap justify-between items-center gap-4">
-      <Link href="/">
-        <Image
-          src="/images/logo-capcom.png"
-          alt={`Logo da ${STORE_INFO.name}`}
-          width={100}
-          height={100}
-          className="h-auto"
-          priority
-        />
-      </Link>
+const Navbar = () => {
+  // 2. Estados para controlar a visibilidade e a última posição do scroll
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
-      <nav className="hidden md:flex items-center gap-6">
-        <Link href="/" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">Início</Link>
-        <Link href="/#categorias" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">Categorias</Link>
-        <Link href="/#servicos" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">Serviços</Link>
-        <Link href="/#localizacao" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">Localização</Link>
-      </nav>
+  useEffect(() => {
+    const controlNavbar = () => {
+      if (typeof window !== 'undefined') {
+        const currentScrollY = window.scrollY;
 
-      <div className="flex items-center gap-4 w-full md:w-auto basis-full md:basis-auto justify-end">
-        {/* REMOVIDO: <SearchBar /> */}
-        <ThemeToggleButton />
+        // Se rolar para baixo E passar de 100px (para não sumir logo no topo), esconde
+        if (currentScrollY > lastScrollY && currentScrollY > 100) {
+          setIsVisible(false);
+        } else {
+          // Se rolar para cima, mostra
+          setIsVisible(true);
+        }
+
+        // Atualiza a última posição conhecida
+        setLastScrollY(currentScrollY);
+      }
+    };
+
+    window.addEventListener('scroll', controlNavbar);
+
+    // Limpeza do evento ao desmontar o componente
+    return () => {
+      window.removeEventListener('scroll', controlNavbar);
+    };
+  }, [lastScrollY]);
+
+  return (
+    // 3. Classes dinâmicas baseadas no estado 'isVisible'
+    <header 
+      className={`
+        bg-surface-card/80 backdrop-blur-sm 
+        fixed w-full top-0 z-30 border-b border-surface-border 
+        transition-transform duration-300 ease-in-out
+        ${isVisible ? 'translate-y-0' : '-translate-y-full'}
+      `}
+    >
+      <div className="container mx-auto p-4 flex flex-row flex-wrap md:flex-nowrap justify-between items-center gap-4">
+        <Link href="/">
+          <Image
+            src="/images/logo-capcom.png"
+            alt={`Logo da ${STORE_INFO.name}`}
+            width={100}
+            height={100}
+            className="h-auto"
+            priority
+          />
+        </Link>
+
+        <nav className="hidden md:flex items-center gap-6">
+          <Link href="/" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">Início</Link>
+          <Link href="/#categorias" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">Categorias</Link>
+          <Link href="/#servicos" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">Serviços</Link>
+          <Link href="/#localizacao" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">Localização</Link>
+        </nav>
+
+        <div className="flex items-center gap-4 w-full md:w-auto basis-full md:basis-auto justify-end">
+          <ThemeToggleButton />
+        </div>
       </div>
-    </div>
-  </header>
-);
+    </header>
+  );
+};
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -96,7 +135,8 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className={`${inter.variable} min-h-screen flex flex-col font-sans bg-surface-background`}>
       <Navbar />
-      <main className="flex-grow container mx-auto p-4 md:p-8">
+      {/* Adicionei padding-top (pt-28) aqui para compensar o header fixo e não cortar o conteúdo inicial */}
+      <main className="flex-grow container mx-auto p-4 md:p-8 pt-28 md:pt-32">
         <Breadcrumbs />
         {children}
       </main>
