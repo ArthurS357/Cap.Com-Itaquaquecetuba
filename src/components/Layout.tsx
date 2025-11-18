@@ -1,10 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import React from 'react';
-import SearchBar from './SearchBar';
 import ThemeToggleButton from './ThemeToggleButton';
 import WhatsAppButton from './WhatsAppButton';
-import Breadcrumbs from './Breadcrumbs'; 
+import Breadcrumbs from './Breadcrumbs';
 import { Inter } from 'next/font/google';
 import { STORE_INFO, getWhatsappLink } from '@/config/store';
 
@@ -38,8 +37,8 @@ const Navbar = () => (
         <Link href="/#localizacao" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">Localização</Link>
       </nav>
 
-      <div className="flex items-center gap-4 w-full md:w-auto basis-full md:basis-auto">
-        <SearchBar />
+      <div className="flex items-center gap-4 w-full md:w-auto basis-full md:basis-auto justify-end">
+        {/* REMOVIDO: <SearchBar /> */}
         <ThemeToggleButton />
       </div>
     </div>
@@ -98,7 +97,7 @@ export default function Layout({ children }: LayoutProps) {
     <div className={`${inter.variable} min-h-screen flex flex-col font-sans bg-surface-background`}>
       <Navbar />
       <main className="flex-grow container mx-auto p-4 md:p-8">
-        <Breadcrumbs /> 
+        <Breadcrumbs />
         {children}
       </main>
       <Footer />

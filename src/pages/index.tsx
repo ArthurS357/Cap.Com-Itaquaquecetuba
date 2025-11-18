@@ -4,6 +4,7 @@ import CategoryCard from '../components/cards/CategoryCard';
 import { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import SearchBar from '../components/SearchBar'; 
 import { FaAward, FaRegClock } from 'react-icons/fa'; 
 import { STORE_INFO, GOOGLE_MAPS_EMBED_URL } from '@/config/store';
 
@@ -47,8 +48,7 @@ const useScrollAnimation = (options?: IntersectionObserverInit) => {
   return [elementRef, isVisible] as const;
 };
 
-
-// --- Ícones SVG como componentes simples ---
+// --- Ícones SVG ---
 const IconRecycle = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 text-brand-primary flex-shrink-0 mt-1">
     <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
@@ -103,7 +103,6 @@ export const getStaticProps: GetStaticProps<{
   };
 };
 
-
 function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticProps>) {
   const encodedAddress = encodeURIComponent(STORE_INFO.address);
   const wazeUrl = `https://waze.com/ul?q=${encodedAddress}&navigate=yes`;
@@ -128,13 +127,20 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
           priority
         />
         <div className="absolute inset-0 bg-black bg-opacity-70 z-10"></div>
-        <div className="relative z-20 p-6 max-w-3xl mx-auto animate-fade-in-up">
+        <div className="relative z-20 p-6 max-w-3xl mx-auto animate-fade-in-up flex flex-col items-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-4 drop-shadow-lg">
             Cap.Com Itaquaquecetuba
           </h1>
           <p className="text-xl md:text-2xl text-gray-200 mb-8 drop-shadow-md">
             O que você procura? Cartuchos, toners, impressoras e mais!
           </p>
+          
+          {/* --- NOVA BARRA DE BUSCA AQUI --- */}
+          <div className="w-full max-w-lg mb-8">
+             <SearchBar />
+          </div>
+          {/* -------------------------------- */}
+
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
             <a
               href="#categorias"
@@ -232,7 +238,6 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
       <section
         id="sobre-nos"
         ref={sobreNosRef as React.RefObject<HTMLElement>}
-        // ALTERAÇÃO AQUI: Mudamos de 'animate-slide-in-right' para 'animate-slide-in-up'
         className={`max-w-6xl mx-auto mb-16 animate-on-scroll ${sobreNosVisible ? 'animate-slide-in-up' : ''}`}
       >
         <h2 className="text-3xl font-bold text-text-primary mb-12 text-center">Sobre Nós</h2>
