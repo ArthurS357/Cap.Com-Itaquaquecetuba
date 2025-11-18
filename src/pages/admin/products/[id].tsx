@@ -7,6 +7,12 @@ import SEO from '@/components/Seo';
 import Link from 'next/link';
 import { FaArrowLeft, FaSave, FaTrash, FaExclamationTriangle } from 'react-icons/fa';
 
+// --- FIX: Prisma Singleton (Evita travar o banco em desenvolvimento) ---
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
+const prisma = globalForPrisma.prisma || new PrismaClient();
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+// ----------------------------------------------------------------------
+
 type EditProductProps = {
   product: Product;
   brands: Brand[];
@@ -52,6 +58,7 @@ export default function EditProduct({ product, brands, categories }: EditProduct
         throw new Error(data.error || 'Erro ao atualizar');
       }
 
+      // Redireciona após sucesso
       router.push('/admin/products');
     } catch (err: any) {
       setError(err.message);
@@ -69,7 +76,10 @@ export default function EditProduct({ product, brands, categories }: EditProduct
         method: 'DELETE',
       });
 
-      if (!res.ok) throw new Error('Erro ao excluir');
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Erro ao excluir');
+      }
 
       router.push('/admin/products');
     } catch (err: any) {
@@ -93,7 +103,7 @@ export default function EditProduct({ product, brands, categories }: EditProduct
         <button
           onClick={handleDelete}
           disabled={isDeleting}
-          className="flex items-center gap-2 bg-red-100 text-red-600 px-4 py-2 rounded-lg hover:bg-red-200 transition-colors font-semibold"
+          className="flex items-center gap-2 bg-red-100 text-red-600 px-4 py-2 rounded-lg hover:bg-red-200 transition-colors font-semibold border border-red-200"
         >
           {isDeleting ? 'Excluindo...' : <><FaTrash /> Excluir</>}
         </button>
@@ -103,11 +113,12 @@ export default function EditProduct({ product, brands, categories }: EditProduct
         
         {error && (
           <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-200 flex items-center gap-2">
-            <FaExclamationTriangle /> {error}
+            <FaExclamationTriangle className="flex-shrink-0" /> 
+            <span>{error}</span>
           </div>
         )}
 
-        {/* Campos do Formulário (IDÊNTICOS ao new.tsx) */}
+        {/* Nome */}
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-1">Nome do Produto</label>
           <input
@@ -120,6 +131,7 @@ export default function EditProduct({ product, brands, categories }: EditProduct
           />
         </div>
 
+        {/* Descrição */}
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-1">Descrição</label>
           <textarea
@@ -132,6 +144,7 @@ export default function EditProduct({ product, brands, categories }: EditProduct
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Preço */}
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">Preço (R$)</label>
             <input
@@ -144,6 +157,7 @@ export default function EditProduct({ product, brands, categories }: EditProduct
             />
           </div>
 
+          {/* Tipo */}
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">Tipo</label>
             <select
@@ -161,6 +175,7 @@ export default function EditProduct({ product, brands, categories }: EditProduct
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Marca */}
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">Marca</label>
             <select
@@ -176,6 +191,7 @@ export default function EditProduct({ product, brands, categories }: EditProduct
             </select>
           </div>
 
+          {/* Categoria */}
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">Categoria</label>
             <select
@@ -192,6 +208,7 @@ export default function EditProduct({ product, brands, categories }: EditProduct
           </div>
         </div>
 
+        {/* URL Imagem */}
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-1">URL da Imagem</label>
           <input
@@ -203,6 +220,7 @@ export default function EditProduct({ product, brands, categories }: EditProduct
           />
         </div>
 
+        {/* Botão Salvar */}
         <div className="flex justify-end pt-4">
           <button
             type="submit"
@@ -222,12 +240,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context);
   const { id } = context.params as { id: string };
 
+  // Proteção de Rota
   if (!session) {
     return { redirect: { destination: '/api/auth/signin', permanent: false } };
   }
 
-  const prisma = new PrismaClient();
-  
+  // --- FIX: Usar a instância global do Prisma (não criar uma nova) ---
   // Busca tudo em paralelo para ser rápido
   const [product, brands, categories] = await Promise.all([
     prisma.product.findUnique({ where: { id: Number(id) } }),
@@ -241,6 +259,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   return {
     props: {
+      // JSON.parse(JSON.stringify(...)) é necessário para serializar objetos Date do Prisma
       product: JSON.parse(JSON.stringify(product)),
       brands: JSON.parse(JSON.stringify(brands)),
       categories: JSON.parse(JSON.stringify(categories)),
