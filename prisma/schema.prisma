@@ -60,3 +60,12 @@ model Brand {
   products Product[]
   printers Printer[]
 }
+
+model StoreConfig {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique // Ex: "bannerMessage"
+  value     String?  // O texto do banner
+  isActive  Boolean  @default(true) // Se o banner aparece ou não
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
