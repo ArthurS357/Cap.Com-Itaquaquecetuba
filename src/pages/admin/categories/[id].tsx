@@ -7,6 +7,7 @@ import { UploadButton } from '@/utils/uploadthing';
 import SEO from '@/components/Seo';
 import Link from 'next/link';
 import { FaArrowLeft, FaSave, FaTrash } from 'react-icons/fa';
+import Image from 'next/image'; 
 
 export default function EditCategory({ category, categories }: { category: Category, categories: Category[] }) {
   const router = useRouter();
@@ -41,7 +42,16 @@ export default function EditCategory({ category, categories }: { category: Categ
       <form onSubmit={handleUpdate} className="bg-surface-card border border-surface-border rounded-xl p-8 space-y-6">
         <div className="flex justify-center mb-6 border-2 border-dashed border-surface-border rounded-lg p-6">
             {formData.imageUrl ? 
-              <div className="relative"><img src={formData.imageUrl} className="h-32 object-contain" alt="Preview" /><button type="button" onClick={() => setFormData({...formData, imageUrl: ''})} className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs">X</button></div> : 
+              <div className="relative">
+                <Image // <-- ALTERADO PARA Image
+                  src={formData.imageUrl} 
+                  alt="Preview da Categoria"
+                  width={128} // Necessário para Next/Image
+                  height={128} // Necessário para Next/Image
+                  className="h-32 w-auto object-contain" 
+                />
+                <button type="button" onClick={() => setFormData({...formData, imageUrl: ''})} className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs">X</button>
+              </div> : 
               <UploadButton endpoint="imageUploader" onClientUploadComplete={(res) => setFormData({...formData, imageUrl: res[0].url})} />
             }
         </div>

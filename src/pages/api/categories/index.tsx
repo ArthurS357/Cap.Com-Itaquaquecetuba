@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         include: { parent: true } // Inclui categoria pai se quiser mostrar
       });
       return res.status(200).json(categories);
-    } catch (error) {
+    } catch (_error) { // <-- CORRIGIDO: Variável não utilizada
       return res.status(500).json({ error: "Erro ao buscar categorias" });
     }
   }
@@ -30,9 +30,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!session) return res.status(401).json({ error: "Não autorizado" });
 
     try {
-      const { name, imageUrl, parentId } = req.body;
+      const { name, imageUrl, parentId } = req.body as { name: string; imageUrl: string | null; parentId: string | null };
       
-      const data: any = {
+      const data: { // <-- CORRIGIDO: Usando tipo de objeto explícito
+        name: string; 
+        slug: string; 
+        imageUrl: string | null; 
+        parentId?: number | null; 
+      } = {
         name,
         slug: slugify(name),
         imageUrl,

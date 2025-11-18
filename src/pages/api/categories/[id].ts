@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client'; // <-- NOVO: Importa Prisma para tipagem
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { slugify } from '@/lib/utils';
@@ -25,7 +25,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (method === 'PUT') {
     try {
       const { name, imageUrl, parentId } = req.body;
-      const data: any = { name, imageUrl, parentId: parentId ? Number(parentId) : null };
+      
+      const data: Prisma.CategoryUpdateInput = { // <-- CORRIGIDO: Usando tipo Prisma
+        name, 
+        imageUrl, 
+        parentId: parentId ? Number(parentId) : null 
+      };
       if (name) data.slug = slugify(name);
 
       const updated = await prisma.category.update({
@@ -33,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         data,
       });
       return res.status(200).json(updated);
-    } catch (error) {
+    } catch (_error) { // <-- CORRIGIDO: Variável não utilizada
       return res.status(500).json({ error: "Erro ao atualizar" });
     }
   }
@@ -46,7 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       await prisma.category.delete({ where: { id: categoryId } });
       return res.status(200).json({ message: "Sucesso" });
-    } catch (error) {
+    } catch (_error) { // <-- CORRIGIDO: Variável não utilizada
       return res.status(500).json({ error: "Erro ao deletar" });
     }
   }
