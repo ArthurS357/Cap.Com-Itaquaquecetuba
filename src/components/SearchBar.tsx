@@ -1,20 +1,20 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react'; 
 import { useRouter } from 'next/router';
 
 const SearchBar = () => {
   const [query, setQuery] = useState('');
   const router = useRouter();
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e: FormEvent) => { // Usar FormEvent diretamente
     e.preventDefault();
     if (query.trim()) {
-      // Navega para a página de busca com o termo pesquisado como query param 'q'
       router.push(`/busca?q=${encodeURIComponent(query.trim())}`);
     }
   };
 
   return (
-    <form onSubmit={handleSearch} className="w-full max-w-md">
+    // role="search" para facilitar o teste
+    <form onSubmit={handleSearch} className="w-full max-w-md" role="search">
       <input
         type="search"
         value={query}
