@@ -4,7 +4,8 @@ import { useRouter } from 'next/router';
 import SEO from '@/components/Seo';
 import ProductCard from '@/components/cards/ProductCard';
 import { useState } from 'react';
-import { FaFilter, FaTimes } from 'react-icons/fa'; // <--- IMPORTAÇÃO AQUI
+// --- A IMPORTAÇÃO QUE ESTAVA FALTANDO ESTÁ AQUI EMBAIXO ---
+import { FaFilter, FaTimes } from 'react-icons/fa'; 
 
 type SearchResultProduct = Prisma.ProductGetPayload<{
   select: {
