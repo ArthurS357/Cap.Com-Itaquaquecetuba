@@ -136,12 +136,12 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
           </p>
           
           {/* --- NOVA BARRA DE BUSCA AQUI --- */}
-          <div className="w-full max-w-lg mb-8">
+          <div className="w-full max-w-lg mb-8 flex justify-center">
              <SearchBar />
           </div>
           {/* -------------------------------- */}
 
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 w-full">
             <a
               href="#categorias"
               className="inline-block bg-brand-primary text-white font-semibold py-3 px-8 rounded-lg hover:bg-brand-dark transition-colors duration-300 shadow-lg transform hover:scale-105 w-full sm:w-auto"
