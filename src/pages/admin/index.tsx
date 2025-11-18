@@ -58,7 +58,7 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
-        {/* Card: Produtos (Vamos criar essa página a seguir) */}
+        {/* Card: Produtos (Configurar) */}
         <Link href="/admin/products" className="group">
           <div className="bg-surface-card p-6 rounded-xl border border-surface-border hover:border-brand-primary hover:shadow-md transition-all cursor-pointer h-full">
             <div className="flex items-center justify-between mb-4">
@@ -74,7 +74,7 @@ export default function AdminDashboard() {
           </div>
         </Link>
 
-        {/* Card: Categorias (ATIVO AGORA) */}
+        {/* Card: Categorias (ATIVO) */}
         <Link href="/admin/categories" className="group">
           <div className="bg-surface-card p-6 rounded-xl border border-surface-border hover:border-brand-primary hover:shadow-md transition-all cursor-pointer h-full">
             <div className="flex items-center justify-between mb-4">
