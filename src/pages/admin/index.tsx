@@ -74,19 +74,21 @@ export default function AdminDashboard() {
           </div>
         </Link>
 
-        {/* Card: Categorias (Futuro) */}
-        <div className="bg-surface-card p-6 rounded-xl border border-surface-border opacity-60 grayscale cursor-not-allowed">
+        {/* Card: Categorias (ATIVO AGORA) */}
+        <Link href="/admin/categories" className="group">
+          <div className="bg-surface-card p-6 rounded-xl border border-surface-border hover:border-brand-primary hover:shadow-md transition-all cursor-pointer h-full">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gray-100 text-gray-500 rounded-lg">
+              <div className="p-3 bg-purple-100 text-purple-600 rounded-lg group-hover:bg-purple-600 group-hover:text-white transition-colors">
                 <FaTags size={24} />
               </div>
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">Em Breve</span>
+              <span className="text-xs font-bold text-text-subtle uppercase tracking-wide">Estrutura</span>
             </div>
             <h3 className="text-xl font-bold text-text-primary mb-2">Categorias</h3>
             <p className="text-text-secondary text-sm">
-              Organizar estrutura de menus e tipos de produtos.
+              Organizar departamentos, criar novas categorias e subcategorias.
             </p>
-        </div>
+          </div>
+        </Link>
 
         {/* Card: Configurações (Futuro) */}
         <div className="bg-surface-card p-6 rounded-xl border border-surface-border opacity-60 grayscale cursor-not-allowed">
