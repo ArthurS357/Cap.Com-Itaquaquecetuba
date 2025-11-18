@@ -1,27 +1,31 @@
-import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeEach, type Mock } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SearchBar from './SearchBar';
 import { useRouter } from 'next/router';
 
-// 1. Mockamos o módulo, mas deixamos a implementação vazia por enquanto
+// 1. Mockamos o módulo next/router
 vi.mock('next/router', () => ({
   useRouter: vi.fn(),
 }));
 
 describe('Componente SearchBar', () => {
   const user = userEvent.setup();
-  // Criamos o espião aqui, onde é seguro
   const pushMock = vi.fn();
 
-  // 2. Antes de cada teste, definimos o que o useRouter deve retornar
   beforeEach(() => {
-    (useRouter as unknown as { mockReturnValue: (arg: any) => void }).mockReturnValue({
+    // 2. Correção aqui: Usamos (useRouter as Mock) para o TypeScript aceitar o mockReturnValue
+    (useRouter as Mock).mockReturnValue({
       push: pushMock,
       route: '/',
       pathname: '/',
       query: {},
       asPath: '/',
+      events: { on: vi.fn(), off: vi.fn(), emit: vi.fn() },
+      isFallback: false,
+      isReady: true,
+      isLocaleDomain: false,
+      isPreview: false,
     });
   });
 
@@ -49,8 +53,7 @@ describe('Componente SearchBar', () => {
     const input = screen.getByPlaceholderText('Buscar por produto, marca ou impressora...');
     
     // Simula digitar e pressionar Enter
-    await user.type(input, 'Epson L3250');
-    await user.keyboard('{Enter}');
+    await user.type(input, 'Epson L3250{Enter}');
     
     expect(pushMock).toHaveBeenCalledTimes(1);
     expect(pushMock).toHaveBeenCalledWith('/busca?q=Epson%20L3250');
@@ -60,7 +63,7 @@ describe('Componente SearchBar', () => {
     render(<SearchBar />);
     const input = screen.getByPlaceholderText('Buscar por produto, marca ou impressora...');
     
-    // Apenas clica e pressiona Enter
+    // Apenas foca e aperta Enter sem digitar
     await user.click(input);
     await user.keyboard('{Enter}');
     
