@@ -3,12 +3,13 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import Link from "next/link";
+import { FaUserShield, FaBoxOpen, FaSignOutAlt, FaTags, FaCog } from "react-icons/fa";
+import SEO from "@/components/Seo";
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  // Se não estiver logado, redireciona para login
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/api/auth/signin");
@@ -20,40 +21,85 @@ export default function AdminDashboard() {
   }
 
   if (!session) {
-    return null; // Evita piscar conteúdo protegido
+    return null;
   }
 
   return (
-    <div className="min-h-screen p-8 animate-fade-in-up">
-      <div className="flex justify-between items-center mb-8 bg-surface-card p-6 rounded-xl border border-surface-border shadow-sm">
-        <div>
-          <h1 className="text-3xl font-bold text-text-primary">Painel Administrativo</h1>
-          <p className="text-text-secondary">Bem-vindo, {session.user?.name}</p>
+    <div className="animate-fade-in-up">
+      <SEO title="Painel Admin" description="Área restrita" />
+      
+      {/* Cabeçalho Exclusivo do Admin */}
+      <div className="bg-brand-primary/10 border border-brand-primary/20 rounded-2xl p-8 mb-10 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="flex items-center gap-4">
+          <div className="p-4 bg-brand-primary text-white rounded-full shadow-lg">
+            <FaUserShield size={32} />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-text-primary">Área Administrativa</h1>
+            <p className="text-text-secondary">
+              Logado como: <span className="font-semibold text-brand-primary">{session.user?.email}</span>
+            </p>
+          </div>
         </div>
+
         <button
-          onClick={() => signOut()}
-          className="px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors font-medium"
+          onClick={() => signOut({ callbackUrl: '/' })}
+          className="flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-colors font-medium shadow-sm"
         >
-          Sair
+          <FaSignOutAlt />
+          Sair do Sistema
         </button>
       </div>
 
-      {/* Grid de Ações Rápidas */}
+      {/* Grid de Ferramentas */}
+      <h2 className="text-xl font-bold text-text-primary mb-6 px-2 border-l-4 border-brand-accent pl-3">
+        Gerenciamento
+      </h2>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-surface-card p-6 rounded-xl border border-surface-border hover:border-brand-primary transition-colors cursor-pointer group">
-          <h3 className="text-xl font-bold text-brand-primary mb-2 group-hover:underline">Gerenciar Produtos</h3>
-          <p className="text-text-secondary mb-4">Adicionar, editar ou remover cartuchos e impressoras.</p>
-          <span className="text-sm text-brand-accent font-bold">Em breve &rarr;</span>
-        </div>
         
-        <div className="bg-surface-card p-6 rounded-xl border border-surface-border opacity-50">
-          <h3 className="text-xl font-bold text-text-primary mb-2">Categorias</h3>
-          <p className="text-text-secondary">Gerenciar estrutura da loja.</p>
+        {/* Card: Produtos (Vamos criar essa página a seguir) */}
+        <Link href="/admin/products" className="group">
+          <div className="bg-surface-card p-6 rounded-xl border border-surface-border hover:border-brand-primary hover:shadow-md transition-all cursor-pointer h-full">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-blue-100 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                <FaBoxOpen size={24} />
+              </div>
+              <span className="text-xs font-bold text-text-subtle uppercase tracking-wide">Principal</span>
+            </div>
+            <h3 className="text-xl font-bold text-text-primary mb-2">Produtos</h3>
+            <p className="text-text-secondary text-sm">
+              Adicionar, editar preços e gerenciar estoque de cartuchos e impressoras.
+            </p>
+          </div>
+        </Link>
+
+        {/* Card: Categorias (Futuro) */}
+        <div className="bg-surface-card p-6 rounded-xl border border-surface-border opacity-60 grayscale cursor-not-allowed">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-gray-100 text-gray-500 rounded-lg">
+                <FaTags size={24} />
+              </div>
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">Em Breve</span>
+            </div>
+            <h3 className="text-xl font-bold text-text-primary mb-2">Categorias</h3>
+            <p className="text-text-secondary text-sm">
+              Organizar estrutura de menus e tipos de produtos.
+            </p>
         </div>
 
-        <div className="bg-surface-card p-6 rounded-xl border border-surface-border opacity-50">
-           <h3 className="text-xl font-bold text-text-primary mb-2">Configurações</h3>
-           <p className="text-text-secondary">Dados da loja e SEO.</p>
+        {/* Card: Configurações (Futuro) */}
+        <div className="bg-surface-card p-6 rounded-xl border border-surface-border opacity-60 grayscale cursor-not-allowed">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-gray-100 text-gray-500 rounded-lg">
+                <FaCog size={24} />
+              </div>
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">Em Breve</span>
+            </div>
+            <h3 className="text-xl font-bold text-text-primary mb-2">Configurações</h3>
+            <p className="text-text-secondary text-sm">
+              Alterar dados da loja e senhas de acesso.
+            </p>
         </div>
       </div>
     </div>
