@@ -18,15 +18,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         where: { key: 'banner' }
       });
       return res.status(200).json(banner || { value: '', isActive: false });
-    } catch (error) { // <-- CORRIGIDO: Usa 'error' para log
-      console.error(error);
+    } catch (error) { // <-- CORRIGIDO
+      console.error(error); // <-- Variável 'error' utilizada para log
       return res.status(500).json({ error: "Erro ao buscar configurações" });
     }
   }
 
   // POST: Salvar configurações (Privado)
   else if (method === 'POST') {
-// ...
+    const session = await getServerSession(req, res, authOptions);
+    if (!session) return res.status(401).json({ error: "Não autorizado" });
+
     try {
       const { value, isActive } = req.body;
 
@@ -38,8 +40,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
       return res.status(200).json(config);
-    } catch (error) { // <-- CORRIGIDO: Usa 'error' para log
-      console.error(error);
+    } catch (error) { // <-- CORRIGIDO
+      console.error(error); // <-- Variável 'error' utilizada para log
       return res.status(500).json({ error: "Erro ao salvar" });
     }
   }

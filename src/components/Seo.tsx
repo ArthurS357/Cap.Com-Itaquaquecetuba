@@ -3,9 +3,10 @@ import Head from 'next/head';
 type SeoProps = {
   title: string;
   description?: string;
+  image?: string; 
 };
 
-const SEO = ({ title, description }: SeoProps) => {
+const SEO = ({ title, description, image }: SeoProps) => {
   const pageTitle = `${title} | Cap.Com Itaquaquecetuba`;
   const defaultDescription = 'Especialistas em manutenção de impressoras e remanufatura de cartuchos e toners em Itaquaquecetuba.';
 
@@ -23,6 +24,7 @@ const SEO = ({ title, description }: SeoProps) => {
       <meta property="og:title" content={pageTitle} />
       <meta property="og:description" content={description || defaultDescription} />
       <meta property="og:type" content="website" />
+      {image && <meta property="og:image" content={image} />} {/* <-- NOVO: Adiciona tag de imagem */}
     </Head>
   );
 };

@@ -39,8 +39,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         data: data as Prisma.CategoryUpdateInput,
       });
       return res.status(200).json(updated);
-    } catch (error) { // <-- CORRIGIDO: Usa 'error' para log
-      console.error(error);
+    } catch (error) { // <-- CORRIGIDO
+      console.error(error); // <-- Variável 'error' utilizada para log
       return res.status(500).json({ error: "Erro ao atualizar" });
     }
   }
@@ -53,8 +53,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       await prisma.category.delete({ where: { id: categoryId } });
       return res.status(200).json({ message: "Sucesso" });
-    } catch (error) { // <-- CORRIGIDO: Usa 'error' para log
-      console.error(error);
+    } catch (error) { // <-- CORRIGIDO
+      console.error(error); // <-- Variável 'error' utilizada para log
       return res.status(500).json({ error: "Erro ao deletar" });
     }
   }
