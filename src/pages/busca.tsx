@@ -3,7 +3,7 @@ import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import { useRouter } from 'next/router';
 import SEO from '@/components/Seo';
 import ProductCard from '@/components/cards/ProductCard';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { FaFilter, FaTimes } from 'react-icons/fa';
 
 type SearchResultProduct = Prisma.ProductGetPayload<{
@@ -24,7 +24,6 @@ type SearchResultProduct = Prisma.ProductGetPayload<{
 type FilterOption = {
   id: string | number;
   name: string;
-  count?: number; // Opcional: contagem de produtos (futuro)
 };
 
 export const getServerSideProps: GetServerSideProps<{
@@ -36,11 +35,9 @@ export const getServerSideProps: GetServerSideProps<{
 }> = async (context) => {
   const query = (context.query.q as string) || '';
   
-  // Captura os filtros da URL (podem vir como string ou array de strings)
-  const brandFilter = context.query.brand; // ex: 'HP' ou ['HP', 'Epson']
+  const brandFilter = context.query.brand; 
   const typeFilter = context.query.type;
 
-  // Normaliza para array de strings para facilitar o uso no Prisma
   const selectedBrands = Array.isArray(brandFilter) ? brandFilter : brandFilter ? [brandFilter] : [];
   const selectedTypes = Array.isArray(typeFilter) ? typeFilter : typeFilter ? [typeFilter] : [];
 
@@ -50,11 +47,9 @@ export const getServerSideProps: GetServerSideProps<{
   let allTypes: string[] = [];
 
   try {
-    // 1. Buscar opções para os filtros (para preencher a sidebar)
     const brandsData = await prisma.brand.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } });
     allBrands = brandsData.map(b => ({ id: b.id, name: b.name }));
 
-    // Busca tipos distintos existentes
     const typesData = await prisma.product.findMany({
       select: { type: true },
       distinct: ['type'],
@@ -62,10 +57,6 @@ export const getServerSideProps: GetServerSideProps<{
     });
     allTypes = typesData.map(t => t.type);
 
-
-    // 2. Construção da Query Principal
-    // A lógica é: (Busca Texto) AND (Filtro Marca) AND (Filtro Tipo)
-    
     const textSearchCondition: Prisma.ProductWhereInput = query.trim() ? {
       OR: [
         { name: { contains: query, mode: 'insensitive' } },
@@ -81,16 +72,14 @@ export const getServerSideProps: GetServerSideProps<{
           },
         },
       ],
-    } : {}; // Se não houver busca de texto, não filtra nada aqui
+    } : {};
 
     const whereClause: Prisma.ProductWhereInput = {
       AND: [
         textSearchCondition,
-        // Se houver marcas selecionadas, filtra por elas
         selectedBrands.length > 0 ? {
             brand: { name: { in: selectedBrands } }
         } : {},
-        // Se houver tipos selecionados, filtra por eles
         selectedTypes.length > 0 ? {
             type: { in: selectedTypes }
         } : {}
@@ -126,7 +115,6 @@ export default function SearchPage({ results, query, brands, types, error }: Inf
   const router = useRouter();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  // Helpers para verificar se um filtro está ativo
   const isBrandSelected = (brandName: string) => {
     const current = router.query.brand;
     if (Array.isArray(current)) return current.includes(brandName);
@@ -139,7 +127,6 @@ export default function SearchPage({ results, query, brands, types, error }: Inf
     return current === typeName;
   };
 
-  // Função para alternar filtros na URL
   const toggleFilter = (key: 'brand' | 'type', value: string) => {
     const currentQuery = { ...router.query };
     let currentValues = currentQuery[key];
@@ -156,7 +143,6 @@ export default function SearchPage({ results, query, brands, types, error }: Inf
         : [...currentValues, value];
     }
 
-    // Atualiza a URL mantendo a busca (q) e outros parametros
     if (newValues.length > 0) {
       currentQuery[key] = newValues;
     } else {
@@ -183,43 +169,42 @@ export default function SearchPage({ results, query, brands, types, error }: Inf
 
       <div className="flex flex-col md:flex-row gap-8 animate-fade-in-up">
         
-        {/* === BARRA LATERAL DE FILTROS (Desktop & Mobile Toggle) === */}
+        {/* === BARRA LATERAL DE FILTROS === */}
         <aside className={`
           md:w-1/4 
           ${showMobileFilters ? 'fixed inset-0 z-50 bg-surface-background p-6 overflow-y-auto' : 'hidden md:block'}
         `}>
           <div className="flex justify-between items-center mb-6 md:hidden">
              <h2 className="text-2xl font-bold text-text-primary">Filtros</h2>
-             <button onClick={() => setShowMobileFilters(false)} className="text-text-secondary">
+             <button onClick={() => setShowMobileFilters(false)} className="text-text-secondary p-2">
                <FaTimes size={24} />
              </button>
           </div>
 
           <div className="sticky top-24 space-y-8">
-            {/* Cabeçalho Filtros Desktop */}
             <div className="flex justify-between items-center">
                 <h3 className="font-bold text-xl text-text-primary hidden md:block">Filtros</h3>
                 {(router.query.brand || router.query.type) && (
-                    <button onClick={clearFilters} className="text-xs text-red-500 hover:underline">
+                    <button onClick={clearFilters} className="text-xs text-red-500 hover:underline font-medium">
                         Limpar tudo
                     </button>
                 )}
             </div>
 
             {/* Filtro por Marca */}
-            <div>
-              <h4 className="font-semibold text-text-secondary mb-3">Marca</h4>
-              <ul className="space-y-2">
+            <div className="bg-surface-card p-4 rounded-lg border border-surface-border">
+              <h4 className="font-semibold text-text-primary mb-3">Marca</h4>
+              <ul className="space-y-3">
                 {brands.map((brand) => (
                   <li key={brand.id}>
-                    <label className="flex items-center gap-2 cursor-pointer group">
+                    <label className="flex items-center gap-3 cursor-pointer group">
                       <input
                         type="checkbox"
                         checked={isBrandSelected(brand.name)}
                         onChange={() => toggleFilter('brand', brand.name)}
-                        className="w-4 h-4 rounded border-surface-border text-brand-primary focus:ring-brand-accent"
+                        className="w-5 h-5 rounded border-gray-300 text-brand-primary focus:ring-brand-accent cursor-pointer"
                       />
-                      <span className={`text-sm group-hover:text-brand-primary transition-colors ${isBrandSelected(brand.name) ? 'font-bold text-brand-primary' : 'text-text-subtle'}`}>
+                      <span className={`text-sm group-hover:text-brand-primary transition-colors ${isBrandSelected(brand.name) ? 'font-bold text-brand-primary' : 'text-text-secondary'}`}>
                         {brand.name}
                       </span>
                     </label>
@@ -229,19 +214,19 @@ export default function SearchPage({ results, query, brands, types, error }: Inf
             </div>
 
             {/* Filtro por Tipo */}
-            <div>
-              <h4 className="font-semibold text-text-secondary mb-3">Tipo de Produto</h4>
-              <ul className="space-y-2">
+            <div className="bg-surface-card p-4 rounded-lg border border-surface-border">
+              <h4 className="font-semibold text-text-primary mb-3">Tipo de Produto</h4>
+              <ul className="space-y-3">
                 {types.map((type) => (
                   <li key={type}>
-                    <label className="flex items-center gap-2 cursor-pointer group">
+                    <label className="flex items-center gap-3 cursor-pointer group">
                       <input
                         type="checkbox"
                         checked={isTypeSelected(type)}
                         onChange={() => toggleFilter('type', type)}
-                        className="w-4 h-4 rounded border-surface-border text-brand-primary focus:ring-brand-accent"
+                        className="w-5 h-5 rounded border-gray-300 text-brand-primary focus:ring-brand-accent cursor-pointer"
                       />
-                      <span className={`text-sm group-hover:text-brand-primary transition-colors ${isTypeSelected(type) ? 'font-bold text-brand-primary' : 'text-text-subtle'}`}>
+                      <span className={`text-sm group-hover:text-brand-primary transition-colors ${isTypeSelected(type) ? 'font-bold text-brand-primary' : 'text-text-secondary'}`}>
                         {formatType(type)}
                       </span>
                     </label>
@@ -255,7 +240,6 @@ export default function SearchPage({ results, query, brands, types, error }: Inf
         {/* === CONTEÚDO PRINCIPAL === */}
         <div className="flex-1">
           
-          {/* Cabeçalho da Listagem */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             <h1 className="text-2xl font-bold text-text-primary">
               {query ? (
@@ -266,23 +250,20 @@ export default function SearchPage({ results, query, brands, types, error }: Inf
               <span className="text-sm font-normal text-text-subtle ml-3">({results.length} produtos)</span>
             </h1>
             
-            {/* Botão Mobile para abrir filtros */}
             <button 
                 onClick={() => setShowMobileFilters(true)}
-                className="md:hidden flex items-center gap-2 px-4 py-2 bg-surface-card border border-surface-border rounded-lg text-text-secondary hover:bg-surface-border transition-colors w-full sm:w-auto justify-center"
+                className="md:hidden flex items-center gap-2 px-4 py-2 bg-surface-card border border-surface-border rounded-lg text-text-primary hover:bg-surface-border transition-colors w-full sm:w-auto justify-center font-medium"
             >
                 <FaFilter /> Filtrar
             </button>
           </div>
 
-          {/* Tratamento de Erros */}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg text-center">
                 {error}
             </div>
           )}
 
-          {/* Grid de Produtos */}
           {!error && results.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {results.map((product) => (
@@ -292,7 +273,6 @@ export default function SearchPage({ results, query, brands, types, error }: Inf
               ))}
             </div>
           ) : (
-            /* Estado Vazio */
             !error && (
                 <div className="text-center py-20 bg-surface-card rounded-xl border border-dashed border-surface-border">
                 <p className="text-xl text-text-secondary font-semibold">Nenhum produto encontrado.</p>
