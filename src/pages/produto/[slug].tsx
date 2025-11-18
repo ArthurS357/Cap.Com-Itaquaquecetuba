@@ -1,234 +1,177 @@
-import { PrismaClient, Prisma, Product, Brand } from '@prisma/client';
-import type { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from 'next';
-import { useRouter } from 'next/router';
-import SEO from '@/components/Seo';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import { GetServerSideProps } from 'next';
+import { PrismaClient, Product, Brand, Category } from '@prisma/client';
 import Image from 'next/image';
 import Link from 'next/link';
+import SEO from '@/components/Seo';
 import ProductCard from '@/components/cards/ProductCard';
-import { FaWhatsapp } from 'react-icons/fa';
-import { getWhatsappLink } from '@/config/store';
+import { FaWhatsapp, FaTruck, FaShieldAlt, FaTag, FaArrowLeft } from 'react-icons/fa';
+import { getWhatsappLink, STORE_INFO } from '@/config/store';
 
-// --- 1. Definição de Tipos ---
-type ProductWithDetails = Prisma.ProductGetPayload<{
-  include: {
-    brand: true;
-    category: true;
-    compatibleWith: {
-      include: {
-        printer: {
-          select: {
-            id: true;
-            modelName: true;
-          };
-        };
-      };
-    };
-  };
-}>;
+// Singleton do Prisma
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
+const prisma = globalForPrisma.prisma || new PrismaClient();
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
-type SimilarProduct = Product & { brand: Brand };
-
-// --- 2. Gerar Paths (getStaticPaths) ---
-export const getStaticPaths: GetStaticPaths = async () => {
-  const prisma = new PrismaClient();
-  let paths: { params: { slug: string } }[] = [];
-
-  try {
-    const products = await prisma.product.findMany({
-      select: { slug: true },
-    });
-
-    paths = products
-      .filter(product => product.slug)
-      .map((product) => ({
-        params: { slug: product.slug! },
-      }));
-  } catch (error) {
-    console.error("Erro ao gerar paths estáticos para produtos:", error);
-  } finally {
-    await prisma.$disconnect();
-  }
-
-  return { paths, fallback: 'blocking' };
+type ProductPageProps = {
+  product: Product & { brand: Brand; category: Category };
+  relatedProducts: (Product & { brand: Brand; category: Category })[];
 };
 
-// --- 3. Buscar Dados (getStaticProps) ---
-export const getStaticProps: GetStaticProps<{
-  product: ProductWithDetails | null;
-  similarProducts: SimilarProduct[];
-}> = async (context) => {
-  const slug = context.params?.slug as string;
-  if (!slug) {
-    return { notFound: true };
-  }
-
-  const prisma = new PrismaClient();
-  
-  try {
-    // Busca o produto principal
-    const product = await prisma.product.findUnique({
-      where: { slug },
-      include: {
-        brand: true,
-        category: true,
-        compatibleWith: {
-          orderBy: { printer: { modelName: 'asc' } },
-          include: {
-            printer: {
-              select: {
-                id: true,
-                modelName: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!product) {
-      await prisma.$disconnect();
-      return { notFound: true };
-    }
-
-    // Busca produtos similares
-    const similarProducts = await prisma.product.findMany({
-      where: {
-        OR: [
-          { categoryId: product.categoryId },
-          { brandId: product.brandId },
-        ],
-        NOT: { id: product.id },
-      },
-      take: 4,
-      include: {
-        brand: true,
-      },
-    });
-
-    await prisma.$disconnect();
-
-    return {
-      props: {
-        product: JSON.parse(JSON.stringify(product)),
-        similarProducts: JSON.parse(JSON.stringify(similarProducts)),
-      },
-      revalidate: 60,
-    };
-
-  } catch (error) {
-    console.error(`Erro ao buscar dados do produto para slug "${slug}":`, error);
-    await prisma.$disconnect();
-    return { notFound: true };
-  }
-};
-
-// --- 4. Componente da Página ---
-function ProductPage({ product, similarProducts }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const router = useRouter();
-
-  // Gera o link do WhatsApp usando a função helper
-  const whatsappLink = getWhatsappLink();
-
-  if (router.isFallback) {
-    return <LoadingSpinner />;
-  }
-
-  if (!product) {
-    return <div className="text-center text-xl text-text-secondary mt-10">Produto não encontrado.</div>;
-  }
+export default function ProductPage({ product, relatedProducts }: ProductPageProps) {
+  // Mensagem personalizada para o WhatsApp
+  const whatsappMessage = `Olá! Vi o produto *${product.name}* no site e gostaria de saber mais.`;
+  const whatsappLink = getWhatsappLink(whatsappMessage);
 
   return (
-    <div className="animate-fade-in-up">
+    <div className="animate-fade-in-up pb-16">
+      {/* SEO Dinâmico: O título da página muda conforme o produto */}
       <SEO 
         title={product.name} 
-        description={product.description || `Encontre ${product.name} na Cap.Com Itaquaquecetuba.`} 
+        description={product.description || `Compre ${product.name} na ${STORE_INFO.name}. Qualidade e melhor preço.`} 
+        image={product.imageUrl || undefined}
       />
 
-      {/* Grid Principal: Imagem e Detalhes */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
-        
-        {/* Coluna da Imagem */}
-        <div className="bg-surface-card p-6 rounded-xl shadow-lg border border-surface-border flex justify-center items-center h-full max-h-[500px]">
-          <Image
-            src={product.imageUrl || '/images/logo-capcom.png'} 
-            alt={product.name}
-            width={400}
-            height={400}
-            className="object-contain"
-            priority
-          />
-        </div>
+      <div className="mb-6">
+        <Link href="/" className="inline-flex items-center gap-2 text-text-secondary hover:text-brand-primary transition-colors">
+          <FaArrowLeft /> Voltar para a loja
+        </Link>
+      </div>
 
-        {/* Coluna de Informações */}
-        <div className="flex flex-col justify-center">
-          <span className="text-brand-accent text-sm font-semibold uppercase">
-            {product.brand.name}
-          </span>
-          <h1 className="text-4xl font-bold text-text-primary mt-2 mb-4">
-            {product.name}
-          </h1>
-          {product.description && (
-            <p className="text-lg text-text-secondary mb-6">
-              {product.description}
-            </p>
-          )}
+      {/* --- BLOC 1: Detalhes do Produto --- */}
+      <div className="bg-surface-card border border-surface-border rounded-2xl p-6 md:p-10 shadow-sm mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
           
-          {product.category.slug && (
-            <Link href={`/categoria/${product.category.slug}`} className="transition-colors text-sm text-text-subtle hover:text-brand-primary">
-              Categoria: {product.category.name}
-            </Link>
-          )}
-
-          {/* Impressoras Compatíveis */}
-          {product.compatibleWith && product.compatibleWith.length > 0 && (
-            <div className="mt-8 bg-surface-card border border-surface-border rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-text-primary mb-3">Compatível com:</h3>
-              <ul className="list-disc list-inside space-y-1 text-text-secondary text-sm max-h-48 overflow-y-auto">
-                {product.compatibleWith.map(({ printer }) => (
-                  <li key={printer.id}>{printer.modelName}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Botão WhatsApp */}
-          <div className="mt-10 pt-6 border-t border-surface-border">
-            <p className="text-text-secondary mb-4">
-              Não encontrou seu produto? Entre em contato!
-            </p>
-            <a
-              href={whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-3 px-6 py-3
-                         bg-green-600 text-white font-semibold rounded-lg
-                         hover:bg-green-700 transition-colors duration-300
-                         shadow-lg transform hover:scale-105"
-            >
-              <FaWhatsapp size={24} />
-              <span>Fale Conosco no WhatsApp</span>
-            </a>
+          {/* Esquerda: Imagem */}
+          <div className="relative bg-white rounded-xl overflow-hidden border border-surface-border aspect-square flex items-center justify-center p-4">
+            {product.imageUrl ? (
+              <Image
+                src={product.imageUrl}
+                alt={product.name}
+                width={500}
+                height={500}
+                className="object-contain max-h-full w-auto hover:scale-105 transition-transform duration-500"
+                priority
+              />
+            ) : (
+              <div className="text-gray-300 text-6xl">📷</div>
+            )}
+            
+            {/* Tag de Categoria */}
+            <span className="absolute top-4 left-4 bg-brand-light text-brand-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
+              {product.category.name}
+            </span>
           </div>
 
+          {/* Direita: Informações */}
+          <div className="flex flex-col h-full">
+            <div className="mb-2 text-brand-primary font-semibold flex items-center gap-2">
+              <FaTag size={14} /> {product.brand.name}
+            </div>
+            
+            <h1 className="text-3xl md:text-4xl font-bold text-text-primary mb-4 leading-tight">
+              {product.name}
+            </h1>
+
+            {product.description && (
+              <p className="text-text-secondary mb-8 leading-relaxed">
+                {product.description}
+              </p>
+            )}
+
+            <div className="mt-auto">
+              <div className="mb-8">
+                <span className="block text-sm text-text-secondary mb-1">Preço à vista:</span>
+                {product.price ? (
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-bold text-green-600">
+                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-2xl font-bold text-text-primary">Sob Consulta</span>
+                )}
+              </div>
+
+              {/* Botão de Ação */}
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full md:w-auto text-center bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-3"
+              >
+                <FaWhatsapp size={24} />
+                Comprar pelo WhatsApp
+              </a>
+
+              {/* Ícones de Confiança */}
+              <div className="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-surface-border">
+                <div className="flex items-center gap-3 text-text-secondary text-sm">
+                  <FaTruck className="text-brand-primary text-xl" />
+                  <span>Entrega Rápida<br/>em Itaquaquecetuba</span>
+                </div>
+                <div className="flex items-center gap-3 text-text-secondary text-sm">
+                  <FaShieldAlt className="text-brand-primary text-xl" />
+                  <span>Garantia de<br/>Qualidade Cap.Com</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Produtos Similares */}
-      {similarProducts && similarProducts.length > 0 && (
-        <section>
-          <h2 className="text-3xl font-bold text-text-primary mb-8 text-center">Produtos Similares</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {similarProducts.map((similarProduct, index) => (
-              <div key={similarProduct.id} className="animate-fade-in-up" style={{ animationDelay: `${100 + index * 50}ms` }}>
-                <ProductCard product={similarProduct} />
-              </div>
+      {/* --- BLOC 2: Produtos Relacionados --- */}
+      {relatedProducts.length > 0 && (
+        <div className="mt-16">
+          <h2 className="text-2xl font-bold text-text-primary mb-8 border-l-4 border-brand-primary pl-4">
+            Quem viu este, viu também
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {relatedProducts.map((related) => (
+              <ProductCard key={related.id} product={related} />
             ))}
           </div>
-        </section>
+        </div>
       )}
     </div>
   );
 }
 
-export default ProductPage;
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { slug } = context.params as { slug: string };
+
+  // 1. Busca o produto principal pelo SLUG
+  const product = await prisma.product.findUnique({
+    where: { slug },
+    include: { 
+      brand: true, 
+      category: true 
+    },
+  });
+
+  if (!product) {
+    return { notFound: true };
+  }
+
+  // 2. Busca produtos relacionados (mesma categoria, excluindo o atual)
+  const relatedProducts = await prisma.product.findMany({
+    where: {
+      categoryId: product.categoryId,
+      NOT: { id: product.id }
+    },
+    take: 4, // Limite de 4 produtos
+    include: {
+      brand: true,
+      category: true
+    },
+    orderBy: {
+      id: 'desc' // Opcional: mostrar os mais novos ou random
+    }
+  });
+
+  return {
+    props: {
+      product: JSON.parse(JSON.stringify(product)),
+      relatedProducts: JSON.parse(JSON.stringify(relatedProducts)),
+    },
+  };
+};
