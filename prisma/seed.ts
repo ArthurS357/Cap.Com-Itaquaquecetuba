@@ -3,8 +3,9 @@ import { PrismaClient } from '@prisma/client';
 const slugify = (text: string) =>
   text
     .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^\w-]+/g, '');
+    .replace(/\s+/g, '-') 
+    .replace(/[^\w-]+/g, '') 
+    .replace(/--+/g, '-');
 
 
 const prisma = new PrismaClient();
@@ -89,7 +90,7 @@ async function main() {
     { name: '667', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho de tinta HP 667. Modelo mais recente para as novas impressoras DeskJet, com tecnologia anti-fraude.', imageUrl: '/images/produtos/CartuchosHP/667.png' },
     { name: '901', brandId: hp.id, categoryId: subCatJatoTinta.id, type: 'RECARGA_JATO_TINTA', description: 'Cartucho de tinta HP 901. Modelo robusto para impressoras OfficeJet, conhecido pela sua alta capacidade de tinta.', imageUrl: '/images/produtos/CartuchosHP/901.png' },
 
-// ========= Toners HP =========
+    // ========= Toners HP =========
     { name: 'CE285A (85A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER', description: 'Toner HP 85A. Monocromático, ideal para escritórios pequenos e uso doméstico com impressoras LaserJet compactas. Alto rendimento e confiabilidade.', imageUrl: '/images/produtos/TonerHp/CE285A.png' },
     { name: 'CE278A (78A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER', description: 'Toner HP 78A. Toner monocromático de alta capacidade, perfeito para ambientes de escritório com impressoras LaserJet Pro.', imageUrl: '/images/produtos/TonerHp/CE278A.png' },
     { name: 'CF280A (80A)', brandId: hp.id, categoryId: subSubCatTonerHP.id, type: 'TONER', description: 'Toner HP 80A. Toner monocromático para impressoras LaserJet Pro de médio porte, oferecendo excelente performance e rendimento.', imageUrl: '/images/produtos/TonerHp/CF280A.png' },
@@ -133,24 +134,35 @@ async function main() {
 
   // Cria impressoras para a tabela de compatibilidade
   console.log('Criando modelos de impressoras para compatibilidade...');
+  
+  // Lista CONSOLIDADA e EXPANDIDA de modelos de impressoras
   const printerModelsList = [
-    // Lista de modelos de impressoras
-    'HP DeskJet Ink Advantage 2774', 'Epson EcoTank L3250', 'Brother HL-1212W',
-    'Canon PIXMA G3110', 'HP Smart Tank 517', 'Brother DCP-L2540DW',
-    'HP DeskJet 1200, 1220, 1280 (modelos antigos)', 'HP DeskJet 430 (variações regionais)',
-    'HP DeskJet 1000 series antigas', 'HP DeskJet 450/454 (modelos antigos)',
-    'HP DeskJet 1000, 1050, 2050, 2510', 'HP ENVY 4500, 5530, 5640', 'HP Photosmart 5510, 5520, 6510',
-    'HP DeskJet D1660, D2560', 'HP DeskJet 1010, 1510', 'HP Photosmart 5520, 5510 (algumas variantes)', 'HP Envy 4500, 5530 (compatibilidade por região)',
-    'HP DeskJet 450, 550C (modelos antigos)', 'HP OfficeJet 5100 (modelos antigos)',
-    'HP OfficeJet 6100, 6150, 6500 (séries OfficeJet que usam 75 em algumas configurações)',
-    'HP DeskJet Ink Advantage 1115, 2135 (algumas variantes regionais usam 122A/122XL)', 'HP DeskJet 1510, 2540, 2640 series', 'HP ENVY 4504, 5530 (dependendo da região e submodelo)',
-    'HP DeskJet 1110, 1111, 1112, 1114, 1115', 'HP DeskJet 2130, 2131, 2132, 2134, 2135', 'HP DeskJet 3630, 3631, 3632, 3633', 'HP ENVY 4510, 4520',
-    'HP DeskJet Ink Advantage 1115, 2135 (algumas variantes usam 662 em certas regiões)', 'HP Ink Advantage 1010 série (modelos regionais)',
-    'HP DeskJet 2710, 2720, 2730',
-    'HP OfficeJet Pro 6230, 6234', 'HP OfficeJet 8030, 8035', 'HP OfficeJet 6812, 6815', 'HP OfficeJet Pro 8210 (verificar versão XL)',
-    'HP LaserJet Pro P1102, P1102w, P1102s, P1104, P1104w, P1106, P1107, P1107w, P1109, P1109w', 'HP LaserJet Pro M1130, M1132, M1134, M1136, M1137, M1138, M1139', 'HP LaserJet Pro M1210, M1212f, M1212nf, M1213nf, M1214nfh, M1216nfh,M1217nfw, M1219nf',
-    'Brother HL-1110, HL-1112, HL-1210W, DCP-1510, DCP-1512, MFC-1810',
-    'Samsung ML-2160, ML-2162, ML-2164, ML-2165, ML-2168', 'Samsung SCX-3400, SCX-3405, SCX-3405F, SCX-3405FW',
+    // Impressoras de Jato/Mega Tank
+    'HP DeskJet Ink Advantage 2774', 'Epson EcoTank L3250', 'Canon PIXMA G3110', 'HP Smart Tank 517', 
+    'HP DeskJet 1200, 1220, 1280, 430, 1000, 1050, 2050, 2510, D1660, D2560, 1010, 1510, 2540, 2640, 1110, 1111, 1112, 1114, 1115, 2130, 2135, 3630, 2710, 2730, 450, 550C',
+    'HP ENVY 4500, 5530, 5640, 4510, 4520, 4504', 
+    'HP Photosmart 5510, 5520, 6510',
+    'HP OfficeJet 5100, 6100, 6150, 6500, Pro 6230, 8030, 6812, Pro 8210',
+
+    // Impressoras Laser Brother
+    'Brother HL-1212W', 'Brother DCP-L2540DW', 
+    'Brother HL-1110, HL-1112, HL-1210W, DCP-1510, DCP-1512, MFC-1810', // TN-1060
+    'Brother HL-3040CN, HL-3070CW, MFC-9010CN, MFC-9120CN, MFC-9320CW', // TN-210
+    'Brother HL-2140, HL-2170W, DCP-7030, MFC-7340', // TN-360
+    'Brother HL-L2370DW, MFC-L2750DW, HL-L2300D, HL-L2360DW, MFC-L2720DW', // TN-760/660 (incluindo modelos para TN-660)
+
+    // Impressoras Laser HP
+    'HP LaserJet Pro P1102, P1102w, M1132, M1212nf', // CE285A (85A)
+    'HP LaserJet Pro P1566, P1606dn, M1536dnf', // CE278A (78A)
+    'HP LaserJet Pro 400 M401, MFP M425', // CF280A (80A)
+    'HP LaserJet Pro M125, M127, M201, M225', // CF283A (83A)
+    'HP LaserJet P1505, M1120, M1522', // CB436A (36A)
+    'HP LaserJet P1005, P1006', // CB435A (35A)
+    'HP LaserJet P2035, P2055', // CE505A (05A)
+    'HP LaserJet 1010, 1012, 1015, 1020, 3015, M1005', // Q2612A (12A)
+
+    // Impressoras Laser Samsung
+    'Samsung ML-2165, SCX-3400', // D101 / D111
   ];
 
   // Processa a lista inicial para obter apenas nomes de modelo únicos
@@ -169,7 +181,7 @@ async function main() {
     return { modelName, brandId };
   });
 
-  console.log("Data to be inserted into Printer table (unique modelName):", JSON.stringify(printersToCreateData, null, 2));
+  console.log(`Serão inseridos ${printersToCreateData.length} modelos de impressora únicos.`);
 
   // Cria todas as impressoras de uma vez
   await prisma.printer.createMany({
@@ -183,7 +195,10 @@ async function main() {
 
   // Cria as Relações de Compatibilidade
   console.log('Criando relações de compatibilidade...');
+  
+  // MAPA COMPLETO DE COMPATIBILIDADE:
   const compatibilityMap = {
+    // --- Cartuchos de Tinta HP ---
     '21': ['HP DeskJet 1200', '1220', '1280 (modelos antigos)', 'HP DeskJet 430 (variações regionais)'],
     '22': ['HP DeskJet 1000 series antigas', 'HP DeskJet 450/454 (modelos antigos)'],
     '60': ['HP DeskJet 1000', '1050', '2050', '2510', 'HP ENVY 4500', '5530', '5640', 'HP Photosmart 5510', '5520', '6510'],
@@ -195,19 +210,38 @@ async function main() {
     '662': ['HP DeskJet Ink Advantage 1115', '2135 (algumas variantes usam 662 em certas regiões)', 'HP Ink Advantage 1010 série (modelos regionais)'],
     '667': ['HP DeskJet 2710', '2720', '2730', 'HP DeskJet Ink Advantage 2774'],
     '901': ['HP OfficeJet Pro 6230', '6234', 'HP OfficeJet 8030', '8035', 'HP OfficeJet 6812', '6815', 'HP OfficeJet Pro 8210 (verificar versão XL)'],
-    'CE285A (85A)': ['HP LaserJet Pro P1102', 'P1102w', 'P1102s', 'P1104', 'P1104w', 'P1106', 'P1107', 'P1107w', 'P1109', 'P1109w', 'HP LaserJet Pro M1130', 'M1132', 'M1134', 'M1136', 'M1137', 'M1138', 'M1139', 'HP LaserJet Pro M1210', 'M1212f', 'M1212nf', 'M1213nf', 'M1214nfh', 'M1216nfh', 'M1217nfw', 'M1219nf'],
+
+    // --- Toners HP (Mapeamento Completo) ---
+    'CE285A (85A)': ['HP LaserJet Pro P1102', 'P1102w', 'M1132', 'M1212nf'], 
+    'CE278A (78A)': ['HP LaserJet Pro P1566', 'P1606dn', 'M1536dnf'],
+    'CF280A (80A)': ['HP LaserJet Pro 400 M401', 'MFP M425'],
+    'CF283A (83A)': ['HP LaserJet Pro M125', 'M127', 'M201', 'M225'],
+    'CB436A (36A)': ['HP LaserJet P1505', 'M1120', 'M1522'],
+    'CB435A (35A)': ['HP LaserJet P1005', 'P1006'],
+    'CE505A (05A)': ['HP LaserJet P2035', 'P2055'],
+    'Q2612A (12A)': ['HP LaserJet 1010', '1012', '1015', '1020', '3015', 'M1005'],
+
+    // --- Toners Brother (Mapeamento Completo) ---
     'TN-1060': ['Brother HL-1110', 'HL-1112', 'HL-1210W', 'DCP-1510', 'DCP-1512', 'MFC-1810', 'Brother HL-1212W'],
-    'TN-660': ['Brother DCP-L2540DW'],
+    'TN-210': ['Brother HL-3040CN', 'HL-3070CW', 'MFC-9010CN', 'MFC-9120CN', 'MFC-9320CW'],
+    'TN-360': ['Brother HL-2140', 'HL-2170W', 'DCP-7030', 'MFC-7340'],
+    'TN-660': ['Brother DCP-L2540DW', 'HL-L2300D', 'HL-L2360DW', 'MFC-L2720DW'], // Modelos para TN-660
+    'TN-760': ['Brother HL-L2370DW', 'MFC-L2750DW'],
+    
+    // --- Toners Samsung (Mapeamento Completo) ---
+    'D101': ['Samsung ML-2165', 'SCX-3400'],
     'D111': ['Samsung ML-2160', 'ML-2162', 'ML-2164', 'ML-2165', 'ML-2168', 'Samsung SCX-3400', 'SCX-3405', 'SCX-3405F', 'SCX-3405FW'],
+
+    // --- Refis de Tinta ---
     'Tinta Epson': ['Epson EcoTank L3250'],
     'Tinta HP': ['HP Smart Tank 517'],
     'Tinta Canon': ['Canon PIXMA G3110'],
-    // Adicionar mapeamentos para os outros toners aqui
   };
 
   const compatibilityData = [];
   for (const productName in compatibilityMap) {
     const productId = productMap.get(productName.toLowerCase());
+    // Garante que o tipo é correto para indexação
     const printerModelsForProduct = compatibilityMap[productName as keyof typeof compatibilityMap];
 
     if (productId) {
@@ -217,6 +251,7 @@ async function main() {
         if (printerId) {
           compatibilityData.push({ cartridgeId: productId, printerId: printerId });
         } else {
+          // Log de aviso para impressoras não encontradas (útil para debug)
           console.warn(`Aviso: Impressora "${printerModel}" para o produto "${productName}" não encontrada.`);
         }
       }
@@ -232,7 +267,6 @@ async function main() {
     try {
       await prisma.printerCompatibility.createMany({
         data: uniqueCompatibilityData,
-        // skipDuplicates removido
       });
       console.log(`${uniqueCompatibilityData.length} relações de compatibilidade únicas criadas/processadas.`);
     } catch (error) {
@@ -256,4 +290,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-
