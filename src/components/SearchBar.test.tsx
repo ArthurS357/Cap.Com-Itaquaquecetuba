@@ -1,30 +1,29 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SearchBar from './SearchBar';
+import { useRouter } from 'next/router';
 
-// 1. Usamos vi.hoisted para criar os mocks ANTES de tudo
-// Isso garante que a função 'push' existe quando o vi.mock for executado
-const mocks = vi.hoisted(() => {
-  return {
-    push: vi.fn(),
-  };
-});
-
-// 2. Mock do next/router usando a referência segura 'mocks.push'
+// 1. Mockamos o módulo next/router, mas deixamos o useRouter como uma função vazia (spy)
 vi.mock('next/router', () => ({
-  useRouter: () => ({
-    push: mocks.push,
-    // Propriedades adicionais para evitar erros de tipagem se necessário
-    route: '/',
-    pathname: '/',
-    query: {},
-    asPath: '/',
-  }),
+  useRouter: vi.fn(),
 }));
 
 describe('Componente SearchBar', () => {
   const user = userEvent.setup();
+  // Criamos a função espiã que vamos monitorar
+  const pushMock = vi.fn();
+
+  // 2. ANTES de cada teste, definimos o que o useRouter deve retornar
+  beforeEach(() => {
+    (useRouter as unknown as { mockReturnValue: (arg: any) => void }).mockReturnValue({
+      push: pushMock,
+      route: '/',
+      pathname: '/',
+      query: {},
+      asPath: '/',
+    });
+  });
 
   // Limpa o histórico de chamadas após cada teste
   afterEach(() => {
@@ -54,9 +53,9 @@ describe('Componente SearchBar', () => {
     await user.type(input, 'Epson L3250');
     await user.keyboard('{Enter}');
     
-    // Verifica se o mock foi chamado com a URL esperada
-    expect(mocks.push).toHaveBeenCalledTimes(1);
-    expect(mocks.push).toHaveBeenCalledWith('/busca?q=Epson%20L3250');
+    // 3. Verificamos se a nossa função espiã (pushMock) foi chamada corretamente
+    expect(pushMock).toHaveBeenCalledTimes(1);
+    expect(pushMock).toHaveBeenCalledWith('/busca?q=Epson%20L3250');
   });
 
   it('não deve chamar router.push se a busca estiver vazia', async () => {
@@ -67,6 +66,6 @@ describe('Componente SearchBar', () => {
     await user.click(input);
     await user.keyboard('{Enter}');
     
-    expect(mocks.push).not.toHaveBeenCalled();
+    expect(pushMock).not.toHaveBeenCalled();
   });
 });
