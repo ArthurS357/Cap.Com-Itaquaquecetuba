@@ -62,7 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // --- DELETE: Apagar ---
   else if (method === 'DELETE') {
     try {
-      // Verificar se tem produtos
+      // Verificar se tem produto
       const productCount = await prisma.product.count({ where: { categoryId } });
       if (productCount > 0) {
         return res.status(400).json({ error: `Não é possível excluir: Esta categoria possui ${productCount} produtos vinculados.` });
