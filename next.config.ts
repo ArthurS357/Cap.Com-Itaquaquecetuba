@@ -1,4 +1,4 @@
-import type { NextConfig } from 'next';
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -6,9 +6,13 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'placehold.co',
-        port: '',
-        pathname: '/**',
+        hostname: 'utfs.io', 
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'uploadthing.com', 
+        pathname: '**',
       },
     ],
   },
