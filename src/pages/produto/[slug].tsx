@@ -1,30 +1,33 @@
 import { GetServerSideProps } from 'next';
-import { PrismaClient, Product, Brand, Category } from '@prisma/client';
+import { PrismaClient, Product, Brand, Category, Printer } from '@prisma/client';
 import Image from 'next/image';
 import Link from 'next/link';
 import SEO from '@/components/Seo';
 import ProductCard from '@/components/cards/ProductCard';
-import { FaWhatsapp, FaTruck, FaShieldAlt, FaTag, FaArrowLeft } from 'react-icons/fa';
+import { FaWhatsapp, FaTruck, FaShieldAlt, FaTag, FaArrowLeft, FaCheckCircle } from 'react-icons/fa';
 import { getWhatsappLink, STORE_INFO } from '@/config/store';
 
-// Singleton do Prisma
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 const prisma = globalForPrisma.prisma || new PrismaClient();
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
+type ProductWithRelations = Product & { 
+  brand: Brand; 
+  category: Category;
+  compatibleWith: { printer: Printer }[]; 
+};
+
 type ProductPageProps = {
-  product: Product & { brand: Brand; category: Category };
+  product: ProductWithRelations;
   relatedProducts: (Product & { brand: Brand; category: Category })[];
 };
 
 export default function ProductPage({ product, relatedProducts }: ProductPageProps) {
-  // Mensagem personalizada para o WhatsApp
   const whatsappMessage = `Olá! Vi o produto *${product.name}* no site e gostaria de saber mais.`;
   const whatsappLink = getWhatsappLink(whatsappMessage);
 
   return (
     <div className="animate-fade-in-up pb-16">
-      {/* SEO Dinâmico: O título da página muda conforme o produto */}
       <SEO 
         title={product.name} 
         description={product.description || `Compre ${product.name} na ${STORE_INFO.name}. Qualidade e melhor preço.`} 
@@ -37,11 +40,10 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
         </Link>
       </div>
 
-      {/* --- BLOC 1: Detalhes do Produto --- */}
       <div className="bg-surface-card border border-surface-border rounded-2xl p-6 md:p-10 shadow-sm mb-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
           
-          {/* Esquerda: Imagem */}
+          {/* Imagem */}
           <div className="relative bg-white rounded-xl overflow-hidden border border-surface-border aspect-square flex items-center justify-center p-4">
             {product.imageUrl ? (
               <Image
@@ -55,14 +57,12 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
             ) : (
               <div className="text-gray-300 text-6xl">📷</div>
             )}
-            
-            {/* Tag de Categoria */}
             <span className="absolute top-4 left-4 bg-brand-light text-brand-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
               {product.category.name}
             </span>
           </div>
 
-          {/* Direita: Informações */}
+          {/* Informações */}
           <div className="flex flex-col h-full">
             <div className="mb-2 text-brand-primary font-semibold flex items-center gap-2">
               <FaTag size={14} /> {product.brand.name}
@@ -73,10 +73,28 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
             </h1>
 
             {product.description && (
-              <p className="text-text-secondary mb-8 leading-relaxed">
+              <p className="text-text-secondary mb-6 leading-relaxed">
                 {product.description}
               </p>
             )}
+
+            {/* --- NOVA SECÇÃO: IMPRESSORAS COMPATÍVEIS --- */}
+            {product.compatibleWith && product.compatibleWith.length > 0 && (
+              <div className="mb-8 bg-surface-background p-4 rounded-xl border border-surface-border">
+                <h3 className="text-sm font-bold text-text-primary mb-3 uppercase tracking-wide flex items-center gap-2">
+                  <FaCheckCircle className="text-green-500" /> Compatível com:
+                </h3>
+                <ul className="grid grid-cols-2 gap-2 text-sm text-text-secondary max-h-40 overflow-y-auto custom-scrollbar">
+                  {product.compatibleWith.map((relation, idx) => (
+                    <li key={idx} className="flex items-start gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-primary mt-1.5 flex-shrink-0" />
+                      {relation.printer.modelName}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {/* -------------------------------------------- */}
 
             <div className="mt-auto">
               <div className="mb-8">
@@ -92,7 +110,6 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
                 )}
               </div>
 
-              {/* Botão de Ação */}
               <a
                 href={whatsappLink}
                 target="_blank"
@@ -103,7 +120,6 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
                 Comprar pelo WhatsApp
               </a>
 
-              {/* Ícones de Confiança */}
               <div className="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-surface-border">
                 <div className="flex items-center gap-3 text-text-secondary text-sm">
                   <FaTruck className="text-brand-primary text-xl" />
@@ -119,7 +135,6 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
         </div>
       </div>
 
-      {/* --- BLOC 2: Produtos Relacionados --- */}
       {relatedProducts.length > 0 && (
         <div className="mt-16">
           <h2 className="text-2xl font-bold text-text-primary mb-8 border-l-4 border-brand-primary pl-4">
@@ -139,12 +154,16 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { slug } = context.params as { slug: string };
 
-  // 1. Busca o produto principal pelo SLUG
   const product = await prisma.product.findUnique({
     where: { slug },
     include: { 
       brand: true, 
-      category: true 
+      category: true,
+      compatibleWith: {
+        include: {
+          printer: true
+        }
+      }
     },
   });
 
@@ -152,20 +171,17 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return { notFound: true };
   }
 
-  // 2. Busca produtos relacionados (mesma categoria, excluindo o atual)
   const relatedProducts = await prisma.product.findMany({
     where: {
       categoryId: product.categoryId,
       NOT: { id: product.id }
     },
-    take: 4, // Limite de 4 produtos
+    take: 4,
     include: {
       brand: true,
       category: true
     },
-    orderBy: {
-      id: 'desc' // Opcional: mostrar os mais novos ou random
-    }
+    orderBy: { id: 'desc' }
   });
 
   return {
