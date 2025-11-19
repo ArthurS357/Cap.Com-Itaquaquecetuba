@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient, Prisma } from '@prisma/client'; 
+import { PrismaClient, Prisma } from '@prisma/client';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { slugify } from '@/lib/utils';
@@ -61,11 +61,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
       });
 
+      // --- FIX: REVALIDAÇÃO (O que faltava) ---
+      try {
+        await res.revalidate('/');       // Atualiza a Home
+        await res.revalidate('/busca');  // Atualiza a Busca
+      } catch (err) {
+        console.log('Erro ao revalidar páginas', err);
+      }
+      // ----------------------------------------
+
       return res.status(201).json(newProduct);
 
     } catch (error) {
       console.error("Erro ao criar produto:", error);
-      // Tratamento de erro tipado corretamente
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           return res.status(409).json({ error: "Produto com este nome já existe." });
