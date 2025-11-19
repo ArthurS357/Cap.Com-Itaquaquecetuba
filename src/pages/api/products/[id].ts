@@ -26,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const productId = parseInt(id, 10);
 
-  // --- GET: Buscar 1 Produto ---
+  // --- GET ---
   if (method === 'GET') {
     try {
       const product = await prisma.product.findUnique({
@@ -48,12 +48,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(401).json({ error: "Não autorizado. Faça login." });
   }
 
-  // --- PUT: Atualizar Produto ---
+  // --- PUT: Atualizar ---
   if (method === 'PUT') {
     try {
       const { name, description, price, type, brandId, categoryId, imageUrl } = req.body;
 
-      // A lógica do slug agora é feita inline para evitar reatribuição.
       const dataToUpdate = {
         name,
         description,
@@ -62,7 +61,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         imageUrl,
         brandId: Number(brandId),
         categoryId: Number(categoryId),
-        // Adiciona slug apenas se o nome existir
         ...(name ? { slug: slugify(name) } : {}), 
       };
 
@@ -70,6 +68,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         where: { id: productId },
         data: dataToUpdate,
       });
+
+      // --- FIX: REVALIDAÇÃO (Atualizar página do produto e Home) ---
+      try {
+        if (updatedProduct.slug) {
+            await res.revalidate(`/produto/${updatedProduct.slug}`);
+        }
+        await res.revalidate('/');
+      } catch (err) { }
+      // ------------------------------------------------------------
 
       return res.status(200).json(updatedProduct);
     } catch (error) {
@@ -83,7 +90,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 
-  // --- DELETE: Remover Produto ---
+  // --- DELETE: Remover ---
   else if (method === 'DELETE') {
     try {
       await prisma.printerCompatibility.deleteMany({
@@ -93,6 +100,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       await prisma.product.delete({
         where: { id: productId },
       });
+
+      // --- FIX: REVALIDAÇÃO (Remover da Home e Busca) ---
+      try {
+        await res.revalidate('/');
+        await res.revalidate('/busca');
+      } catch (err) { }
+      // --------------------------------------------------
 
       return res.status(200).json({ message: "Produto removido com sucesso" });
     } catch (error) {
