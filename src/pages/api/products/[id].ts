@@ -4,13 +4,11 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { slugify } from '@/lib/utils';
 
-// Singleton do Prisma
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 const prisma = globalForPrisma.prisma || new PrismaClient();
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // 1. FIX: Headers para permitir DELETE e PUT
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -40,11 +38,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       return res.status(200).json(product);
     } catch (error) {
+      console.error("Erro ao buscar produto:", error);
       return res.status(500).json({ error: 'Erro ao buscar produto' });
     }
   }
 
-  // DAQUI PARA BAIXO: ÁREA PROTEGIDA
   const session = await getServerSession(req, res, authOptions);
   if (!session) {
     return res.status(401).json({ error: "Não autorizado. Faça login." });
@@ -55,19 +53,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const { name, description, price, type, brandId, categoryId, imageUrl } = req.body;
 
-      let dataToUpdate: any = {
+      // A lógica do slug agora é feita inline para evitar reatribuição.
+      const dataToUpdate = {
         name,
         description,
         price: price ? parseFloat(price) : null,
         type,
         imageUrl,
         brandId: Number(brandId),
-        categoryId: Number(categoryId)
+        categoryId: Number(categoryId),
+        // Adiciona slug apenas se o nome existir
+        ...(name ? { slug: slugify(name) } : {}), 
       };
-
-      if (name) {
-          dataToUpdate.slug = slugify(name);
-      }
 
       const updatedProduct = await prisma.product.update({
         where: { id: productId },
@@ -89,12 +86,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // --- DELETE: Remover Produto ---
   else if (method === 'DELETE') {
     try {
-      // 1. Remove compatibilidades primeiro
       await prisma.printerCompatibility.deleteMany({
         where: { cartridgeId: productId }
       });
       
-      // 2. Deleta o produto
       await prisma.product.delete({
         where: { id: productId },
       });
