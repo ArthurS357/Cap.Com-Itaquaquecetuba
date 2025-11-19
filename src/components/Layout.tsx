@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect } from 'react';
 import ThemeToggleButton from './ThemeToggleButton';
 import WhatsAppButton from './WhatsAppButton';
 import Breadcrumbs from './Breadcrumbs';
+import PromoBanner from './PromoBanner'; 
 import { Inter } from 'next/font/google';
 import { STORE_INFO, getWhatsappLink } from '@/config/store';
-import { FaBars, FaTimes } from 'react-icons/fa'; 
+
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
@@ -17,59 +18,38 @@ type LayoutProps = {
 };
 
 const Navbar = () => {
-  // 1. Estados para Navbar (existente) e Menu Mobile (NOVO)
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
 
   useEffect(() => {
     const controlNavbar = () => {
       if (typeof window !== 'undefined') {
         const currentScrollY = window.scrollY;
-
-        // Se rolar para baixo E passar de 100px (para não sumir logo no topo), esconde
+        // Lógica de esconder/mostrar menu ao rolar
         if (currentScrollY > lastScrollY && currentScrollY > 100) {
           setIsVisible(false);
         } else {
-          // Se rolar para cima, mostra
           setIsVisible(true);
         }
-
-        // Atualiza a última posição conhecida
         setLastScrollY(currentScrollY);
       }
     };
 
     window.addEventListener('scroll', controlNavbar);
-
-    // Limpeza do evento ao desmontar o componente
-    return () => {
-      window.removeEventListener('scroll', controlNavbar);
-    };
+    return () => window.removeEventListener('scroll', controlNavbar);
   }, [lastScrollY]);
-
-  // Função para fechar o menu após um clique
-  const handleLinkClick = () => {
-    setIsMobileMenuOpen(false);
-  };
-  // Funcao para alternar o estado do menu
-  const toggleMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
 
   return (
     <header 
       className={`
-        bg-surface-card/80 backdrop-blur-sm 
-        fixed w-full top-0 z-30 border-b border-surface-border 
+        bg-surface-card/95 backdrop-blur-sm 
+        sticky top-0 z-40 border-b border-surface-border 
         transition-transform duration-300 ease-in-out
         ${isVisible ? 'translate-y-0' : '-translate-y-full'}
       `}
     >
-      <div className="container mx-auto p-4 flex flex-row justify-between items-center gap-4"> 
-        
-        {/* Logo (Fica na esquerda) */}
-        <Link href="/" onClick={handleLinkClick}>
+      <div className="container mx-auto p-4 flex flex-row flex-wrap md:flex-nowrap justify-between items-center gap-4">
+        <Link href="/">
           <Image
             src="/images/logo-capcom.png"
             alt={`Logo da ${STORE_INFO.name}`}
@@ -80,44 +60,17 @@ const Navbar = () => {
           />
         </Link>
 
-        {/* --- CONTROLES DA DIREITA (MODO ESCURO E MENU MOBILE) --- */}
-        <div className="flex items-center gap-2 md:gap-4">
-          
-          {/* Botão de Modo Escuro/Claro (Fica na mesma linha, ao lado do menu) */}
+        <nav className="hidden md:flex items-center gap-6">
+          <Link href="/" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">Início</Link>
+          <Link href="/#categorias" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">Categorias</Link>
+          <Link href="/#servicos" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">Serviços</Link>
+          <Link href="/#localizacao" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">Localização</Link>
+        </nav>
+
+        <div className="flex items-center gap-4 w-full md:w-auto basis-full md:basis-auto justify-end">
           <ThemeToggleButton />
-
-          {/* Botão do Menu Mobile (só visível em telas pequenas) */}
-          <button 
-            onClick={toggleMenu} 
-            className="p-2 rounded-full text-text-secondary hover:text-brand-primary hover:bg-surface-border transition-colors duration-200 md:hidden"
-            aria-label="Alternar Menu de Navegação"
-          >
-            {isMobileMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
-          </button>
-          
-          {/* Navegação Desktop (visível apenas em telas md+) */}
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">Início</Link>
-            <Link href="/#categorias" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">Categorias</Link>
-            <Link href="/#servicos" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">Serviços</Link>
-            <Link href="/#localizacao" className="text-text-secondary hover:text-brand-primary transition-colors font-medium">Localização</Link>
-          </nav>
-
         </div>
       </div>
-      
-      {/* --- MENU MOBILE (Aparece abaixo do cabeçalho, tela cheia) --- */}
-      {isMobileMenuOpen && (
-          <nav className="md:hidden w-full bg-surface-card border-t border-surface-border shadow-lg p-4 animate-fade-in-up">
-            <ul className="flex flex-col space-y-3">
-                <li><Link href="/" onClick={handleLinkClick} className="block text-text-primary font-medium hover:text-brand-primary transition-colors py-2">Início</Link></li>
-                <li><Link href="/#categorias" onClick={handleLinkClick} className="block text-text-primary font-medium hover:text-brand-primary transition-colors py-2">Categorias</Link></li>
-                <li><Link href="/#servicos" onClick={handleLinkClick} className="block text-text-primary font-medium hover:text-brand-primary transition-colors py-2">Serviços</Link></li>
-                <li><Link href="/#localizacao" onClick={handleLinkClick} className="block text-text-primary font-medium hover:text-brand-primary transition-colors py-2">Localização</Link></li>
-            </ul>
-          </nav>
-      )}
-
     </header>
   );
 };
@@ -130,8 +83,6 @@ const Footer = () => {
     <footer className="bg-surface-card border-t border-surface-border mt-16 py-8">
       <div className="container mx-auto px-4 text-center text-text-secondary">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          
-          {/* Coluna de Navegação */}
           <div>
             <h4 className="font-semibold text-text-primary mb-3">Navegação</h4>
             <ul className="space-y-2">
@@ -142,7 +93,6 @@ const Footer = () => {
               <li><Link href="/#localizacao" className="hover:text-brand-primary transition-colors">Localização</Link></li>
             </ul>
           </div>
-
           <div>
             <h4 className="font-semibold text-text-primary mb-3">Contato</h4>
             <p>Não encontrou o seu produto?</p>
@@ -151,7 +101,6 @@ const Footer = () => {
               {STORE_INFO.phoneDisplay} (WhatsApp)
             </a>
           </div>
-
           <div>
             <h4 className="font-semibold text-text-primary mb-3">Onde Estamos</h4>
             <p>{STORE_INFO.address}</p>
@@ -160,7 +109,6 @@ const Footer = () => {
             </Link>
           </div>
         </div>
-
         <div className="border-t border-surface-border pt-6 mt-8 text-sm text-text-subtle">
           <p>&copy; {currentYear} {STORE_INFO.name}. Todos os direitos reservados.</p>
         </div>
@@ -172,9 +120,12 @@ const Footer = () => {
 export default function Layout({ children }: LayoutProps) {
   return (
     <div className={`${inter.variable} min-h-screen flex flex-col font-sans bg-surface-background`}>
+      {/* Banner inserido aqui, antes do Navbar */}
+      <PromoBanner />
       <Navbar />
-      {/* Padding-top (pt-28) aqui para compensar o header fixo e não cortar o conteúdo inicial */}
-      <main className="flex-grow container mx-auto p-4 md:p-8 pt-28 md:pt-32">
+      
+      {/* Ajustado o padding-top para não ter buraco grande, já que o menu agora é sticky */}
+      <main className="flex-grow container mx-auto p-4 md:p-8">
         <Breadcrumbs />
         {children}
       </main>
