@@ -4,6 +4,7 @@ import { getSession } from "next-auth/react";
 import Link from 'next/link';
 import { FaArrowLeft, FaPlus, FaEdit } from 'react-icons/fa';
 import SEO from '@/components/Seo';
+import Image from 'next/image'; 
 
 type ProductWithBrand = Product & { brand: Brand };
 
@@ -23,9 +24,9 @@ export default function AdminProductsList({ products }: { products: ProductWithB
           </Link>
           <h1 className="text-3xl font-bold text-text-primary">Produtos Cadastrados</h1>
         </div>
-
-        <Link
-          href="/admin/products/new"
+        
+        <Link 
+          href="/admin/products/new" 
           className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-bold shadow-md"
         >
           <FaPlus /> Novo Produto
@@ -51,8 +52,13 @@ export default function AdminProductsList({ products }: { products: ProductWithB
                   <td className="p-4 text-text-subtle">#{product.id}</td>
                   <td className="p-4">
                     {product.imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={product.imageUrl} alt={product.name} className="w-10 h-10 object-contain rounded bg-white p-1 border" />
+                      <Image 
+                        src={product.imageUrl} 
+                        alt={product.name} 
+                        width={40} 
+                        height={40} 
+                        className="w-10 h-10 object-contain rounded bg-white p-1 border" 
+                      />
                     ) : (
                       <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">N/A</div>
                     )}
@@ -66,9 +72,9 @@ export default function AdminProductsList({ products }: { products: ProductWithB
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex justify-end gap-2">
-                      <Link
+                      <Link 
                         href={`/admin/products/${product.id}`}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors" 
                         title="Editar"
                       >
                         <FaEdit />
@@ -104,7 +110,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   const products = await prisma.product.findMany({
     include: { brand: true },
-    orderBy: { id: 'desc' },
+    orderBy: { id: 'desc' }, 
   });
 
   return {
