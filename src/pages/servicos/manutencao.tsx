@@ -18,9 +18,9 @@ const MaintenancePage = () => {
 
   return (
     <div className="animate-fade-in-up">
-      <SEO 
-        title="Manutenção de Impressoras" 
-        description="Serviço especializado de manutenção e conserto de impressoras HP, Epson, Brother e Canon em Itaquaquecetuba." 
+      <SEO
+        title="Manutenção de Impressoras"
+        description="Serviço especializado de manutenção e conserto de impressoras HP, Epson, Brother e Canon em Itaquaquecetuba."
       />
 
       {/* Hero Section */}
@@ -34,7 +34,7 @@ const MaintenancePage = () => {
           Manutenção de Impressoras
         </h1>
         <p className="text-xl text-text-secondary max-w-2xl mx-auto">
-          A sua impressora parou? Está a imprimir com falhas? Nós resolvemos. 
+          A sua impressora parou? Está imprimindo com falhas? Nós resolvemos.
           Trazemos o seu equipamento de volta à vida com qualidade e rapidez.
         </p>
       </div>
@@ -44,10 +44,10 @@ const MaintenancePage = () => {
         <div className="space-y-6">
           <h2 className="text-3xl font-bold text-text-primary">Por que fazer manutenção?</h2>
           <p className="text-lg text-text-secondary leading-relaxed">
-            Muitas vezes, uma impressora é descartada por problemas simples como falta de limpeza ou entupimento. 
+            Muitas vezes, uma impressora é descartada por problemas simples como falta de limpeza ou entupimento.
             A nossa manutenção preventiva e corretiva aumenta a vida útil do seu equipamento e evita gastos desnecessários com uma máquina nova.
           </p>
-          
+
           <div className="bg-surface-card p-6 rounded-xl border border-surface-border">
             <h3 className="text-xl font-semibold text-text-primary mb-4">O que incluímos:</h3>
             <ul className="grid grid-cols-1 gap-3">
@@ -63,16 +63,15 @@ const MaintenancePage = () => {
 
         {/* Área para Imagem Ilustrativa */}
         <div className="relative h-[400px] bg-gray-200 rounded-xl overflow-hidden shadow-lg border border-surface-border">
-            {/* Placeholder - Quando tiver uma foto real da bancada, substitui aqui */}
-            <Image 
-              src="/images/background-hero.jpg" 
-              alt="Técnico a reparar impressora"
-              fill
-              className="object-cover opacity-90"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">
-                <p className="text-white font-medium text-lg">Bancada especializada para todas as marcas</p>
-            </div>
+          <Image
+            src="/images/Bancada-Simples.png"
+            alt="Técnico a reparar impressora"
+            fill
+            className="object-cover opacity-90"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">
+            <p className="text-white font-medium text-lg">Bancada especializada para todas as marcas</p>
+          </div>
         </div>
       </div>
 

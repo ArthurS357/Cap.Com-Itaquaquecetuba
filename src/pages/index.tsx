@@ -4,8 +4,8 @@ import CategoryCard from '../components/cards/CategoryCard';
 import { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import SearchBar from '../components/SearchBar'; 
-import { FaAward, FaRegClock } from 'react-icons/fa'; 
+import SearchBar from '../components/SearchBar';
+import { FaAward, FaRegClock } from 'react-icons/fa';
 import { STORE_INFO, GOOGLE_MAPS_EMBED_URL } from '@/config/store';
 
 type Category = {
@@ -106,7 +106,7 @@ export const getStaticProps: GetStaticProps<{
 function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticProps>) {
   const encodedAddress = encodeURIComponent(STORE_INFO.address);
   const wazeUrl = `https://waze.com/ul?q=${encodedAddress}&navigate=yes`;
-  
+
   const [categoriasRef, categoriasVisible] = useScrollAnimation({ threshold: 0.1 });
   const [servicosRef, servicosVisible] = useScrollAnimation({ threshold: 0.1 });
   const [sobreNosRef, sobreNosVisible] = useScrollAnimation({ threshold: 0.1 });
@@ -134,10 +134,10 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
           <p className="text-xl md:text-2xl text-gray-200 mb-8 drop-shadow-md">
             O que você procura? Cartuchos, toners, impressoras e mais!
           </p>
-          
-          {/* --- NOVA BARRA DE BUSCA AQUI --- */}
+
+          {/* --- BARRA DE BUSCA --- */}
           <div className="w-full max-w-lg mb-8 flex justify-center">
-             <SearchBar />
+            <SearchBar />
           </div>
           {/* -------------------------------- */}
 
@@ -193,7 +193,7 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
           <p className="text-lg text-text-secondary mt-2">Soluções completas para suas necessidades de impressão.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          
+
           {/* --- 1. CARTÃO REMANUFATURA (COM LINK) --- */}
           <div className="bg-surface-card p-6 rounded-xl shadow-lg border border-surface-border flex items-start gap-4 hover:border-brand-primary/50 transition-colors group cursor-pointer">
             <IconRecycle />
@@ -203,7 +203,7 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
               </h3>
               <p className="text-text-secondary">
                 Alternativas econômicas e sustentáveis sem abrir mão da qualidade. Prolongue a vida útil dos seus suprimentos.
-                <br/>
+                <br />
                 <Link href="/servicos/remanufatura" className="text-brand-accent text-sm font-semibold mt-2 inline-block hover:underline">
                   Saiba mais &rarr;
                 </Link>
@@ -220,7 +220,7 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
               </h3>
               <p className="text-text-secondary">
                 Realizamos manutenção preventiva e corretiva em uma ampla variedade de impressoras para garantir o pleno funcionamento.
-                <br/>
+                <br />
                 <Link href="/servicos/manutencao" className="text-brand-accent text-sm font-semibold mt-2 inline-block hover:underline">
                   Saiba mais &rarr;
                 </Link>
@@ -241,14 +241,14 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
         className={`max-w-6xl mx-auto mb-16 animate-on-scroll ${sobreNosVisible ? 'animate-slide-in-up' : ''}`}
       >
         <h2 className="text-3xl font-bold text-text-primary mb-12 text-center">Sobre Nós</h2>
-        
+
         {/* Grid de 2 colunas: Texto na esquerda, Card de Infos na direita */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-          
+
           {/* Coluna 1: Texto Descritivo */}
           <div className="text-lg text-text-secondary leading-relaxed space-y-4">
             <p>
-              A Cap.Com em Itaquaquecetuba é uma empresa dedicada a soluções completas em impressão. Especializamo‑nos na remanufatura de cartuchos e toners, oferecendo alternativas econômicas e sustentáveis sem abrir mão da qualidade. 
+              A Cap.Com em Itaquaquecetuba é uma empresa dedicada a soluções completas em impressão. Especializamo‑nos na remanufatura de cartuchos e toners, oferecendo alternativas econômicas e sustentáveis sem abrir mão da qualidade.
             </p>
             <p>
               Também realizamos manutenção preventiva e corretiva em uma ampla variedade de impressoras, além de serviços gerais de manutenção para garantir o pleno funcionamento dos seus equipamentos.
@@ -260,7 +260,7 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
 
           {/* Coluna 2: Card de Informações (Experiência e Horários) */}
           <div className="bg-surface-card p-6 rounded-xl shadow-lg border border-surface-border sticky top-28">
-            
+
             {/* Item 1: Experiência */}
             <div className="flex items-start gap-4 mb-6 pb-6 border-b border-surface-border">
               <FaAward className="w-10 h-10 text-brand-primary flex-shrink-0 mt-1" />

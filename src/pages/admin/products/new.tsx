@@ -6,7 +6,7 @@ import { PrismaClient, Brand, Category } from '@prisma/client';
 import SEO from '@/components/Seo';
 import Link from 'next/link';
 import { FaArrowLeft, FaSave, FaTimes } from 'react-icons/fa';
-import { UploadButton } from '@/utils/uploadthing'; 
+import { UploadButton } from '@/utils/uploadthing';
 
 type NewProductProps = {
   brands: Brand[];
@@ -72,7 +72,7 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="bg-surface-card border border-surface-border rounded-xl p-8 shadow-sm space-y-6">
-        
+
         {error && (
           <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-200">
             {error}
@@ -82,7 +82,7 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
         {/* --- ÁREA DE UPLOAD DE IMAGEM --- */}
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-2">Imagem do Produto</label>
-          
+
           {formData.imageUrl ? (
             // Se já tem imagem, mostra o preview
             <div className="relative w-40 h-40 border-2 border-surface-border rounded-lg overflow-hidden bg-white flex items-center justify-center">
@@ -117,7 +117,6 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
           {/* Input oculto para garantir que o valor vai no form */}
           <input type="hidden" name="imageUrl" value={formData.imageUrl} />
         </div>
-        {/* -------------------------------- */}
 
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-1">Nome do Produto</label>

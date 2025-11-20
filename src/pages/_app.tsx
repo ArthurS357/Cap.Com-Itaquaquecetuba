@@ -23,7 +23,7 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
   }
 
   return (
-    // Envolvemos tudo com o SessionProvider
+    // Envolvendo tudo com o SessionProvider
     <SessionProvider session={session}>
       <ThemeProvider attribute="class" defaultTheme="system">
         <Layout>

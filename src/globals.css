@@ -3,14 +3,21 @@
 @tailwind utilities;
 
 @layer base {
+
   /* Cores do Light Mode (Padrão) */
   :root {
-    --color-surface-background: #FFFFFF; /* Fundo Branco */
-    --color-surface-card: #F9FAFB;       /* Card Cinza claro */
-    --color-surface-border: #E5E7EB;     /* Borda Cinza */
-    --color-text-primary: #1F2937;       /* Texto Escuro */
-    --color-text-secondary: #4B5563;     /* Texto Cinza Escuro */
-    --color-text-subtle: #6B7280;        /* Texto Cinza Médio */
+    --color-surface-background: #FFFFFF;
+    /* Fundo Branco */
+    --color-surface-card: #F9FAFB;
+    /* Card Cinza claro */
+    --color-surface-border: #E5E7EB;
+    /* Borda Cinza */
+    --color-text-primary: #1F2937;
+    /* Texto Escuro */
+    --color-text-secondary: #4B5563;
+    /* Texto Cinza Escuro */
+    --color-text-subtle: #6B7280;
+    /* Texto Cinza Médio */
   }
 
   /* Cores do Dark Mode (cores originais) */
@@ -25,5 +32,5 @@
 }
 
 .animate-on-scroll {
-  opacity: 0; 
+  opacity: 0;
 }

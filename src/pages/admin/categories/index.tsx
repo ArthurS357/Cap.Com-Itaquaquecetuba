@@ -1,7 +1,7 @@
 import { GetServerSideProps } from 'next';
 import { getSession } from "next-auth/react";
 import Link from 'next/link';
-import Image from 'next/image'; 
+import Image from 'next/image';
 import { PrismaClient, Category } from '@prisma/client';
 import { FaArrowLeft, FaPlus, FaEdit, FaFolder } from 'react-icons/fa';
 import SEO from '@/components/Seo';
@@ -32,12 +32,12 @@ export default function AdminCategoriesList({ categories }: { categories: Catego
               <tr key={cat.id} className="hover:bg-surface-border/30">
                 <td className="p-4 font-medium flex items-center gap-3">
                   {cat.imageUrl ? (
-                    <Image // <-- ALTERADO PARA Image
-                      src={cat.imageUrl} 
-                      alt={`Imagem de ${cat.name}`} 
+                    <Image
+                      src={cat.imageUrl}
+                      alt={`Imagem de ${cat.name}`}
                       width={32} // w-8 é 32px
                       height={32}
-                      className="w-8 h-8 rounded object-cover" 
+                      className="w-8 h-8 rounded object-cover"
                     />
                   ) : (
                     <FaFolder className="text-gray-300 w-8 h-8" />
@@ -61,7 +61,7 @@ export default function AdminCategoriesList({ categories }: { categories: Catego
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context);
   if (!session) return { redirect: { destination: '/api/auth/signin', permanent: false } };
-  
+
   const prisma = new PrismaClient();
   const categories = await prisma.category.findMany({
     include: { parent: true, _count: { select: { products: true } } },

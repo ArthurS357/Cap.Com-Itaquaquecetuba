@@ -119,7 +119,7 @@ async function main() {
     '61': ['HP DeskJet 1000', '1010', '1050', '1510', '2050', '2510', '3050', 'HP ENVY 4500', '5530'],
     '70': ['HP DeskJet 450', '550C (modelos antigos)', 'HP OfficeJet 5100 (modelos antigos)'],
     '75': ['HP OfficeJet 6100', '6150', '6500 (séries OfficeJet que usam 75 em algumas configurações)'],
-    '122': ['HP DeskJet Ink Advantage 1115', '2135 (algumas variantes regionais usam 122A/122XL)', 'HP DeskJet 1510', '2540', '2640 series', 'HP ENVY 4504', '5530 (dependendo da região e submodelo)'],
+    '122': ['HP DeskJet Ink Advantage 1115', '2135 (Variantes regionais: 122A/122XL)', 'HP DeskJet 1510', '2540', '2640 series', 'HP ENVY 4504', '5530'],
     '662': ['HP DeskJet Ink Advantage 1015', '1515', '1516', '2515', '2516', '2545', '2546', '2645', '2646', '3515', '3516', '3545', '3546', '4645', '4646'],
     '664': ['HP DeskJet 1115', '2135', '3635', '3775', '3785', '3835', '4535', '4675', 'HP DeskJet Ink Advantage 1115', '2136', '3636', '3776', '3836', '4536', '4676', 'HP ENVY 4510', '4520'],
     '667': ['HP DeskJet Ink Advantage 1275', '2374', '2375', '2376', '2775', '2776', '6075', '6076', '6475', '6476', 'HP DeskJet Ink Advantage 2774'],

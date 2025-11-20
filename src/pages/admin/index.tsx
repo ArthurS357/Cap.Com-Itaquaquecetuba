@@ -27,7 +27,7 @@ export default function AdminDashboard() {
   return (
     <div className="animate-fade-in-up">
       <SEO title="Painel Admin" description="Área restrita" />
-      
+
       {/* Cabeçalho Exclusivo do Admin */}
       <div className="bg-brand-primary/10 border border-brand-primary/20 rounded-2xl p-8 mb-10 flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="flex items-center gap-4">
@@ -57,7 +57,7 @@ export default function AdminDashboard() {
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
+
         {/* Card: Produtos */}
         <Link href="/admin/products" className="group">
           <div className="bg-surface-card p-6 rounded-xl border border-surface-border hover:border-brand-primary hover:shadow-md transition-all cursor-pointer h-full">

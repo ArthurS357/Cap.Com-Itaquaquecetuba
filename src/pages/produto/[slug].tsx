@@ -11,10 +11,10 @@ const globalForPrisma = global as unknown as { prisma: PrismaClient };
 const prisma = globalForPrisma.prisma || new PrismaClient();
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
-type ProductWithRelations = Product & { 
-  brand: Brand; 
+type ProductWithRelations = Product & {
+  brand: Brand;
   category: Category;
-  compatibleWith: { printer: Printer }[]; 
+  compatibleWith: { printer: Printer }[];
 };
 
 type ProductPageProps = {
@@ -28,9 +28,9 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
 
   return (
     <div className="animate-fade-in-up pb-16">
-      <SEO 
-        title={product.name} 
-        description={product.description || `Compre ${product.name} na ${STORE_INFO.name}. Qualidade e melhor preço.`} 
+      <SEO
+        title={product.name}
+        description={product.description || `Compre ${product.name} na ${STORE_INFO.name}. Qualidade e melhor preço.`}
         image={product.imageUrl || undefined}
       />
 
@@ -42,7 +42,7 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
 
       <div className="bg-surface-card border border-surface-border rounded-2xl p-6 md:p-10 shadow-sm mb-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-          
+
           {/* Imagem */}
           <div className="relative bg-white rounded-xl overflow-hidden border border-surface-border aspect-square flex items-center justify-center p-4">
             {product.imageUrl ? (
@@ -67,7 +67,7 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
             <div className="mb-2 text-brand-primary font-semibold flex items-center gap-2">
               <FaTag size={14} /> {product.brand.name}
             </div>
-            
+
             <h1 className="text-3xl md:text-4xl font-bold text-text-primary mb-4 leading-tight">
               {product.name}
             </h1>
@@ -78,7 +78,7 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
               </p>
             )}
 
-            {/* --- NOVA SECÇÃO: IMPRESSORAS COMPATÍVEIS --- */}
+            {/* --- IMPRESSORAS COMPATÍVEIS --- */}
             {product.compatibleWith && product.compatibleWith.length > 0 && (
               <div className="mb-8 bg-surface-background p-4 rounded-xl border border-surface-border">
                 <h3 className="text-sm font-bold text-text-primary mb-3 uppercase tracking-wide flex items-center gap-2">
@@ -94,7 +94,6 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
                 </ul>
               </div>
             )}
-            {/* -------------------------------------------- */}
 
             <div className="mt-auto">
               <div className="mb-8">
@@ -123,11 +122,11 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
               <div className="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-surface-border">
                 <div className="flex items-center gap-3 text-text-secondary text-sm">
                   <FaTruck className="text-brand-primary text-xl" />
-                  <span>Entrega Rápida<br/>em Itaquaquecetuba</span>
+                  <span>Entrega Rápida<br />em Itaquaquecetuba</span>
                 </div>
                 <div className="flex items-center gap-3 text-text-secondary text-sm">
                   <FaShieldAlt className="text-brand-primary text-xl" />
-                  <span>Garantia de<br/>Qualidade Cap.Com</span>
+                  <span>Garantia de<br />Qualidade Cap.Com</span>
                 </div>
               </div>
             </div>
@@ -156,8 +155,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   const product = await prisma.product.findUnique({
     where: { slug },
-    include: { 
-      brand: true, 
+    include: {
+      brand: true,
       category: true,
       compatibleWith: {
         include: {

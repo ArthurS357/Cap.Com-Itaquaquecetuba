@@ -48,7 +48,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(401).json({ error: "Não autorizado. Faça login." });
   }
 
-  // --- PUT: Atualizar ---
   if (method === 'PUT') {
     try {
       const { name, description, price, type, brandId, categoryId, imageUrl } = req.body;
@@ -61,7 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         imageUrl,
         brandId: Number(brandId),
         categoryId: Number(categoryId),
-        ...(name ? { slug: slugify(name) } : {}), 
+        ...(name ? { slug: slugify(name) } : {}),
       };
 
       const updatedProduct = await prisma.product.update({
@@ -69,22 +68,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         data: dataToUpdate,
       });
 
-      // --- FIX: REVALIDAÇÃO (Atualizar página do produto e Home) ---
       try {
         if (updatedProduct.slug) {
-            await res.revalidate(`/produto/${updatedProduct.slug}`);
+          await res.revalidate(`/produto/${updatedProduct.slug}`);
         }
         await res.revalidate('/');
       } catch (err) { }
-      // ------------------------------------------------------------
 
       return res.status(200).json(updatedProduct);
     } catch (error) {
       console.error("Erro ao atualizar:", error);
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-         if (error.code === 'P2002') {
-            return res.status(409).json({ error: "Nome de produto já existe." });
-         }
+        if (error.code === 'P2002') {
+          return res.status(409).json({ error: "Nome de produto já existe." });
+        }
       }
       return res.status(500).json({ error: "Falha ao atualizar produto" });
     }
@@ -96,17 +93,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       await prisma.printerCompatibility.deleteMany({
         where: { cartridgeId: productId }
       });
-      
+
       await prisma.product.delete({
         where: { id: productId },
       });
 
-      // --- FIX: REVALIDAÇÃO (Remover da Home e Busca) ---
       try {
         await res.revalidate('/');
         await res.revalidate('/busca');
       } catch (err) { }
-      // --------------------------------------------------
 
       return res.status(200).json({ message: "Produto removido com sucesso" });
     } catch (error) {

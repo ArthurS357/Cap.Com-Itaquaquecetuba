@@ -18,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         where: { key: 'banner' }
       });
       return res.status(200).json(banner || { value: '', isActive: false });
-    } catch (error) { // <-- CORRIGIDO
+    } catch (error) {
       console.error(error); // <-- Variável 'error' utilizada para log
       return res.status(500).json({ error: "Erro ao buscar configurações" });
     }
@@ -40,7 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
       return res.status(200).json(config);
-    } catch (error) { // <-- CORRIGIDO
+    } catch (error) {
       console.error(error); // <-- Variável 'error' utilizada para log
       return res.status(500).json({ error: "Erro ao salvar" });
     }

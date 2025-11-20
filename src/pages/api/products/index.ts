@@ -59,19 +59,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           brand: { connect: { id: Number(brandId) } },
           category: { connect: { id: Number(categoryId) } },
         },
+        include: {
+          category: true
+        }
       });
 
-      // --- FIX: REVALIDAÇÃO (O que faltava) ---
       try {
-        await res.revalidate('/');       // Atualiza a Home
-        await res.revalidate('/busca');  // Atualiza a Busca
+        // 1. Atualiza a Home \ Busca
+        await res.revalidate('/');
+        await res.revalidate('/busca'); 
+
+        // 3. Atualiza a página da Categoria específica onde o produto foi adicionado
+        if (newProduct.category && newProduct.category.slug) {
+            console.log(`Revalidando categoria: /categoria/${newProduct.category.slug}`);
+            await res.revalidate(`/categoria/${newProduct.category.slug}`);
+        }
+     
       } catch (err) {
-        console.log('Erro ao revalidar páginas', err);
+        console.error('Erro ao revalidar páginas:', err);
       }
-      // ----------------------------------------
 
       return res.status(201).json(newProduct);
-
     } catch (error) {
       console.error("Erro ao criar produto:", error);
       if (error instanceof Prisma.PrismaClientKnownRequestError) {

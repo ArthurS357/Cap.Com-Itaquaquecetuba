@@ -7,7 +7,7 @@ import { UploadButton } from '@/utils/uploadthing';
 import SEO from '@/components/Seo';
 import Link from 'next/link';
 import { FaArrowLeft, FaSave } from 'react-icons/fa';
-import Image from 'next/image'; 
+import Image from 'next/image';
 
 export default function NewCategory({ categories }: { categories: Category[] }) {
   const router = useRouter();
@@ -31,23 +31,23 @@ export default function NewCategory({ categories }: { categories: Category[] }) 
       <form onSubmit={handleSubmit} className="bg-surface-card border border-surface-border rounded-xl p-8 space-y-6">
         {/* Upload */}
         <div className="flex justify-center mb-6 border-2 border-dashed border-surface-border rounded-lg p-6">
-            {formData.imageUrl ? (
-              <Image // <-- ALTERADO PARA Image
-                src={formData.imageUrl} 
-                alt="Preview da Categoria"
-                width={128} // Necessário para Next/Image
-                height={128} // Necessário para Next/Image
-                className="h-32 w-auto object-contain" 
-              />
-            ) : (
-              <UploadButton endpoint="imageUploader" onClientUploadComplete={(res) => setFormData({...formData, imageUrl: res[0].url})} />
-            )}
+          {formData.imageUrl ? (
+            <Image
+              src={formData.imageUrl}
+              alt="Preview da Categoria"
+              width={128}
+              height={128}
+              className="h-32 w-auto object-contain"
+            />
+          ) : (
+            <UploadButton endpoint="imageUploader" onClientUploadComplete={(res) => setFormData({ ...formData, imageUrl: res[0].url })} />
+          )}
         </div>
-        
-        <div><label className="block mb-1 text-sm">Nome</label><input className="w-full p-2 border rounded bg-surface-background" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} /></div>
-        
+
+        <div><label className="block mb-1 text-sm">Nome</label><input className="w-full p-2 border rounded bg-surface-background" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} /></div>
+
         <div><label className="block mb-1 text-sm">Categoria Pai (Opcional)</label>
-          <select className="w-full p-2 border rounded bg-surface-background" value={formData.parentId} onChange={e => setFormData({...formData, parentId: e.target.value})}>
+          <select className="w-full p-2 border rounded bg-surface-background" value={formData.parentId} onChange={e => setFormData({ ...formData, parentId: e.target.value })}>
             <option value="">Nenhuma (Categoria Principal)</option>
             {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>

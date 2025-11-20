@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient, Prisma } from '@prisma/client'; 
+import { PrismaClient, Prisma } from '@prisma/client';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { slugify } from '@/lib/utils';
@@ -25,12 +25,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (method === 'PUT') {
     try {
       const { name, imageUrl, parentId } = req.body;
-      
+
       // Tipo explícito para aceitar a FK 'parentId' diretamente, e 'slug'
-      const data: Partial<Prisma.CategoryCreateInput> & { parentId?: number | null, slug?: string } = { 
-        name, 
-        imageUrl, 
-        parentId: parentId ? Number(parentId) : null 
+      const data: Partial<Prisma.CategoryCreateInput> & { parentId?: number | null, slug?: string } = {
+        name,
+        imageUrl,
+        parentId: parentId ? Number(parentId) : null
       };
       if (name) data.slug = slugify(name);
 
@@ -39,8 +39,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         data: data as Prisma.CategoryUpdateInput,
       });
       return res.status(200).json(updated);
-    } catch (error) { // <-- CORRIGIDO
-      console.error(error); // <-- Variável 'error' utilizada para log
+    } catch (error) {
+      console.error(error);
       return res.status(500).json({ error: "Erro ao atualizar" });
     }
   }
@@ -53,8 +53,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       await prisma.category.delete({ where: { id: categoryId } });
       return res.status(200).json({ message: "Sucesso" });
-    } catch (error) { // <-- CORRIGIDO
-      console.error(error); // <-- Variável 'error' utilizada para log
+    } catch (error) {
+      console.error(error);
       return res.status(500).json({ error: "Erro ao deletar" });
     }
   }

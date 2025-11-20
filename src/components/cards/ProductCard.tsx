@@ -1,8 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
-// Define o tipo mínimo que o ProductCard precisa para renderizar
-// Exporta o tipo para que os arquivos de teste possam usá-lo
 export type MinimalProduct = {
   id: number;
   name: string;
@@ -10,7 +8,7 @@ export type MinimalProduct = {
   imageUrl: string | null;
   brand: {
     name: string;
-  } | null; 
+  } | null;
 };
 
 type ProductCardProps = {
@@ -24,7 +22,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
     return (
       <Link href={`/produto/${product.slug}`} key={product.id}>
         <div className="group bg-surface-card rounded-xl p-4 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer h-full flex flex-col justify-between items-center text-center border border-surface-border hover:scale-105">
-          
+
           {/* Imagem do produto */}
           {product.imageUrl ? (
             <div className="bg-white p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
@@ -54,7 +52,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </div>
       </Link>
     );
-  } 
+  }
 
   // Renderização de Fallback (produto inválido ou incompleto)
   else {
@@ -73,7 +71,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
     return (
       <div key={key} className="bg-surface-card rounded-xl p-4 shadow-lg border border-surface-border flex flex-col justify-between items-center text-center opacity-50 cursor-not-allowed h-full">
-        
+
         {/* Imagem ou placeholder (Fallback) */}
         {imageUrl ? (
           <div className="bg-white p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">

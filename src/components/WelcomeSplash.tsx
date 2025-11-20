@@ -9,17 +9,17 @@ const WelcomeSplash = () => {
     >
       {/* Container do conteúdo (animação de fade-in) */}
       <div className="flex flex-col items-center animate-fadeIn [animation-duration:1000ms] text-center px-4">
-        
+
         {/* Logo */}
         <Image
           src="/images/logo-capcom.png"
           alt="Logo Cap.Com Itaquaquecetuba"
           width={200}
           height={200}
-          priority 
+          priority
         />
-        
-        {/* Título Estilizado (MODIFICADO) */}
+
+        {/* Título Estilizado */}
         <h2 className="mt-6 text-4xl font-bold 
                        bg-gradient-to-r from-brand-accent to-brand-primary 
                        text-transparent bg-clip-text"
@@ -27,7 +27,7 @@ const WelcomeSplash = () => {
           Bem-vindo!
         </h2>
 
-        {/* Subtítulo (NOVO) */}
+        {/* Subtítulo */}
         <p className="mt-2 text-lg text-text-secondary">
           Sua solução completa em impressão.
         </p>

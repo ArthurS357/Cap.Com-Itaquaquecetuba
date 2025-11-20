@@ -37,7 +37,7 @@ export default function SettingsPage() {
 
       if (res.ok) setMessage('Configurações salvas com sucesso!');
       else throw new Error('Erro ao salvar');
-    } catch (error) { // <-- CORRIGIDO
+    } catch (error) {
       console.error(error); // <-- Variável 'error' utilizada para log
       setMessage('Erro ao salvar configurações.');
     } finally {
@@ -57,14 +57,14 @@ export default function SettingsPage() {
       </div>
 
       <form onSubmit={handleSave} className="bg-surface-card border border-surface-border rounded-xl p-8 shadow-sm space-y-8">
-        
+
         {/* Seção Banner */}
         <div>
           <div className="flex items-center gap-3 mb-4 border-b border-surface-border pb-2">
             <FaBullhorn className="text-brand-accent" size={24} />
             <h2 className="text-xl font-semibold">Banner de Aviso</h2>
           </div>
-          
+
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-1">Texto do Banner</label>

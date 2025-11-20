@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import ThemeToggleButton from './ThemeToggleButton';
 import WhatsAppButton from './WhatsAppButton';
 import Breadcrumbs from './Breadcrumbs';
-import PromoBanner from './PromoBanner'; 
+import PromoBanner from './PromoBanner';
 import { Inter } from 'next/font/google';
 import { STORE_INFO, getWhatsappLink } from '@/config/store';
 
@@ -40,7 +40,7 @@ const Navbar = () => {
   }, [lastScrollY]);
 
   return (
-    <header 
+    <header
       className={`
         bg-surface-card/95 backdrop-blur-sm 
         sticky top-0 z-40 border-b border-surface-border 
@@ -123,8 +123,8 @@ export default function Layout({ children }: LayoutProps) {
       {/* Banner inserido aqui, antes do Navbar */}
       <PromoBanner />
       <Navbar />
-      
-      {/* Ajustado o padding-top para não ter buraco grande, já que o menu agora é sticky */}
+
+      {/* Ajustado o padding-top para não ter buraco grande */}
       <main className="flex-grow container mx-auto p-4 md:p-8">
         <Breadcrumbs />
         {children}

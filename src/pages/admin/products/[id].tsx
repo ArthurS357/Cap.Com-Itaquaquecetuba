@@ -67,7 +67,7 @@ export default function EditProduct({ product, brands, categories }: EditProduct
 
   const handleDelete = async () => {
     if (!confirm('Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita.')) return;
-    
+
     setIsDeleting(true);
     try {
       const res = await fetch(`/api/products/${product.id}`, {
@@ -81,9 +81,9 @@ export default function EditProduct({ product, brands, categories }: EditProduct
 
       router.push('/admin/products');
     } catch (err: unknown) {
-       const msg = err instanceof Error ? err.message : 'Erro ao excluir';
-       alert(msg);
-       setIsDeleting(false);
+      const msg = err instanceof Error ? err.message : 'Erro ao excluir';
+      alert(msg);
+      setIsDeleting(false);
     }
   };
 
@@ -98,7 +98,7 @@ export default function EditProduct({ product, brands, categories }: EditProduct
           </Link>
           <h1 className="text-3xl font-bold text-text-primary">Editar Produto</h1>
         </div>
-        
+
         <button
           onClick={handleDelete}
           disabled={isDeleting}
@@ -109,10 +109,10 @@ export default function EditProduct({ product, brands, categories }: EditProduct
       </div>
 
       <form onSubmit={handleUpdate} className="bg-surface-card border border-surface-border rounded-xl p-8 shadow-sm space-y-6">
-        
+
         {error && (
           <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-200 flex items-center gap-2">
-            <FaExclamationTriangle className="flex-shrink-0" /> 
+            <FaExclamationTriangle className="flex-shrink-0" />
             <span>{error}</span>
           </div>
         )}

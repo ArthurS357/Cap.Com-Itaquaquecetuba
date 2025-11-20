@@ -6,9 +6,9 @@ export default function Custom404() {
   return (
     // Centraliza o conteúdo e garante altura mínima
     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 animate-fade-in-up">
-      <SEO 
-        title="Página Não Encontrada" 
-        description="A página que você procura não existe ou foi movida." 
+      <SEO
+        title="Página Não Encontrada"
+        description="A página que você procura não existe ou foi movida."
       />
 
       {/* Ícone de Alerta */}
@@ -20,12 +20,12 @@ export default function Custom404() {
       <h1 className="text-4xl md:text-6xl font-bold text-text-primary mb-2">
         404
       </h1>
-      
+
       {/* Subtítulo */}
       <h2 className="text-2xl font-semibold text-text-secondary mb-6">
         Ops! Página não encontrada.
       </h2>
-      
+
       {/* Texto Explicativo */}
       <p className="text-text-subtle mb-8 max-w-md text-lg">
         Parece que o link que você tentou acessar não existe, foi alterado ou está indisponível no momento.

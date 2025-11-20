@@ -3,7 +3,7 @@ import Head from 'next/head';
 type SeoProps = {
   title: string;
   description?: string;
-  image?: string; 
+  image?: string;
 };
 
 const SEO = ({ title, description, image }: SeoProps) => {
@@ -14,7 +14,7 @@ const SEO = ({ title, description, image }: SeoProps) => {
     <Head>
       <title>{pageTitle}</title>
       <meta name="description" content={description || defaultDescription} />
-      
+
       {/* ----- novos ícones ----- */}
       <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
       <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
@@ -24,7 +24,7 @@ const SEO = ({ title, description, image }: SeoProps) => {
       <meta property="og:title" content={pageTitle} />
       <meta property="og:description" content={description || defaultDescription} />
       <meta property="og:type" content="website" />
-      {image && <meta property="og:image" content={image} />} {/* <-- NOVO: Adiciona tag de imagem */}
+      {image && <meta property="og:image" content={image} />}
     </Head>
   );
 };
