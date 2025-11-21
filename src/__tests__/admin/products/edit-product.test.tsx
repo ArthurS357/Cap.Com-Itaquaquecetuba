@@ -1,9 +1,8 @@
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react'; 
 import userEvent from '@testing-library/user-event';
-import EditProduct, { getServerSideProps } from '@/pages/admin/products/[id]';
+import EditProduct from '@/pages/admin/products/[id]'; 
 import { useRouter } from 'next/router';
-import { getSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 
 // --- MOCKS DE DEPENDÊNCIAS EXTERNAS ---
@@ -14,7 +13,7 @@ vi.mock('next/router', () => ({
 
 // 2. Mock do next-auth (para getSession)
 vi.mock('next-auth/react', () => ({
-  getSession: vi.fn(),
+  getSession: vi.fn(), // Removido getSession da importação do arquivo de teste, mas mantido o mock
 }));
 
 // 3. Mock do fetch (para chamadas de API)
