@@ -7,7 +7,7 @@ import SEO from '@/components/Seo';
 import Link from 'next/link';
 import { FaArrowLeft, FaSave, FaTrash, FaExclamationTriangle } from 'react-icons/fa';
 import toast from 'react-hot-toast';
-import { prisma } from '@/lib/prisma'; // Usar singleton
+import { prisma } from '@/lib/prisma';
 
 type EditProductProps = {
   product: Product;
@@ -122,8 +122,9 @@ export default function EditProduct({ product, brands, categories }: EditProduct
         )}
 
         <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1">Nome do Produto</label>
+          <label htmlFor="name" className="block text-sm font-medium text-text-secondary mb-1">Nome do Produto</label>
           <input
+            id="name"
             name="name"
             type="text"
             required
@@ -134,8 +135,9 @@ export default function EditProduct({ product, brands, categories }: EditProduct
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1">Descrição</label>
+          <label htmlFor="description" className="block text-sm font-medium text-text-secondary mb-1">Descrição</label>
           <textarea
+            id="description"
             name="description"
             rows={3}
             value={formData.description}
@@ -146,8 +148,9 @@ export default function EditProduct({ product, brands, categories }: EditProduct
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1">Preço (R$)</label>
+            <label htmlFor="price" className="block text-sm font-medium text-text-secondary mb-1">Preço (R$)</label>
             <input
+              id="price"
               name="price"
               type="number"
               step="0.01"
@@ -158,8 +161,9 @@ export default function EditProduct({ product, brands, categories }: EditProduct
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1">Tipo</label>
+            <label htmlFor="type" className="block text-sm font-medium text-text-secondary mb-1">Tipo</label>
             <select
+              id="type"
               name="type"
               value={formData.type}
               onChange={handleChange}
@@ -175,8 +179,9 @@ export default function EditProduct({ product, brands, categories }: EditProduct
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1">Marca</label>
+            <label htmlFor="brandId" className="block text-sm font-medium text-text-secondary mb-1">Marca</label>
             <select
+              id="brandId"
               name="brandId"
               required
               value={formData.brandId}
@@ -190,8 +195,9 @@ export default function EditProduct({ product, brands, categories }: EditProduct
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1">Categoria</label>
+            <label htmlFor="categoryId" className="block text-sm font-medium text-text-secondary mb-1">Categoria</label>
             <select
+              id="categoryId"
               name="categoryId"
               required
               value={formData.categoryId}
@@ -206,8 +212,9 @@ export default function EditProduct({ product, brands, categories }: EditProduct
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1">URL da Imagem</label>
+          <label htmlFor="imageUrl" className="block text-sm font-medium text-text-secondary mb-1">URL da Imagem</label>
           <input
+            id="imageUrl"
             name="imageUrl"
             type="text"
             value={formData.imageUrl}
