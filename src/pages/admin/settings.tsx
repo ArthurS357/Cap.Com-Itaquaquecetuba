@@ -4,29 +4,21 @@ import { getSession } from 'next-auth/react';
 import SEO from '@/components/Seo';
 import Link from 'next/link';
 import { FaArrowLeft, FaSave, FaBullhorn } from 'react-icons/fa';
-import toast from 'react-hot-toast'; // Importar toast
+import toast from 'react-hot-toast';
+import { prisma } from '@/lib/prisma'; // Usar singleton
 
-export default function SettingsPage() {
-  const [bannerText, setBannerText] = useState('');
-  const [bannerActive, setBannerActive] = useState(false);
+type SettingsProps = {
+  initialBannerText: string;
+  initialBannerActive: boolean;
+};
+
+export default function SettingsPage({ initialBannerText, initialBannerActive }: SettingsProps) {
+  // Inicializa o estado com os dados carregados pelo servidor
+  const [bannerText, setBannerText] = useState(initialBannerText);
+  const [bannerActive, setBannerActive] = useState(initialBannerActive);
   const [isLoading, setIsLoading] = useState(false);
-  // remove o estado 'message' pois vai ser usado o toast.
 
-  // Carregar dados iniciais
-  useEffect(() => {
-    fetch('/api/config')
-      .then(res => res.json())
-      .then(data => {
-        if (data) {
-          setBannerText(data.value || '');
-          setBannerActive(data.isActive || false);
-        }
-      })
-      .catch((error) => {
-        console.error("Erro ao carregar configurações:", error);
-        toast.error("Erro ao carregar configurações iniciais.");
-      });
-  }, []);
+  // Removido: O useEffect para carregar dados iniciais não é mais necessário
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,8 +109,36 @@ export default function SettingsPage() {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps<SettingsProps> = async (context) => {
   const session = await getSession(context);
-  if (!session) return { redirect: { destination: '/api/auth/signin', permanent: false } };
-  return { props: {} };
+
+  // 1. Proteção da Rota
+  if (!session) {
+    return { redirect: { destination: '/api/auth/signin', permanent: false } };
+  }
+
+  // 2. Busca de Dados no Servidor
+  let initialBannerText = '';
+  let initialBannerActive = false;
+
+  try {
+    const banner = await prisma.storeConfig.findUnique({
+      where: { key: 'banner' },
+    });
+
+    if (banner) {
+      initialBannerText = banner.value || '';
+      initialBannerActive = banner.isActive;
+    }
+  } catch (error) {
+    console.error("Erro ao pré-carregar configurações:", error);
+    // Em caso de erro, retorna valores padrão/vazios
+  }
+
+  return {
+    props: {
+      initialBannerText,
+      initialBannerActive,
+    },
+  };
 };
