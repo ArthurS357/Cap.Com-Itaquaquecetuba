@@ -1,4 +1,4 @@
-# 🔗 Cap.Com Itaquaquecetuba - Catálogo Online
+## 🔗 Cap.Com Itaquaquecetuba - Catálogo Online
 
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js">
@@ -58,6 +58,7 @@ O projeto utiliza **Next.js 15 (Turbopack)**, **React 19**, **Prisma** e **NextA
 * **Linguagem:** [TypeScript](https://www.typescriptlang.org/)
 * **Estilo:** [Tailwind CSS](https://tailwindcss.com/) & [Next-Themes](https://github.com/pacocoursey/next-themes)
 * **Banco de Dados:** [Prisma ORM](https://www.prisma.io/) & [PostgreSQL](https://www.postgresql.org/)
+* **Validação:** [Zod](https://zod.dev/)
 * **Auth:** [NextAuth.js](https://next-auth.js.org/)
 * **Uploads:** [UploadThing](https://uploadthing.com/)
 * **Testes:** [Vitest](https://vitest.dev/) & [React Testing Library](https://testing-library.com/)
@@ -109,7 +110,7 @@ npm run dev
 ```
 src/
 ├── components/       # UI Components (Cards, Layout, SEO, Admin UI)
-├── lib/              # Utilitários (slugify, etc.)
+├── lib/              # Utilitários (slugify, prisma singleton)
 ├── pages/
 │   ├── admin/        # 🔒 Rotas Protegidas (Dashboard, CRUD)
 │   ├── api/          # API Routes (Auth, Products, UploadThing)
@@ -117,9 +118,11 @@ src/
 │   ├── produto/      # Páginas de Produto
 │   ├── busca.tsx     # Página de Busca
 │   └── ...
+├── services/         # Camada de Serviços (Busca, Lógica de Negócio)
 ├── server/           # Configuração do UploadThing Server
 └── utils/            # Configuração do UploadThing Client
 ```
+
 </details>
 
 <br>
@@ -162,6 +165,7 @@ Built with **Next.js 15 (Turbopack)**, **React 19**, **Prisma**, and **NextAuth.
   * **Language:** [TypeScript](https://www.typescriptlang.org/)
   * **Style:** [Tailwind CSS](https://tailwindcss.com/) & [Next-Themes](https://github.com/pacocoursey/next-themes)
   * **Database:** [Prisma ORM](https://www.prisma.io/) & [PostgreSQL](https://www.postgresql.org/)
+  * **Validation:** [Zod](https://zod.dev/)
   * **Auth:** [NextAuth.js](https://next-auth.js.org/)
   * **Uploads:** [UploadThing](https://uploadthing.com/)
   * **Testing:** [Vitest](https://vitest.dev/) & [React Testing Library](https://testing-library.com/)
@@ -187,7 +191,7 @@ NEXTAUTH_URL="http://localhost:3000"
 ADMIN_USER="admin"
 ADMIN_PASSWORD="your-admin-password"
 
-# Image Upload (Create an account on UploadThing)
+# Upload of Images (Create an account on UploadThing)
 UPLOADTHING_SECRET="sk_live_..."
 UPLOADTHING_APP_ID="your-app-id"
 ```
@@ -214,7 +218,7 @@ npm run dev
 ```
 src/
 ├── components/       # UI Components (Cards, Layout, SEO, Admin UI)
-├── lib/              # Utilities (slugify, etc.)
+├── lib/              # Utilities (slugify, prisma singleton)
 ├── pages/
 │   ├── admin/        # 🔒 Protected Routes (Dashboard, CRUD)
 │   ├── api/          # API Routes (Auth, Products, UploadThing)
@@ -222,7 +226,10 @@ src/
 │   ├── produto/      # Product Pages
 │   ├── busca.tsx     # Search Page
 │   └── ...
+├── services/         # Service Layer (Search, Business Logic)
 ├── server/           # UploadThing Server config
 └── utils/            # UploadThing Client config
 ```
+
 </details>
+
