@@ -4,12 +4,13 @@ import { getSession } from 'next-auth/react';
 import SEO from '@/components/Seo';
 import Link from 'next/link';
 import { FaArrowLeft, FaSave, FaBullhorn } from 'react-icons/fa';
+import toast from 'react-hot-toast'; // Importar toast
 
 export default function SettingsPage() {
   const [bannerText, setBannerText] = useState('');
   const [bannerActive, setBannerActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  // remove o estado 'message' pois vai ser usado o toast
 
   // Carregar dados iniciais
   useEffect(() => {
@@ -20,13 +21,18 @@ export default function SettingsPage() {
           setBannerText(data.value || '');
           setBannerActive(data.isActive || false);
         }
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar configurações:", error);
+        toast.error("Erro ao carregar configurações iniciais.");
       });
   }, []);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setMessage('');
+
+    const loadingToast = toast.loading('Salvando configurações...');
 
     try {
       const res = await fetch('/api/config', {
@@ -35,11 +41,17 @@ export default function SettingsPage() {
         body: JSON.stringify({ value: bannerText, isActive: bannerActive }),
       });
 
-      if (res.ok) setMessage('Configurações salvas com sucesso!');
-      else throw new Error('Erro ao salvar');
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success('Configurações salvas com sucesso!', { id: loadingToast });
+      } else {
+        throw new Error(data.error || 'Erro ao salvar');
+      }
     } catch (error) {
-      console.error(error); // <-- Variável 'error' utilizada para log
-      setMessage('Erro ao salvar configurações.');
+      console.error(error);
+      const msg = error instanceof Error ? error.message : 'Erro ao salvar configurações.';
+      toast.error(msg, { id: loadingToast });
     } finally {
       setIsLoading(false);
     }
@@ -91,12 +103,6 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
-
-        {message && (
-          <div className={`p-3 rounded-lg text-center font-medium ${message.includes('Erro') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
-            {message}
-          </div>
-        )}
 
         <button
           type="submit"
