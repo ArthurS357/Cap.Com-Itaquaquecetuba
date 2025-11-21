@@ -10,7 +10,7 @@ export default function SettingsPage() {
   const [bannerText, setBannerText] = useState('');
   const [bannerActive, setBannerActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  // remove o estado 'message' pois vai ser usado o toast
+  // remove o estado 'message' pois vai ser usado o toast.
 
   // Carregar dados iniciais
   useEffect(() => {
