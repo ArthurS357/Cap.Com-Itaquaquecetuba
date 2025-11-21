@@ -1,27 +1,35 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, cleanup, screen } from '@testing-library/react';
 import SEO from './Seo';
+import React from 'react';
 
 // --- MOCK ROBUSTO DO NEXT/HEAD ---
 vi.mock('next/head', async () => {
-  const React = await vi.importActual('react');
+  // Importa o React real com tipagem para usar Children e isValidElement
+  const ReactActual = await vi.importActual<typeof import('react')>('react');
+  
   return {
-    default: ({ children }: { children: any }) => {
+    // Define explicitamente o tipo de children como ReactNode em vez de any
+    default: ({ children }: { children: ReactActual.ReactNode }) => {
       return (
         <div data-testid="next-head-mock">
-          {/* @ts-expect-error Ignorando tipagem complexa de React.Children para o mock */}
-          {React.Children.map(children, (child) => {
-            // Se o filho for nulo (condicional não atendida), retorna null
+          {ReactActual.Children.map(children, (child) => {
+            // Se o filho for nulo ou indefinido, retorna null
             if (!child) return null;
 
-            // Se for tag <title>, transforma em div data-tag="title"
-            if (child.type === 'title') {
-               return <div data-tag="title">{child.props.children}</div>;
+            // Verifica se é um elemento React válido para acessar .type e .props com segurança
+            if (ReactActual.isValidElement(child)) {
+                // Se for tag <title>, transforma em div data-tag="title"
+                if (child.type === 'title') {
+                   // @ts-expect-error Acessando children de forma segura após validação
+                   return <div data-tag="title">{child.props.children}</div>;
+                }
+                // Se for tag <meta>, transforma em div data-tag="meta" e repassa props
+                if (child.type === 'meta') {
+                   return <div data-tag="meta" {...child.props} />;
+                }
             }
-            // Se for tag <meta>, transforma em div data-tag="meta" e repassa props
-            if (child.type === 'meta') {
-               return <div data-tag="meta" {...child.props} />;
-            }
+            
             // Retorna outros filhos normalmente
             return child;
           })}
@@ -43,8 +51,7 @@ describe('Componente SEO', () => {
     // 1. Verifica se o mock renderizou
     expect(screen.getByTestId('next-head-mock')).toBeInTheDocument();
 
-    // 2. Verifica Título (buscando pela nossa tag transformada)
-    // O componente concatena: title + " | Cap.Com Itaquaquecetuba"
+    // 2. Verifica Título
     const titleEl = container.querySelector('[data-tag="title"]');
     expect(titleEl).not.toBeNull();
     expect(titleEl).toHaveTextContent('Página Inicial | Cap.Com Itaquaquecetuba');
@@ -52,7 +59,6 @@ describe('Componente SEO', () => {
     // 3. Verifica Descrição Padrão
     const defaultDescText = 'Especialistas em manutenção de impressoras e remanufatura de cartuchos e toners em Itaquaquecetuba.';
     
-    // Busca meta description pelo atributo name repassado ao mock
     const metaDesc = container.querySelector('[data-tag="meta"][name="description"]');
     expect(metaDesc).not.toBeNull();
     expect(metaDesc).toHaveAttribute('content', defaultDescText);
