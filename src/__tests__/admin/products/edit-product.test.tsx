@@ -180,10 +180,10 @@ describe('getServerSideProps (Server)', () => {
     const response = await getServerSideProps(context);
 
     expect(response).toHaveProperty('props');
-    // Validação segura das props retornadas
+    
     if ('props' in response) {
-      // Como o getServerSideProps serializa datas, comparamos ids ou estrutura básica
-      const props = await Promise.resolve(response.props) as any;
+      // CORREÇÃO: Substituído 'as any' por tipagem segura
+      const props = await Promise.resolve(response.props) as { product: Product };
       expect(props.product.id).toEqual(mockProduct.id);
     }
   });
