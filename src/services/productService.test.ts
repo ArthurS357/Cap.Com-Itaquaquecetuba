@@ -26,9 +26,9 @@ describe('productService', () => {
       const mockBrands = [{ id: 1, name: 'HP', slug: 'hp' }];
       const mockTypes = [{ type: 'TONER' }, { type: 'IMPRESSORA' }];
 
-      // @ts-expect-error - Mockando funções do Prisma
+      // @ts-expect-error Mockando retorno incompleto do Prisma.
       prisma.brand.findMany.mockResolvedValue(mockBrands);
-      // @ts-expect-error
+      // @ts-expect-error Mockando retorno incompleto do Prisma.
       prisma.product.findMany.mockResolvedValue(mockTypes);
 
       const result = await productService.getFilters();
@@ -48,6 +48,8 @@ describe('productService', () => {
   describe('search', () => {
     it('deve realizar uma busca simples apenas com query', async () => {
       const query = 'Toner';
+      // @ts-expect-error Mockando retorno do Prisma.
+      prisma.product.findMany.mockResolvedValue([]); 
       await productService.search({ query });
 
       // Verifica se o findMany foi chamado com a cláusula OR correta
@@ -65,6 +67,8 @@ describe('productService', () => {
     });
 
     it('deve aplicar filtros de marca e tipo corretamente', async () => {
+      // @ts-expect-error Mockando retorno do Prisma.
+      prisma.product.findMany.mockResolvedValue([]);
       await productService.search({
         query: '',
         brands: ['HP'],
