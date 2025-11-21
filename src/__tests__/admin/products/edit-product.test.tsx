@@ -63,7 +63,6 @@ describe('Página Admin/Editar Produto (Componente)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (useRouter as Mock).mockReturnValue({ push: pushMock, query: { id: '101' } });
-    // Padrão: confirmação positiva para a maioria dos testes
     vi.spyOn(window, 'confirm').mockReturnValue(true);
   });
 
@@ -88,7 +87,6 @@ describe('Página Admin/Editar Produto (Componente)', () => {
   });
 
   it('deve exibir erro se a API de PUT falhar (Error Path)', async () => {
-    // Simula erro vindo da API (ex: nome duplicado)
     fetchMock.mockResolvedValueOnce({ 
       ok: false, 
       json: async () => ({ error: 'Erro de validação no servidor' }) 
@@ -100,9 +98,7 @@ describe('Página Admin/Editar Produto (Componente)', () => {
     await user.click(saveBtn);
 
     await waitFor(() => {
-      // Verifica se o toast de erro foi chamado com a mensagem correta (Cobre linhas 61-64)
       expect(toast.error).toHaveBeenCalledWith('Erro de validação no servidor', expect.any(Object));
-      // Garante que NÃO redirecionou
       expect(pushMock).not.toHaveBeenCalled();
     });
   });
@@ -141,7 +137,6 @@ describe('Página Admin/Editar Produto (Componente)', () => {
   });
 
   it('deve exibir erro se a API de DELETE falhar (Error Path)', async () => {
-    // Simula erro na exclusão
     fetchMock.mockResolvedValueOnce({ 
       ok: false, 
       json: async () => ({ error: 'Não foi possível excluir' }) 
@@ -153,7 +148,6 @@ describe('Página Admin/Editar Produto (Componente)', () => {
     await user.click(delBtn);
 
     await waitFor(() => {
-      // Verifica se o toast de erro foi chamado (Cobre linhas 88-90)
       expect(toast.error).toHaveBeenCalledWith('Não foi possível excluir', expect.any(Object));
       expect(pushMock).not.toHaveBeenCalled();
     });
@@ -169,7 +163,31 @@ describe('Página Admin/Editar Produto (Componente)', () => {
 
     expect(fetchMock).not.toHaveBeenCalled();
   });
-});
+  
+  // --- NOVO TESTE PARA COBERTURA DE BRANCH (LINHAS 35-37) ---
+  it('deve inicializar o formulário corretamente quando campos opcionais são nulos (Cobertura de Branch)', () => {
+    const productWithNulls = {
+      ...mockProduct,
+      description: null,
+      price: null,
+      imageUrl: null,
+    };
+
+    render(
+      <EditProduct
+        product={productWithNulls as any} // Cast para simular o produto serializado com nulls
+        brands={mockBrands}
+        categories={mockCategories}
+      />
+    );
+
+    // Verifica se os fallbacks (|| '') funcionaram
+    expect(screen.getByLabelText('Descrição')).toHaveValue('');
+    expect(screen.getByLabelText('URL da Imagem')).toHaveValue('');
+    // Input type="number" com value="" fica vazio ou null
+    expect(screen.getByLabelText('Preço (R$)')).toHaveValue(null);
+  });
+}); // Fim do bloco de testes do componente
 
 // --- TESTES DO SERVIDOR (getServerSideProps) ---
 describe('getServerSideProps (Server)', () => {
