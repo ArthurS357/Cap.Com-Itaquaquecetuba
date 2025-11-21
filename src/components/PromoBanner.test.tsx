@@ -1,15 +1,33 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import PromoBanner from './PromoBanner';
 
+// Mock do fetch global
+const fetchMock = vi.fn();
+global.fetch = fetchMock;
+
 describe('Componente PromoBanner', () => {
-  // Mock do fetch global
-  const fetchMock = vi.fn();
-  global.fetch = fetchMock;
 
   beforeEach(() => {
     fetchMock.mockClear();
   });
+
+  // --- NOVO TESTE PARA COBRIR O .CATCH (Linha 17) ---
+  it('deve retornar null e manter-se escondido se a API de config falhar (cobrindo o catch)', async () => {
+    // Simula um erro de rede/fetch (rejeição da Promise)
+    fetchMock.mockRejectedValue(new Error('Erro de rede simulado'));
+
+    const { container } = render(<PromoBanner />);
+
+    // Aguarda a rejeição do fetch ser processada
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+    
+    // O estado inicial do banner é { isActive: false }, o catch deve garantir que permaneça assim, 
+    // resultando no retorno de 'null' e um container vazio.
+    expect(container).toBeEmptyDOMElement();
+  });
+  // ----------------------------------------------------
+
 
   it('não deve renderizar nada se a API retornar inativo ou erro', async () => {
     // Simula resposta da API com isActive: false
@@ -51,7 +69,6 @@ describe('Componente PromoBanner', () => {
     expect(bannerText).toBeInTheDocument();
 
     // Encontra e clica no botão de fechar (ícone FaTimes)
-    // O botão tem aria-label="Fechar aviso" no código original
     const closeButton = screen.getByLabelText('Fechar aviso');
     fireEvent.click(closeButton);
 
