@@ -3,10 +3,27 @@ import { PrismaClient, Prisma } from '@prisma/client';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { slugify } from '@/lib/utils';
+import { z } from 'zod'; 
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 const prisma = globalForPrisma.prisma || new PrismaClient();
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+
+// Schema de Validação com Zod
+const productCreateSchema = z.object({
+  name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
+  description: z.string().optional(),
+  // Aceita string ou número, converte para número. Se for vazio, vira null.
+  price: z.preprocess(
+    (val) => (val === '' ? null : val),
+    z.coerce.number().nonnegative("O preço não pode ser negativo.").optional().nullable()
+  ),
+  type: z.string().min(1, "O tipo é obrigatório."),
+  brandId: z.coerce.number().int().positive("Marca inválida."),
+  categoryId: z.coerce.number().int().positive("Categoria inválida."),
+  // Valida URL apenas se não for string vazia
+  imageUrl: z.string().url("URL da imagem inválida").optional().or(z.literal('')),
+});
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -42,22 +59,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(401).json({ error: "Não autorizado. Faça login." });
       }
 
-      const { name, description, price, type, brandId, categoryId, imageUrl } = req.body;
+      // 1. Validação Zod
+      const parseResult = productCreateSchema.safeParse(req.body);
 
-      if (!name || !brandId || !categoryId || !type) {
-        return res.status(400).json({ error: "Campos obrigatórios faltando." });
+      if (!parseResult.success) {
+        // Retorna erro 400 com os detalhes do que falhou
+        return res.status(400).json({ 
+          error: "Dados inválidos", 
+          details: parseResult.error.format() 
+        });
       }
+
+      // Dados validados e tipados
+      const { name, description, price, type, brandId, categoryId, imageUrl } = parseResult.data;
 
       const newProduct = await prisma.product.create({
         data: {
           name,
           slug: slugify(name),
           description,
-          price: price ? parseFloat(price) : null,
+          price: price ?? null, // Garante null se for undefined
           type,
-          imageUrl,
-          brand: { connect: { id: Number(brandId) } },
-          category: { connect: { id: Number(categoryId) } },
+          imageUrl: imageUrl || null, // Garante null se for string vazia
+          brand: { connect: { id: brandId } },
+          category: { connect: { id: categoryId } },
         },
         include: {
           category: true
@@ -65,16 +90,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
       try {
-        // 1. Atualiza a Home \ Busca
-        await res.revalidate('/');
-        await res.revalidate('/busca'); 
-
-        // 3. Atualiza a página da Categoria específica onde o produto foi adicionado
-        if (newProduct.category && newProduct.category.slug) {
-            console.log(`Revalidando categoria: /categoria/${newProduct.category.slug}`);
-            await res.revalidate(`/categoria/${newProduct.category.slug}`);
-        }
-     
+        // Revalidação em paralelo para melhor performance
+        await Promise.all([
+          res.revalidate('/'),
+          res.revalidate('/busca'),
+          newProduct.category?.slug ? res.revalidate(`/categoria/${newProduct.category.slug}`) : null
+        ]);
       } catch (err) {
         console.error('Erro ao revalidar páginas:', err);
       }
