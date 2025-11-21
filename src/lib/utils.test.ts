@@ -28,9 +28,9 @@ describe('Função slugify', () => {
 
   it('deve lidar com strings vazias ou nulas', () => {
     expect(slugify('')).toBe('');
-    // @ts-ignore
+    // @ts-expect-error Testando comportamento defensivo com tipo inválido
     expect(slugify(null)).toBe('');
-    // @ts-ignore
+    // @ts-expect-error Testando comportamento defensivo com tipo inválido
     expect(slugify(undefined)).toBe('');
   });
 
@@ -41,7 +41,6 @@ describe('Função slugify', () => {
   });
 });
 
-// === Novos testes para a função cn ===
 describe('Função cn (Classnames)', () => {
   it('deve mesclar classes simples', () => {
     const result = cn('bg-red-500', 'text-white');
@@ -49,7 +48,6 @@ describe('Função cn (Classnames)', () => {
   });
 
   it('deve resolver conflitos de classes do Tailwind (merge)', () => {
-    // p-4 deve ganhar de p-2
     const result = cn('p-2', 'p-4');
     expect(result).toBe('p-4');
   });

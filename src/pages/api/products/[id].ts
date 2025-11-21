@@ -3,7 +3,7 @@ import { PrismaClient, Prisma } from '@prisma/client';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { slugify } from '@/lib/utils';
-import { z } from 'zod'; 
+import { z } from 'zod';
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 const prisma = globalForPrisma.prisma || new PrismaClient();
@@ -70,9 +70,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const parseResult = productUpdateSchema.safeParse(req.body);
 
       if (!parseResult.success) {
-        return res.status(400).json({ 
-          error: "Dados inválidos", 
-          details: parseResult.error.format() 
+        return res.status(400).json({
+          error: "Dados inválidos",
+          details: parseResult.error.format()
         });
       }
 
@@ -81,7 +81,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const dataToUpdate: Prisma.ProductUpdateInput = {
         ...(name && { name, slug: slugify(name) }),
         ...(description !== undefined && { description }),
-        // Lógica: se price vier undefined (não enviado), ignora. Se vier null, atualiza pra null. Se vier número, atualiza.
         ...(price !== undefined && { price }),
         ...(type && { type }),
         ...(imageUrl !== undefined && { imageUrl: imageUrl || null }),
@@ -100,8 +99,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           revalidations.push(res.revalidate(`/produto/${updatedProduct.slug}`));
         }
         await Promise.all(revalidations);
-      } catch (err) { 
-        console.error('Erro ao revalidar', err);
+      } catch {
       }
 
       return res.status(200).json(updatedProduct);
@@ -132,7 +130,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           res.revalidate('/'),
           res.revalidate('/busca')
         ]);
-      } catch (err) { }
+      } catch { }
 
       return res.status(200).json({ message: "Produto removido com sucesso" });
     } catch (error) {
