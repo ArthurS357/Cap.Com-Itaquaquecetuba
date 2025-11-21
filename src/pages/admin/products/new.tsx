@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { GetServerSideProps } from 'next';
 import { getSession } from 'next-auth/react';
-import { Brand, Category } from '@prisma/client';
+import { Brand, Category } from '@prisma/client'; 
 import SEO from '@/components/Seo';
 import Link from 'next/link';
 import { FaArrowLeft, FaSave, FaTimes } from 'react-icons/fa';
 import { UploadButton } from '@/utils/uploadthing';
 import toast from 'react-hot-toast';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma'; 
 
 type NewProductProps = {
   brands: Brand[];
@@ -74,6 +74,7 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
 
       <form onSubmit={handleSubmit} className="bg-surface-card border border-surface-border rounded-xl p-8 shadow-sm space-y-6">
 
+        {/* --- ÁREA DE UPLOAD DE IMAGEM --- */}
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-2">Imagem do Produto</label>
 
@@ -114,9 +115,8 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
         </div>
 
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-text-secondary mb-1">Nome do Produto</label>
+          <label className="block text-sm font-medium text-text-secondary mb-1">Nome do Produto</label>
           <input
-            id="name"
             name="name"
             type="text"
             required
@@ -128,9 +128,8 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
         </div>
 
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-text-secondary mb-1">Descrição</label>
+          <label className="block text-sm font-medium text-text-secondary mb-1">Descrição</label>
           <textarea
-            id="description"
             name="description"
             rows={3}
             value={formData.description}
@@ -142,9 +141,8 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label htmlFor="price" className="block text-sm font-medium text-text-secondary mb-1">Preço (R$)</label>
+            <label className="block text-sm font-medium text-text-secondary mb-1">Preço (R$)</label>
             <input
-              id="price"
               name="price"
               type="number"
               step="0.01"
@@ -156,9 +154,8 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
           </div>
 
           <div>
-            <label htmlFor="type" className="block text-sm font-medium text-text-secondary mb-1">Tipo</label>
+            <label className="block text-sm font-medium text-text-secondary mb-1">Tipo</label>
             <select
-              id="type"
               name="type"
               value={formData.type}
               onChange={handleChange}
@@ -174,9 +171,8 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label htmlFor="brandId" className="block text-sm font-medium text-text-secondary mb-1">Marca</label>
+            <label className="block text-sm font-medium text-text-secondary mb-1">Marca</label>
             <select
-              id="brandId"
               name="brandId"
               required
               value={formData.brandId}
@@ -191,9 +187,8 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
           </div>
 
           <div>
-            <label htmlFor="categoryId" className="block text-sm font-medium text-text-secondary mb-1">Categoria</label>
+            <label className="block text-sm font-medium text-text-secondary mb-1">Categoria</label>
             <select
-              id="categoryId"
               name="categoryId"
               required
               value={formData.categoryId}
@@ -236,7 +231,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 
-  const prisma = new PrismaClient();
+  // USO CORRETO DO SINGLETON
   const brands = await prisma.brand.findMany({ orderBy: { name: 'asc' } });
   const categories = await prisma.category.findMany({ orderBy: { name: 'asc' } });
 
