@@ -39,7 +39,6 @@ vi.mock('react-hot-toast', () => ({
 }));
 
 // --- DADOS MOCKADOS ---
-// Usamos Partial para evitar preencher todos os campos, mas forçamos o tipo Product
 const mockProduct: Product = {
   id: 101,
   name: 'Toner Teste',
@@ -57,26 +56,23 @@ const mockProduct: Product = {
 const mockBrands: Brand[] = [{ id: 1, name: 'HP', slug: 'hp' }];
 const mockCategories: Category[] = [{ id: 2, name: 'Toners', slug: 'toners', imageUrl: '', parentId: null }];
 
-describe('Página Admin/Editar Produto', () => {
+describe('Página Admin/Editar Produto (Componente)', () => {
   const user = userEvent.setup();
   const pushMock = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
     (useRouter as Mock).mockReturnValue({ push: pushMock, query: { id: '101' } });
+    // Padrão: confirmação positiva para a maioria dos testes
     vi.spyOn(window, 'confirm').mockReturnValue(true);
   });
 
-  it('deve chamar a API de PUT e exibir toast de sucesso ao salvar', async () => {
+  // --- TESTES DE ATUALIZAÇÃO (PUT) ---
+
+  it('deve chamar a API de PUT e exibir toast de sucesso ao salvar (Happy Path)', async () => {
     fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
     
-    render(
-      <EditProduct 
-        product={mockProduct} 
-        brands={mockBrands} 
-        categories={mockCategories} 
-      />
-    );
+    render(<EditProduct product={mockProduct} brands={mockBrands} categories={mockCategories} />);
     
     const saveBtn = screen.getByText('Atualizar Produto');
     await user.click(saveBtn);
@@ -86,24 +82,50 @@ describe('Página Admin/Editar Produto', () => {
         expect.stringContaining('/api/products/101'),
         expect.objectContaining({ method: 'PUT' })
       );
-      // Validando o uso do toast
-      expect(toast.success).toHaveBeenCalledWith(
-        'Produto atualizado com sucesso!', 
-        expect.any(Object)
-      );
+      expect(toast.success).toHaveBeenCalledWith('Produto atualizado com sucesso!', expect.any(Object));
+      expect(pushMock).toHaveBeenCalledWith('/admin/products');
     });
   });
 
-  it('deve chamar a API de DELETE e exibir toast de sucesso ao excluir', async () => {
+  it('deve exibir erro se a API de PUT falhar (Error Path)', async () => {
+    // Simula erro vindo da API (ex: nome duplicado)
+    fetchMock.mockResolvedValueOnce({ 
+      ok: false, 
+      json: async () => ({ error: 'Erro de validação no servidor' }) 
+    });
+    
+    render(<EditProduct product={mockProduct} brands={mockBrands} categories={mockCategories} />);
+    
+    const saveBtn = screen.getByText('Atualizar Produto');
+    await user.click(saveBtn);
+
+    await waitFor(() => {
+      // Verifica se o toast de erro foi chamado com a mensagem correta (Cobre linhas 61-64)
+      expect(toast.error).toHaveBeenCalledWith('Erro de validação no servidor', expect.any(Object));
+      // Garante que NÃO redirecionou
+      expect(pushMock).not.toHaveBeenCalled();
+    });
+  });
+
+  it('deve exibir erro genérico se a API de PUT lançar exceção', async () => {
+    fetchMock.mockRejectedValueOnce(new Error('Falha de rede'));
+    
+    render(<EditProduct product={mockProduct} brands={mockBrands} categories={mockCategories} />);
+    
+    const saveBtn = screen.getByText('Atualizar Produto');
+    await user.click(saveBtn);
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('Falha de rede', expect.any(Object));
+    });
+  });
+
+  // --- TESTES DE EXCLUSÃO (DELETE) ---
+
+  it('deve chamar a API de DELETE e exibir toast de sucesso ao excluir (Happy Path)', async () => {
     fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
     
-    render(
-      <EditProduct 
-        product={mockProduct} 
-        brands={mockBrands} 
-        categories={mockCategories} 
-      />
-    );
+    render(<EditProduct product={mockProduct} brands={mockBrands} categories={mockCategories} />);
     
     const delBtn = screen.getByText('Excluir');
     await user.click(delBtn);
@@ -113,23 +135,34 @@ describe('Página Admin/Editar Produto', () => {
         expect.stringContaining('/api/products/101'),
         expect.objectContaining({ method: 'DELETE' })
       );
-      expect(toast.success).toHaveBeenCalledWith(
-        'Produto excluído com sucesso!', 
-        expect.any(Object)
-      );
+      expect(toast.success).toHaveBeenCalledWith('Produto excluído com sucesso!', expect.any(Object));
+      expect(pushMock).toHaveBeenCalledWith('/admin/products');
     });
   });
 
-  it('NÃO deve deletar se o usuário cancelar a confirmação', async () => {
+  it('deve exibir erro se a API de DELETE falhar (Error Path)', async () => {
+    // Simula erro na exclusão
+    fetchMock.mockResolvedValueOnce({ 
+      ok: false, 
+      json: async () => ({ error: 'Não foi possível excluir' }) 
+    });
+    
+    render(<EditProduct product={mockProduct} brands={mockBrands} categories={mockCategories} />);
+    
+    const delBtn = screen.getByText('Excluir');
+    await user.click(delBtn);
+
+    await waitFor(() => {
+      // Verifica se o toast de erro foi chamado (Cobre linhas 88-90)
+      expect(toast.error).toHaveBeenCalledWith('Não foi possível excluir', expect.any(Object));
+      expect(pushMock).not.toHaveBeenCalled();
+    });
+  });
+
+  it('NÃO deve deletar se o usuário cancelar a confirmação (Cobre linha 82)', async () => {
     vi.spyOn(window, 'confirm').mockReturnValue(false);
 
-    render(
-      <EditProduct 
-        product={mockProduct} 
-        brands={mockBrands} 
-        categories={mockCategories} 
-      />
-    );
+    render(<EditProduct product={mockProduct} brands={mockBrands} categories={mockCategories} />);
     
     const delBtn = screen.getByText('Excluir');
     await user.click(delBtn);
@@ -138,8 +171,8 @@ describe('Página Admin/Editar Produto', () => {
   });
 });
 
+// --- TESTES DO SERVIDOR (getServerSideProps) ---
 describe('getServerSideProps (Server)', () => {
-  // Tipagem correta do contexto do Next.js
   const context = { params: { id: '101' } } as unknown as GetServerSidePropsContext;
 
   it('deve redirecionar para login se não houver sessão', async () => {
@@ -155,11 +188,11 @@ describe('getServerSideProps (Server)', () => {
   it('deve retornar notFound se o produto não existir', async () => {
     (getSession as Mock).mockResolvedValue({ user: { name: 'Admin' } });
     
-    // @ts-expect-error: Mockando resposta do Prisma com tipo incompleto/nulo intencionalmente para teste
+    // @ts-expect-error: Mockando retorno nulo
     prisma.product.findUnique.mockResolvedValue(null); 
-    // @ts-expect-error: Mockando resposta do Prisma com array vazio
+    // @ts-expect-error: Mockando array vazio
     prisma.brand.findMany.mockResolvedValue([]);
-    // @ts-expect-error: Mockando resposta do Prisma com array vazio
+    // @ts-expect-error: Mockando array vazio
     prisma.category.findMany.mockResolvedValue([]);
 
     const response = await getServerSideProps(context);
@@ -170,11 +203,11 @@ describe('getServerSideProps (Server)', () => {
   it('deve retornar os dados se o produto existir', async () => {
     (getSession as Mock).mockResolvedValue({ user: { name: 'Admin' } });
     
-    // @ts-expect-error: Mockando resposta válida do Prisma
+    // @ts-expect-error: Mockando retorno válido
     prisma.product.findUnique.mockResolvedValue(mockProduct);
-    // @ts-expect-error: Mockando resposta válida do Prisma
+    // @ts-expect-error: Mockando retorno válido
     prisma.brand.findMany.mockResolvedValue(mockBrands);
-    // @ts-expect-error: Mockando resposta válida do Prisma
+    // @ts-expect-error: Mockando retorno válido
     prisma.category.findMany.mockResolvedValue(mockCategories);
 
     const response = await getServerSideProps(context);
@@ -182,7 +215,6 @@ describe('getServerSideProps (Server)', () => {
     expect(response).toHaveProperty('props');
     
     if ('props' in response) {
-      // CORREÇÃO: Substituído 'as any' por tipagem segura
       const props = await Promise.resolve(response.props) as { product: Product };
       expect(props.product.id).toEqual(mockProduct.id);
     }
