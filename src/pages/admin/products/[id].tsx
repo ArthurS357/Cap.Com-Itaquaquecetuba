@@ -2,14 +2,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { GetServerSideProps } from 'next';
 import { getSession } from 'next-auth/react';
-import { PrismaClient, Brand, Category, Product } from '@prisma/client';
+import { Brand, Category, Product } from '@prisma/client';
 import SEO from '@/components/Seo';
 import Link from 'next/link';
 import { FaArrowLeft, FaSave, FaTrash, FaExclamationTriangle } from 'react-icons/fa';
-
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
-const prisma = globalForPrisma.prisma || new PrismaClient();
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+import toast from 'react-hot-toast';
+import { prisma } from '@/lib/prisma'; // Usar singleton
 
 type EditProductProps = {
   product: Product;
@@ -42,6 +40,8 @@ export default function EditProduct({ product, brands, categories }: EditProduct
     setIsLoading(true);
     setError('');
 
+    const loadingToast = toast.loading('Atualizando produto...');
+
     try {
       const res = await fetch(`/api/products/${product.id}`, {
         method: 'PUT',
@@ -49,18 +49,18 @@ export default function EditProduct({ product, brands, categories }: EditProduct
         body: JSON.stringify(formData),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(data.error || 'Erro ao atualizar');
       }
 
+      toast.success('Produto atualizado com sucesso!', { id: loadingToast });
       router.push('/admin/products');
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('Ocorreu um erro ao atualizar.');
-      }
+      const msg = err instanceof Error ? err.message : 'Ocorreu um erro ao atualizar.';
+      toast.error(msg, { id: loadingToast });
+      setError(msg);
       setIsLoading(false);
     }
   };
@@ -69,20 +69,24 @@ export default function EditProduct({ product, brands, categories }: EditProduct
     if (!confirm('Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita.')) return;
 
     setIsDeleting(true);
+    const loadingToast = toast.loading('Excluindo produto...');
+
     try {
       const res = await fetch(`/api/products/${product.id}`, {
         method: 'DELETE',
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(data.error || 'Erro ao excluir');
       }
 
+      toast.success('Produto excluído com sucesso!', { id: loadingToast });
       router.push('/admin/products');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Erro ao excluir';
-      alert(msg);
+      toast.error(msg, { id: loadingToast });
       setIsDeleting(false);
     }
   };
