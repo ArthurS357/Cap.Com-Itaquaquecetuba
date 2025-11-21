@@ -4,7 +4,7 @@ import { getSession } from 'next-auth/react';
 import SEO from '@/components/Seo';
 import Link from 'next/link';
 import { FaArrowLeft, FaSave, FaBullhorn } from 'react-icons/fa';
-import toast from 'react-hot-toast';
+import toast from 'react-hot-toast'; // Importar toast
 import { prisma } from '@/lib/prisma'; // Usar singleton
 
 type SettingsProps = {
@@ -18,7 +18,7 @@ export default function SettingsPage({ initialBannerText, initialBannerActive }:
   const [bannerActive, setBannerActive] = useState(initialBannerActive);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Removido: O useEffect para carregar dados iniciais não é mais necessário
+  // Removido o useEffect anterior para carregamento de dados
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,7 +112,7 @@ export default function SettingsPage({ initialBannerText, initialBannerActive }:
 export const getServerSideProps: GetServerSideProps<SettingsProps> = async (context) => {
   const session = await getSession(context);
 
-  // 1. Proteção da Rota
+  // 1. Proteção da Rota (igual ao original)
   if (!session) {
     return { redirect: { destination: '/api/auth/signin', permanent: false } };
   }
