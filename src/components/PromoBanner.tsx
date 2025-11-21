@@ -17,8 +17,12 @@ export default function PromoBanner() {
       .catch(() => null); // Ignora erros silenciosamente
   }, []);
 
-  // Se não houver texto, não estiver ativo ou o usuário fechou, não mostra nada
-  if (!banner.isActive || !banner.text || !isVisible) {
+  // Usa uma variável explícita para o status de exibição (Melhora a cobertura)
+  // O código original era: if (!banner.isActive || !banner.text || !isVisible)
+  const shouldRender = banner.isActive && banner.text && isVisible;
+
+  // Se não deve renderizar, retorna null
+  if (!shouldRender) {
     return null;
   }
 
