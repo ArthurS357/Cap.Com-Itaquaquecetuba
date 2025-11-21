@@ -28,9 +28,9 @@ describe('Função slugify', () => {
 
   it('deve lidar com strings vazias ou nulas', () => {
     expect(slugify('')).toBe('');
-    // @ts-expect-error Testando comportamento defensivo com tipo inválido
+    // @ts-expect-error Teste defensivo com null
     expect(slugify(null)).toBe('');
-    // @ts-expect-error Testando comportamento defensivo com tipo inválido
+    // @ts-expect-error Teste defensivo com undefined
     expect(slugify(undefined)).toBe('');
   });
 
