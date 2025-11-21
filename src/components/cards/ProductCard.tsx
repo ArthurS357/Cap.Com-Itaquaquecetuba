@@ -64,7 +64,14 @@ const ProductCard = ({ product }: ProductCardProps) => {
       console.warn('Rendering non-link ProductCard: brand is missing.', product);
     }
 
-    const key = product ? product.id : Math.random();
+    // Corrigido para if/else para forçar 100% de cobertura (era a linha 63)
+    let key: number | string;
+    if (product) {
+      key = product.id;
+    } else {
+      key = Math.random();
+    }
+    
     const name = product ? product.name : 'Produto Inválido';
     const brandName = product && product.brand ? product.brand.name : 'Marca Desconhecida';
     const imageUrl = product ? product.imageUrl : null;
