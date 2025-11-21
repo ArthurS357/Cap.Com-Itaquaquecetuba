@@ -1,6 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-// Importa o tipo 'MinimalProduct' do componente
 import ProductCard, { type MinimalProduct } from './ProductCard'; 
 
 describe('Componente ProductCard', () => {
@@ -20,7 +19,7 @@ describe('Componente ProductCard', () => {
 
     expect(screen.getByText('Toner Teste 123')).toBeInTheDocument();
     expect(screen.getByText('Marca Falsa')).toBeInTheDocument();
-    expect(screen.getByAltText('Toner Teste 123')).toBeInTheDocument(); // Verifica se a imagem renderizou
+    expect(screen.getByAltText('Toner Teste 123')).toBeInTheDocument();
   });
 
   it('deve renderizar o placeholder "Sem imagem" para um produto válido sem imageUrl', () => {
@@ -41,12 +40,21 @@ describe('Componente ProductCard', () => {
     expect(screen.getByText('Sem imagem')).toBeInTheDocument();
   });
 
+  // Teste modificado para forçar a cobertura da branch Math.random() (Linha 63)
   it('deve renderizar o estado de fallback se o produto for nulo', () => {
+    // Espiona e simula Math.random() para garantir que a branch seja executada e verificada
+    const randomMock = vi.spyOn(Math, 'random').mockReturnValue(0.123);
+    
     render(<ProductCard product={null} />);
 
     expect(screen.getByText('Produto Inválido')).toBeInTheDocument();
     expect(screen.getByText('Marca Desconhecida')).toBeInTheDocument();
-    expect(screen.getByText('Sem imagem')).toBeInTheDocument(); // Verifica o placeholder
+    expect(screen.getByText('Sem imagem')).toBeInTheDocument(); 
+    
+    // Verifica se Math.random foi chamado, provando que o branch do 'else' foi executado.
+    expect(randomMock).toHaveBeenCalledTimes(1); 
+    
+    randomMock.mockRestore(); // Limpa o mock
   });
 
   it('deve renderizar o fallback (com imagem) se o produto não tiver slug', () => {
@@ -64,7 +72,7 @@ describe('Componente ProductCard', () => {
 
     expect(screen.getByText('Toner Sem Slug')).toBeInTheDocument();
     expect(screen.getByText('Marca Sem Slug')).toBeInTheDocument();
-    expect(screen.getByAltText('Toner Sem Slug')).toBeInTheDocument(); // Verifica a imagem de fallback
+    expect(screen.getByAltText('Toner Sem Slug')).toBeInTheDocument(); 
   });
 
   it('deve renderizar o fallback (com "Marca Desconhecida") se o produto não tiver marca', () => {
