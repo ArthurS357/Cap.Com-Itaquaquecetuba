@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import PromoBanner from './PromoBanner';
 
@@ -12,18 +12,22 @@ describe('Componente PromoBanner', () => {
     fetchMock.mockClear();
   });
 
-  // --- NOVO TESTE PARA COBRIR O .CATCH (Linha 17) ---
-  it('deve retornar null e manter-se escondido se a API de config falhar (cobrindo o catch)', async () => {
-    // Simula um erro de rede/fetch (rejeição da Promise)
-    fetchMock.mockRejectedValue(new Error('Erro de rede simulado'));
+  // --- NOVO TESTE PARA COBRIR O CATCH (Linha 17) ---
+  it('deve lidar com JSON inválido ou falha de parsing (cobrindo o catch)', async () => {
+    // Simula uma resposta OK, mas com erro no parsing do JSON, forçando o catch
+    fetchMock.mockResolvedValue({
+      ok: true, // Simula que a resposta HTTP foi bem-sucedida (status 200-299)
+      json: async () => {
+        throw new Error('Simulated JSON parsing error'); // Mas o parsing falha
+      },
+    });
 
     const { container } = render(<PromoBanner />);
 
-    // Aguarda a rejeição do fetch ser processada
+    // Aguarda a rejeição ser processada pelo catch do useEffect
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
     
-    // O estado inicial do banner é { isActive: false }, o catch deve garantir que permaneça assim, 
-    // resultando no retorno de 'null' e um container vazio.
+    // O catch deve garantir que o componente retorne null (container vazio)
     expect(container).toBeEmptyDOMElement();
   });
   // ----------------------------------------------------
