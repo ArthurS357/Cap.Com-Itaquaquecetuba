@@ -153,7 +153,7 @@ describe('Página Admin/Editar Produto (Componente)', () => {
     });
   });
 
-  it('NÃO deve deletar se o usuário cancelar a confirmação (Cobre linha 82)', async () => {
+  it('NÃO deve deletar se o usuário cancelar a confirmação', async () => {
     vi.spyOn(window, 'confirm').mockReturnValue(false);
 
     render(<EditProduct product={mockProduct} brands={mockBrands} categories={mockCategories} />);
@@ -164,27 +164,28 @@ describe('Página Admin/Editar Produto (Componente)', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
   
-  // --- NOVO TESTE PARA COBERTURA DE BRANCH (LINHAS 35-37) ---
-  it('deve inicializar o formulário corretamente quando campos opcionais são nulos (Cobertura de Branch)', () => {
-    const productWithNulls = {
+  // --- TESTE PARA COBERTURA DE BRANCH (INICIALIZAÇÃO COM NULLS) ---
+  it('deve inicializar o formulário corretamente quando campos opcionais são nulos (Cobre a linha 35)', () => {
+    // Cria um objeto que simula o produto retornado do Prisma com campos nullable como null
+    const productWithNulls: Product = {
       ...mockProduct,
       description: null,
-      price: null,
-      imageUrl: null,
+      price: null, // Teste para: price ? product.price.toString() : ''
+      imageUrl: null, // Teste para: imageUrl || ''
     };
 
     render(
       <EditProduct
-        product={productWithNulls as any} // Cast para simular o produto serializado com nulls
+        product={productWithNulls}
         brands={mockBrands}
         categories={mockCategories}
       />
     );
 
-    // Verifica se os fallbacks (|| '') funcionaram
+    // Verifica se os fallbacks (|| '') funcionaram (preenchendo com string vazia)
     expect(screen.getByLabelText('Descrição')).toHaveValue('');
     expect(screen.getByLabelText('URL da Imagem')).toHaveValue('');
-    // Input type="number" com value="" fica vazio ou null
+    // Input type="number" com value: null em React exibe o input vazio
     expect(screen.getByLabelText('Preço (R$)')).toHaveValue(null);
   });
 }); // Fim do bloco de testes do componente
