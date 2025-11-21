@@ -7,6 +7,7 @@ import SEO from '@/components/Seo';
 import Link from 'next/link';
 import { FaArrowLeft, FaSave, FaTimes } from 'react-icons/fa';
 import { UploadButton } from '@/utils/uploadthing';
+import toast from 'react-hot-toast';
 
 type NewProductProps = {
   brands: Brand[];
@@ -16,7 +17,6 @@ type NewProductProps = {
 export default function NewProduct({ brands, categories }: NewProductProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -35,27 +35,28 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+
+    const loadingToast = toast.loading('Salvando produto...');
 
     try {
+      // CORREÇÃO AQUI: 'const res' em vez de 'constKP'
       const res = await fetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(data.error || 'Erro ao criar produto');
       }
 
+      toast.success('Produto criado com sucesso!', { id: loadingToast });
       router.push('/admin/products');
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('Ocorreu um erro desconhecido.');
-      }
+      const msg = err instanceof Error ? err.message : 'Ocorreu um erro desconhecido.';
+      toast.error(msg, { id: loadingToast });
       setIsLoading(false);
     }
   };
@@ -73,24 +74,20 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
 
       <form onSubmit={handleSubmit} className="bg-surface-card border border-surface-border rounded-xl p-8 shadow-sm space-y-6">
 
-        {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-200">
-            {error}
-          </div>
-        )}
-
         {/* --- ÁREA DE UPLOAD DE IMAGEM --- */}
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-2">Imagem do Produto</label>
 
           {formData.imageUrl ? (
-            // Se já tem imagem, mostra o preview
             <div className="relative w-40 h-40 border-2 border-surface-border rounded-lg overflow-hidden bg-white flex items-center justify-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={formData.imageUrl} alt="Preview" className="max-w-full max-h-full object-contain" />
               <button
                 type="button"
-                onClick={() => setFormData({ ...formData, imageUrl: '' })}
+                onClick={() => {
+                  setFormData({ ...formData, imageUrl: '' });
+                  toast('Imagem removida', { icon: '🗑️' });
+                }}
                 className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition-colors"
                 title="Remover imagem"
               >
@@ -98,23 +95,22 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
               </button>
             </div>
           ) : (
-            // Se não tem, mostra o botão de upload
             <div className="border-2 border-dashed border-surface-border rounded-lg p-8 flex flex-col items-center justify-center bg-surface-background hover:bg-surface-card transition-colors">
               <UploadButton
                 endpoint="imageUploader"
                 onClientUploadComplete={(res) => {
                   if (res && res[0]) {
                     setFormData({ ...formData, imageUrl: res[0].url });
+                    toast.success('Upload de imagem concluído!');
                   }
                 }}
                 onUploadError={(error: Error) => {
-                  alert(`Erro no upload: ${error.message}`);
+                  toast.error(`Erro no upload: ${error.message}`);
                 }}
               />
               <p className="text-xs text-text-subtle mt-2">Suporta: PNG, JPG (máx 4MB)</p>
             </div>
           )}
-          {/* Input oculto para garantir que o valor vai no form */}
           <input type="hidden" name="imageUrl" value={formData.imageUrl} />
         </div>
 
