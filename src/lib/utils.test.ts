@@ -1,27 +1,74 @@
 import { describe, it, expect } from 'vitest';
-import { slugify } from './utils'; 
+import { slugify, cn } from './utils';
 
-// 'describe' agrupa testes relacionados
 describe('Função slugify', () => {
-
-  // 'it' define um caso de teste específico
   it('deve converter espaços em hífens e tudo para minúsculas', () => {
     const input = 'Toner HP 85A';
     const expected = 'toner-hp-85a';
-    
-    // 'expect' verifica se o resultado é o esperado
     expect(slugify(input)).toBe(expected);
   });
 
-  it('deve remover caracteres especiais', () => {
-    const input = 'Cartuchos & Toners (Novo)';
-    const expected = 'cartuchos-toners-novo';
+  it('deve remover caracteres especiais não permitidos', () => {
+    const input = 'Cartuchos & Toners @ 2024';
+    const expected = 'cartuchos-toners-2024';
     expect(slugify(input)).toBe(expected);
   });
 
-  it('deve lidar com strings vazias', () => {
-    const input = '';
-    const expected = '';
+  it('deve lidar corretamente com acentuação (pt-BR)', () => {
+    const input = 'Manutenção e Promoção de Verão';
+    const expected = 'manutencao-e-promocao-de-verao';
     expect(slugify(input)).toBe(expected);
+  });
+
+  it('deve lidar com cedilha e til', () => {
+    const input = 'Ação e Reação';
+    const expected = 'acao-e-reacao';
+    expect(slugify(input)).toBe(expected);
+  });
+
+  it('deve lidar com strings vazias ou nulas', () => {
+    expect(slugify('')).toBe('');
+    // @ts-ignore
+    expect(slugify(null)).toBe('');
+    // @ts-ignore
+    expect(slugify(undefined)).toBe('');
+  });
+
+  it('deve remover hífens extras no início ou fim', () => {
+    const input = '---Teste de URL---';
+    const expected = 'teste-de-url';
+    expect(slugify(input)).toBe(expected);
+  });
+});
+
+// === Novos testes para a função cn ===
+describe('Função cn (Classnames)', () => {
+  it('deve mesclar classes simples', () => {
+    const result = cn('bg-red-500', 'text-white');
+    expect(result).toBe('bg-red-500 text-white');
+  });
+
+  it('deve resolver conflitos de classes do Tailwind (merge)', () => {
+    // p-4 deve ganhar de p-2
+    const result = cn('p-2', 'p-4');
+    expect(result).toBe('p-4');
+  });
+
+  it('deve lidar com condicionais e valores falsy', () => {
+    const isTrue = true;
+    const isFalse = false;
+    const result = cn(
+      'base-class',
+      isTrue && 'visible-class',
+      isFalse && 'hidden-class',
+      null,
+      undefined
+    );
+    expect(result).toBe('base-class visible-class');
+  });
+
+  it('deve aceitar arrays de classes', () => {
+    const result = cn(['flex', 'justify-center']);
+    expect(result).toBe('flex justify-center');
   });
 });
