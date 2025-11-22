@@ -5,30 +5,28 @@ import { getSession } from 'next-auth/react';
 import { Brand, Category, Product } from '@prisma/client';
 import SEO from '@/components/Seo';
 import Link from 'next/link';
-import { FaArrowLeft, FaSave, FaTrash, FaExclamationTriangle, FaTimes } from 'react-icons/fa';
+import { FaArrowLeft, FaSave, FaTrash, FaExclamationTriangle, FaTimes } from 'react-icons/fa'; // FaTimes adicionado para upload
 import toast from 'react-hot-toast';
-import { prisma } from '@/lib/prisma'; // Singleton import
+import { prisma } from '@/lib/prisma';
 import { UploadButton } from '@/utils/uploadthing';
 
 type PrinterModel = { id: number; modelName: string };
 
-// Estendemos o tipo Product para incluir a compatibilidade e os tipos de props
 type ProductWithCompatibility = Product & { compatibleWith: { printerId: number }[] };
 
 type EditProductProps = {
   product: ProductWithCompatibility;
   brands: Brand[];
   categories: Category[];
-  printers: PrinterModel[]; // NOVO
+  printers: PrinterModel[];
 };
 
 export default function EditProduct({ product, brands, categories, printers }: EditProductProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(''); // Estado 'error' é usado no JSX, manter.
 
-  // Inicializa o array de IDs das impressoras compatíveis
   const initialCompatibleIds = product.compatibleWith.map(c => c.printerId);
 
   const [formData, setFormData] = useState({
@@ -39,11 +37,10 @@ export default function EditProduct({ product, brands, categories, printers }: E
     brandId: product.brandId,
     categoryId: product.categoryId,
     imageUrl: product.imageUrl || '',
-    compatiblePrinterIds: initialCompatibleIds as number[], // NOVO
+    compatiblePrinterIds: initialCompatibleIds as number[],
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    // Tratamento especial para multi-select
     if (e.target instanceof HTMLSelectElement && e.target.name === 'compatiblePrinterIds') {
       const selectedOptions = Array.from(e.target.options)
         .filter(option => option.selected)
@@ -85,6 +82,7 @@ export default function EditProduct({ product, brands, categories, printers }: E
   };
 
   const handleDelete = async () => {
+    // Apóstrofos corrigidos aqui:
     if (!confirm('Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita.')) return;
 
     setIsDeleting(true);
@@ -114,13 +112,123 @@ export default function EditProduct({ product, brands, categories, printers }: E
     <div className="max-w-4xl mx-auto animate-fade-in-up">
       <SEO title={`Editar ${product.name}`} />
 
-      {/* ... Botões de navegação e exclusão (Mantidos) ... */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <Link href="/admin/products" className="p-2 hover:bg-surface-border rounded-full transition-colors">
+            <FaArrowLeft />
+          </Link>
+          <h1 className="text-3xl font-bold text-text-primary">Editar Produto</h1>
+        </div>
+
+        <button
+          onClick={handleDelete}
+          disabled={isDeleting}
+          className="flex items-center gap-2 bg-red-100 text-red-600 px-4 py-2 rounded-lg hover:bg-red-200 transition-colors font-semibold border border-red-200"
+        >
+          {isDeleting ? 'Excluindo...' : <><FaTrash /> Excluir</>}
+        </button>
+      </div>
 
       <form onSubmit={handleUpdate} className="bg-surface-card border border-surface-border rounded-xl p-8 shadow-sm space-y-6">
 
-        {/* ... Área de erro e campos básicos (Mantidos) ... */}
+        {error && (
+          <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-200 flex items-center gap-2">
+            <FaExclamationTriangle className="flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
 
-        {/* Upload de Imagem (Ajustado para usar toast) */}
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium text-text-secondary mb-1">Nome do Produto</label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            required
+            value={formData.name}
+            onChange={handleChange}
+            className="w-full px-4 py-2 rounded-lg border border-surface-border bg-surface-background focus:ring-2 focus:ring-brand-primary outline-none"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="description" className="block text-sm font-medium text-text-secondary mb-1">Descrição</label>
+          <textarea
+            id="description"
+            name="description"
+            rows={3}
+            value={formData.description}
+            onChange={handleChange}
+            className="w-full px-4 py-2 rounded-lg border border-surface-border bg-surface-background focus:ring-2 focus:ring-brand-primary outline-none"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label htmlFor="price" className="block text-sm font-medium text-text-secondary mb-1">Preço (R$)</label>
+            <input
+              id="price"
+              name="price"
+              type="number"
+              step="0.01"
+              value={formData.price}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-surface-border bg-surface-background focus:ring-2 focus:ring-brand-primary outline-none"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="type" className="block text-sm font-medium text-text-secondary mb-1">Tipo</label>
+            <select
+              id="type"
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-surface-border bg-surface-background focus:ring-2 focus:ring-brand-primary outline-none"
+            >
+              <option value="TONER">Toner</option>
+              <option value="IMPRESSORA">Impressora</option>
+              <option value="RECARGA_JATO_TINTA">Cartucho de Tinta</option>
+              <option value="TINTA_REFIL">Refil de Tinta</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label htmlFor="brandId" className="block text-sm font-medium text-text-secondary mb-1">Marca</label>
+            <select
+              id="brandId"
+              name="brandId"
+              required
+              value={formData.brandId}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-surface-border bg-surface-background focus:ring-2 focus:ring-brand-primary outline-none"
+            >
+              {brands.map(b => (
+                <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="categoryId" className="block text-sm font-medium text-text-secondary mb-1">Categoria</label>
+            <select
+              id="categoryId"
+              name="categoryId"
+              required
+              value={formData.categoryId}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-surface-border bg-surface-background focus:ring-2 focus:ring-brand-primary outline-none"
+            >
+              {categories.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Upload de Imagem (ajustado para usar FaTimes) */}
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-2">Imagem do Produto</label>
 
@@ -160,11 +268,7 @@ export default function EditProduct({ product, brands, categories, printers }: E
           <input type="hidden" name="imageUrl" value={formData.imageUrl} />
         </div>
 
-
-        {/* ... Campos básicos (Mantidos) ... */}
-        {/* ... (omitido) ... */}
-
-        {/* NOVO CAMPO: SELEÇÃO DE IMPRESSORAS COMPATÍVEIS */}
+        {/* CAMPO NOVO: SELEÇÃO DE IMPRESSORAS COMPATÍVEIS */}
         <div>
           <label htmlFor="compatiblePrinterIds" className="block text-sm font-medium text-text-secondary mb-1">Modelos de Impressoras Compatíveis</label>
           <select
@@ -179,7 +283,8 @@ export default function EditProduct({ product, brands, categories, printers }: E
               <option key={printer.id} value={printer.id}>{printer.modelName}</option>
             ))}
           </select>
-          <p className="text-xs text-text-subtle mt-1">Dica: Segure 'Ctrl' ou 'Cmd' para selecionar múltiplos modelos.</p>
+          {/* Apóstrofos corrigidos aqui: */}
+          <p className="text-xs text-text-subtle mt-1">Dica: Segure &apos;Ctrl&apos; ou &apos;Cmd&apos; para selecionar múltiplos modelos.</p>
         </div>
 
 
@@ -206,15 +311,13 @@ export const getServerSideProps: GetServerSideProps<EditProductProps> = async (c
     return { redirect: { destination: '/api/auth/signin', permanent: false } };
   }
 
-  // --- NOVO: Usando Promise.all para buscar tudo de uma vez ---
   const [product, brands, categories, printers] = await Promise.all([
-    // Busca o produto, incluindo os IDs das impressoras já compatíveis
     prisma.product.findUnique({
       where: { id: Number(id) },
       include: {
         brand: true,
         category: true,
-        compatibleWith: { select: { printerId: true } } // NOVO INCLUDE
+        compatibleWith: { select: { printerId: true } }
       },
     }),
     prisma.brand.findMany({ orderBy: { name: 'asc' } }),
@@ -234,7 +337,7 @@ export const getServerSideProps: GetServerSideProps<EditProductProps> = async (c
       product: JSON.parse(JSON.stringify(product)) as ProductWithCompatibility,
       brands: JSON.parse(JSON.stringify(brands)),
       categories: JSON.parse(JSON.stringify(categories)),
-      printers: JSON.parse(JSON.stringify(printers)), // NOVO PROP
+      printers: JSON.parse(JSON.stringify(printers)),
     },
   };
 };

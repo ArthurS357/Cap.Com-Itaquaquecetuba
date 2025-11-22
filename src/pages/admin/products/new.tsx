@@ -8,14 +8,14 @@ import Link from 'next/link';
 import { FaArrowLeft, FaSave, FaTimes } from 'react-icons/fa';
 import { UploadButton } from '@/utils/uploadthing';
 import toast from 'react-hot-toast';
-import { prisma } from '@/lib/prisma'; // Singleton do Prisma
+import { prisma } from '@/lib/prisma'; // Singleton
 
 type PrinterModel = { id: number; modelName: string };
 
 type NewProductProps = {
   brands: Brand[];
   categories: Category[];
-  printers: PrinterModel[]; // NOVO: Lista de impressoras
+  printers: PrinterModel[]; // NOVO
 };
 
 export default function NewProduct({ brands, categories, printers }: NewProductProps) {
@@ -30,11 +30,10 @@ export default function NewProduct({ brands, categories, printers }: NewProductP
     brandId: brands.length > 0 ? brands[0].id : '',
     categoryId: categories.length > 0 ? categories[0].id : '',
     imageUrl: '',
-    compatiblePrinterIds: [] as number[], // NOVO: IDs selecionados
+    compatiblePrinterIds: [] as number[],
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    // Tratamento especial para multi-select (Modelos de Impressoras)
     if (e.target instanceof HTMLSelectElement && e.target.name === 'compatiblePrinterIds') {
       const selectedOptions = Array.from(e.target.options)
         .filter(option => option.selected)
@@ -221,15 +220,15 @@ export default function NewProduct({ brands, categories, printers }: NewProductP
             </select>
           </div>
         </div>
-        
+
         {/* NOVO CAMPO: SELEÇÃO DE IMPRESSORAS COMPATÍVEIS */}
         <div>
           <label htmlFor="compatiblePrinterIds" className="block text-sm font-medium text-text-secondary mb-1">Modelos de Impressoras Compatíveis</label>
           <select
             id="compatiblePrinterIds"
             name="compatiblePrinterIds"
-            multiple={true} // Habilita seleção múltipla
-            value={formData.compatiblePrinterIds.map(String)} // Mapeia para string para o select
+            multiple={true}
+            value={formData.compatiblePrinterIds.map(String)}
             onChange={handleChange}
             className="w-full px-4 py-2 rounded-lg border border-surface-border bg-surface-background focus:ring-2 focus:ring-brand-primary outline-none h-48"
           >
@@ -237,7 +236,8 @@ export default function NewProduct({ brands, categories, printers }: NewProductP
               <option key={printer.id} value={printer.id}>{printer.modelName}</option>
             ))}
           </select>
-          <p className="text-xs text-text-subtle mt-1">Dica: Segure 'Ctrl' ou 'Cmd' para selecionar múltiplos modelos.</p>
+          {/* Apóstrofos corrigidos aqui: */}
+          <p className="text-xs text-text-subtle mt-1">Dica: Segure &apos;Ctrl&apos; ou &apos;Cmd&apos; para selecionar múltiplos modelos.</p>
         </div>
 
         <div className="flex justify-end pt-4">
@@ -268,11 +268,9 @@ export const getServerSideProps: GetServerSideProps<NewProductProps> = async (co
     };
   }
 
-  // Uso do Promise.all para buscar todas as dependências do formulário
   const [brands, categories, printers] = await Promise.all([
     prisma.brand.findMany({ orderBy: { name: 'asc' } }),
     prisma.category.findMany({ orderBy: { name: 'asc' } }),
-    // NOVO: Busca todos os modelos de impressora disponíveis
     prisma.printer.findMany({
       select: { id: true, modelName: true },
       orderBy: { modelName: 'asc' },
@@ -283,7 +281,7 @@ export const getServerSideProps: GetServerSideProps<NewProductProps> = async (co
     props: {
       brands: JSON.parse(JSON.stringify(brands)),
       categories: JSON.parse(JSON.stringify(categories)),
-      printers: JSON.parse(JSON.stringify(printers)), // NOVO PROP
+      printers: JSON.parse(JSON.stringify(printers)),
     },
   };
 };
