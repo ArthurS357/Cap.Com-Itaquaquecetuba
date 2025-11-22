@@ -18,13 +18,13 @@ vi.mock('next-auth/react', () => ({
   getSession: vi.fn(),
 }));
 
-// Mock do Prisma completo (incluindo printer)
+// Mock do Prisma completo
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     product: { findUnique: vi.fn() },
     brand: { findMany: vi.fn() },
     category: { findMany: vi.fn() },
-    printer: { findMany: vi.fn() }, // Adicionado printer
+    printer: { findMany: vi.fn() },
   },
 }));
 
@@ -53,14 +53,13 @@ const mockProduct = {
   slug: 'toner-teste',
   createdAt: new Date(),
   updatedAt: new Date(),
-  compatibleWith: [], // Adicionado campo obrigatório
+  compatibleWith: [], // Campo necessário
 };
 
 const mockBrands: Brand[] = [{ id: 1, name: 'HP', slug: 'hp' }];
 const mockCategories: Category[] = [{ id: 2, name: 'Toners', slug: 'toners', imageUrl: '', parentId: null }];
-const mockPrinters = [{ id: 1, modelName: 'Impressora HP' }]; // Dados para a prop printers
+const mockPrinters = [{ id: 1, modelName: 'Impressora HP' }];
 
-// Props padrão para o componente
 const defaultProps = {
   product: mockProduct,
   brands: mockBrands,
@@ -83,7 +82,6 @@ describe('Página Admin/Editar Produto (Componente)', () => {
   it('deve chamar a API de PUT e exibir toast de sucesso ao salvar (Happy Path)', async () => {
     fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
     
-    // Passando todas as props necessárias
     render(<EditProduct {...defaultProps} />);
     
     const saveBtn = screen.getByText('Atualizar Produto');
@@ -183,8 +181,8 @@ describe('Página Admin/Editar Produto (Componente)', () => {
       ...mockProduct,
       description: null,
       price: null,
-      imageUrl: null,
-      compatibleWith: [] // Garante compatibilidade
+      imageUrl: null, // Imagem nula deve renderizar a área de upload
+      compatibleWith: [] 
     };
 
     render(
@@ -195,9 +193,17 @@ describe('Página Admin/Editar Produto (Componente)', () => {
       />
     );
 
+    // 1. Descrição deve estar vazia
     expect(screen.getByLabelText('Descrição')).toHaveValue('');
-    expect(screen.getByLabelText('URL da Imagem')).toHaveValue('');
+    
+    // 2. Preço deve estar vazio (null)
     expect(screen.getByLabelText('Preço (R$)')).toHaveValue(null);
+
+    // 3. Imagem: Em vez de procurar um input de texto, verificamos se a área de upload está visível.
+    // O texto "Imagem do Produto" é o label do bloco.
+    expect(screen.getByText('Imagem do Produto')).toBeInTheDocument();
+    // O texto de suporte do componente de upload confirma que ele foi renderizado.
+    expect(screen.getByText(/Suporta: PNG, JPG/i)).toBeInTheDocument();
   });
 });
 
