@@ -1,11 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '@prisma/client';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
-
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
-const prisma = globalForPrisma.prisma || new PrismaClient();
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+import { prisma } from '@/lib/prisma'; // Usar singleton
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
@@ -13,13 +9,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // GET: Ler configurações (Público)
   if (method === 'GET') {
     try {
-      // Tenta buscar a config do banner
       const banner = await prisma.storeConfig.findUnique({
         where: { key: 'banner' }
       });
+      // Retorna a config ou um objeto padrão se não for encontrado
       return res.status(200).json(banner || { value: '', isActive: false });
     } catch (error) {
-      console.error(error); // <-- Variável 'error' utilizada para log
+      console.error(error);
       return res.status(500).json({ error: "Erro ao buscar configurações" });
     }
   }
@@ -32,6 +28,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const { value, isActive } = req.body;
 
+      // Validação básica
+      if (typeof isActive !== 'boolean') {
+        return res.status(400).json({ error: "O campo 'isActive' é obrigatório e deve ser booleano." });
+      }
+
       // Upsert: Cria se não existir, Atualiza se existir
       const config = await prisma.storeConfig.upsert({
         where: { key: 'banner' },
@@ -39,9 +40,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         create: { key: 'banner', value, isActive },
       });
 
+      // Revalida a home para atualizar o banner imediatamente
+      try {
+        await res.revalidate('/');
+      } catch(err) {
+        console.error('Erro ao revalidar home após salvar config:', err);
+      }
+
       return res.status(200).json(config);
     } catch (error) {
-      console.error(error); // <-- Variável 'error' utilizada para log
+      console.error(error);
       return res.status(500).json({ error: "Erro ao salvar" });
     }
   }

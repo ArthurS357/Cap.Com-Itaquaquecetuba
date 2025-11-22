@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { GetServerSideProps } from 'next';
 import { getSession } from 'next-auth/react';
-import { PrismaClient, Category } from '@prisma/client';
+import { Category } from '@prisma/client';
 import { UploadButton } from '@/utils/uploadthing';
 import SEO from '@/components/Seo';
 import Link from 'next/link';
 import { FaArrowLeft, FaSave } from 'react-icons/fa';
 import Image from 'next/image';
+import toast from 'react-hot-toast';
+import { prisma } from '@/lib/prisma'; // Usar singleton
 
 export default function NewCategory({ categories }: { categories: Category[] }) {
   const router = useRouter();
@@ -17,8 +19,30 @@ export default function NewCategory({ categories }: { categories: Category[] }) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    await fetch('/api/categories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
-    router.push('/admin/categories');
+    
+    const loadingToast = toast.loading('Criando categoria...');
+
+    try {
+      const res = await fetch('/api/categories', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify(formData) 
+      });
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || 'Erro ao criar categoria');
+      }
+
+      toast.success('Categoria criada com sucesso!', { id: loadingToast });
+      router.push('/admin/categories');
+
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Ocorreu um erro desconhecido.';
+      toast.error(msg, { id: loadingToast });
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -32,15 +56,35 @@ export default function NewCategory({ categories }: { categories: Category[] }) 
         {/* Upload */}
         <div className="flex justify-center mb-6 border-2 border-dashed border-surface-border rounded-lg p-6">
           {formData.imageUrl ? (
-            <Image
-              src={formData.imageUrl}
-              alt="Preview da Categoria"
-              width={128}
-              height={128}
-              className="h-32 w-auto object-contain"
-            />
+            <div className="relative">
+              <Image
+                src={formData.imageUrl}
+                alt="Preview da Categoria"
+                width={128}
+                height={128}
+                className="h-32 w-auto object-contain"
+              />
+              <button 
+                type="button" 
+                onClick={() => setFormData({ ...formData, imageUrl: '' })} 
+                className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs"
+              >
+                X
+              </button>
+            </div>
           ) : (
-            <UploadButton endpoint="imageUploader" onClientUploadComplete={(res) => setFormData({ ...formData, imageUrl: res[0].url })} />
+            <UploadButton 
+              endpoint="imageUploader" 
+              onClientUploadComplete={(res) => {
+                if (res && res[0]) {
+                  setFormData({ ...formData, imageUrl: res[0].url });
+                  toast.success('Upload de imagem concluído!');
+                }
+              }} 
+              onUploadError={(error: Error) => {
+                toast.error(`Erro no upload: ${error.message}`);
+              }}
+            />
           )}
         </div>
 
@@ -64,7 +108,9 @@ export default function NewCategory({ categories }: { categories: Category[] }) 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context);
   if (!session) return { redirect: { destination: '/api/auth/signin', permanent: false } };
-  const prisma = new PrismaClient();
+  
+  // Usar singleton
   const categories = await prisma.category.findMany({ orderBy: { name: 'asc' } });
+  
   return { props: { categories: JSON.parse(JSON.stringify(categories)) } };
 };

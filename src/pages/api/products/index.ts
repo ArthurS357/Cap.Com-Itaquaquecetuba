@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/client';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { slugify } from '@/lib/utils';
-import { z } from 'zod'; 
+import { z } from 'zod';
 import { prisma } from '@/lib/prisma'; // Singleton
 
 // Schema de Validação com Zod
@@ -37,18 +37,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const products = await prisma.product.findMany({
         include: {
-          brand: true, 
-          category: true, 
+          brand: true,
+          category: true,
         },
         orderBy: { id: 'desc' }
       });
       return res.status(200).json(products);
-    } catch (error) { 
-      console.error("Failed to fetch products:", error); 
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
       return res.status(500).json({ error: 'Failed to fetch products' });
     }
-  } 
-  
+  }
+
   else if (method === 'POST') {
     try {
       const session = await getServerSession(req, res, authOptions);
@@ -59,9 +59,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const parseResult = productCreateSchema.safeParse(req.body);
 
       if (!parseResult.success) {
-        return res.status(400).json({ 
-          error: "Dados inválidos", 
-          details: parseResult.error.format() 
+        return res.status(400).json({
+          error: "Dados inválidos",
+          details: parseResult.error.format()
         });
       }
 
@@ -117,8 +117,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
       return res.status(500).json({ error: "Erro interno ao criar produto." });
     }
-  } 
-  
+  }
+
   else {
     res.setHeader('Allow', ['GET', 'POST']);
     res.status(405).end(`Method ${method} Not Allowed`);

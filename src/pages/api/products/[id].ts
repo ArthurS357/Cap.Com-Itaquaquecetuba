@@ -67,9 +67,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const parseResult = productUpdateSchema.safeParse(req.body);
 
       if (!parseResult.success) {
-        return res.status(400).json({ 
-          error: "Dados inválidos", 
-          details: parseResult.error.format() 
+        return res.status(400).json({
+          error: "Dados inválidos",
+          details: parseResult.error.format()
         });
       }
 
@@ -97,21 +97,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // 2. ATUALIZA COMPATIBILIDADE SOMENTE SE O CAMPO FOI ENVIADO (O select é multi-select, então sempre será enviado)
         if (compatiblePrinterIds !== undefined) {
-             // DELETA RELAÇÕES EXISTENTES (Limpeza)
-             await tx.printerCompatibility.deleteMany({
-                 where: { cartridgeId: productId },
-             });
+          // DELETA RELAÇÕES EXISTENTES (Limpeza)
+          await tx.printerCompatibility.deleteMany({
+            where: { cartridgeId: productId },
+          });
 
-             // CRIA NOVAS RELAÇÕES
-             if (compatiblePrinterIds && compatiblePrinterIds.length > 0) {
-                 const compatibilityData = compatiblePrinterIds.map((printerId: number) => ({
-                     cartridgeId: productId,
-                     printerId: printerId,
-                 }));
-                 await tx.printerCompatibility.createMany({ data: compatibilityData });
-             }
+          // CRIA NOVAS RELAÇÕES
+          if (compatiblePrinterIds && compatiblePrinterIds.length > 0) {
+            const compatibilityData = compatiblePrinterIds.map((printerId: number) => ({
+              cartridgeId: productId,
+              printerId: printerId,
+            }));
+            await tx.printerCompatibility.createMany({ data: compatibilityData });
+          }
         }
-        
+
         return product;
       });
 
@@ -122,7 +122,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           revalidations.push(res.revalidate(`/produto/${updatedProduct.slug}`));
         }
         await Promise.all(revalidations);
-      } catch (err) { 
+      } catch (err) {
         console.error('Erro ao revalidar:', err);
       }
 
