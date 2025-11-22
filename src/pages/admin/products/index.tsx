@@ -1,126 +1,119 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { Prisma } from '@prisma/client';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from '@/pages/api/auth/[...nextauth]';
-import { slugify } from '@/lib/utils';
-import { z } from 'zod'; 
-import { prisma } from '@/lib/prisma';
+import { GetServerSideProps } from 'next';
+import { getSession } from "next-auth/react";
+import Link from 'next/link';
+import { FaArrowLeft, FaPlus, FaEdit } from 'react-icons/fa';
+import SEO from '@/components/Seo';
+import Image from 'next/image'; 
+import { prisma } from '@/lib/prisma'; // Usando o Singleton correto
+import { Product, Brand } from '@prisma/client';
 
-// Schema de Validação com Zod
-const productCreateSchema = z.object({
-  name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
-  description: z.string().optional(),
-  price: z.preprocess(
-    (val) => (val === '' ? null : val),
-    z.coerce.number().nonnegative("O preço não pode ser negativo.").optional().nullable()
-  ),
-  type: z.string().min(1, "O tipo é obrigatório."),
-  brandId: z.coerce.number().int().positive("Marca inválida."),
-  categoryId: z.coerce.number().int().positive("Categoria inválida."),
-  imageUrl: z.string().url("URL da imagem inválida").optional().or(z.literal('')),
-  // NOVO: Array opcional de IDs numéricos para compatibilidade
-  compatiblePrinterIds: z.array(z.coerce.number().int().positive()).optional(),
-});
+type ProductWithBrand = Product & { brand: Brand };
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+export default function AdminProductsList({ products }: { products: ProductWithBrand[] }) {
+  return (
+    <div className="animate-fade-in-up">
+      <SEO title="Gerenciar Produtos" />
 
-  const { method } = req;
+      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <div className="flex items-center gap-4">
+          <Link href="/admin" className="p-2 hover:bg-surface-border rounded-full transition-colors">
+            <FaArrowLeft />
+          </Link>
+          <h1 className="text-3xl font-bold text-text-primary">Produtos Cadastrados</h1>
+        </div>
+        
+        <Link 
+          href="/admin/products/new" 
+          className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-bold shadow-md"
+        >
+          <FaPlus /> Novo Produto
+        </Link>
+      </div>
 
-  if (method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  if (method === 'GET') {
-    try {
-      const products = await prisma.product.findMany({
-        include: {
-          brand: true, 
-          category: true, 
-        },
-        orderBy: { id: 'desc' }
-      });
-      return res.status(200).json(products);
-    } catch (error) { 
-      console.error("Failed to fetch products:", error); 
-      return res.status(500).json({ error: 'Failed to fetch products' });
-    }
-  } 
-  
-  else if (method === 'POST') {
-    try {
-      const session = await getServerSession(req, res, authOptions);
-      if (!session) {
-        return res.status(401).json({ error: "Não autorizado. Faça login." });
-      }
-
-      const parseResult = productCreateSchema.safeParse(req.body);
-
-      if (!parseResult.success) {
-        return res.status(400).json({ 
-          error: "Dados inválidos", 
-          details: parseResult.error.format() 
-        });
-      }
-
-      const { name, description, price, type, brandId, categoryId, imageUrl, compatiblePrinterIds } = parseResult.data;
-
-      // Transação para garantir que o produto e as compatibilidades sejam criados atomicamente.
-      const [newProduct] = await prisma.$transaction(async (tx) => {
-        const product = await tx.product.create({
-          data: {
-            name,
-            slug: slugify(name),
-            description,
-            price: price ?? null,
-            type,
-            imageUrl: imageUrl || null,
-            brand: { connect: { id: brandId } },
-            category: { connect: { id: categoryId } },
-          },
-          include: { category: true }
-        });
-
-        // CRIA RELAÇÕES DE COMPATIBILIDADE (M:N)
-        if (Array.isArray(compatiblePrinterIds) && compatiblePrinterIds.length > 0) {
-          const compatibilityData = compatiblePrinterIds.map((printerId: number) => ({
-            cartridgeId: product.id,
-            printerId: printerId,
-          }));
-          await tx.printerCompatibility.createMany({ data: compatibilityData });
-        }
-
-        return [product];
-      });
-
-      // Revalidação em paralelo
-      try {
-        await Promise.all([
-          res.revalidate('/'),
-          res.revalidate('/busca'),
-          newProduct.category?.slug ? res.revalidate(`/categoria/${newProduct.category.slug}`) : null
-        ]);
-      } catch (err) {
-        console.error('Erro ao revalidar páginas:', err);
-      }
-
-      return res.status(201).json(newProduct);
-
-    } catch (error) {
-      console.error("Erro ao criar produto:", error);
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          return res.status(409).json({ error: "Produto com este nome já existe." });
-        }
-      }
-      return res.status(500).json({ error: "Erro interno ao criar produto." });
-    }
-  } 
-  
-  else {
-    res.setHeader('Allow', ['GET', 'POST']);
-    res.status(405).end(`Method ${method} Not Allowed`);
-  }
+      <div className="bg-surface-card border border-surface-border rounded-xl overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-surface-border/50 text-text-secondary text-sm uppercase tracking-wider">
+                <th className="p-4">ID</th>
+                <th className="p-4">Imagem</th>
+                <th className="p-4">Nome</th>
+                <th className="p-4">Marca</th>
+                <th className="p-4">Tipo</th>
+                <th className="p-4 text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-surface-border">
+              {products.map((product) => (
+                <tr key={product.id} className="hover:bg-surface-border/30 transition-colors">
+                  <td className="p-4 text-text-subtle">#{product.id}</td>
+                  <td className="p-4">
+                    {product.imageUrl ? (
+                      <Image 
+                        src={product.imageUrl} 
+                        alt={product.name} 
+                        width={40} 
+                        height={40} 
+                        className="w-10 h-10 object-contain rounded bg-white p-1 border" 
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">N/A</div>
+                    )}
+                  </td>
+                  <td className="p-4 font-medium text-text-primary">{product.name}</td>
+                  <td className="p-4 text-text-secondary">{product.brand?.name || '-'}</td>
+                  <td className="p-4 text-xs">
+                    <span className="px-2 py-1 rounded-full bg-brand-light text-brand-primary font-semibold">
+                      {product.type}
+                    </span>
+                  </td>
+                  <td className="p-4 text-right">
+                    <div className="flex justify-end gap-2">
+                      <Link 
+                        href={`/admin/products/${product.id}`}
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors" 
+                        title="Editar"
+                      >
+                        <FaEdit />
+                      </Link>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {products.length === 0 && (
+          <div className="p-8 text-center text-text-secondary">
+            Nenhum produto encontrado. Clique em &quot;Novo Produto&quot; para começar.
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getSession(context);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/api/auth/signin',
+        permanent: false,
+      },
+    };
+  }
+
+  // Usando o singleton prisma importado de @/lib/prisma
+  const products = await prisma.product.findMany({
+    include: { brand: true },
+    orderBy: { id: 'desc' }, 
+  });
+
+  return {
+    props: {
+      products: JSON.parse(JSON.stringify(products)),
+    },
+  };
+};
