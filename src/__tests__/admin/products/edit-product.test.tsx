@@ -18,11 +18,13 @@ vi.mock('next-auth/react', () => ({
   getSession: vi.fn(),
 }));
 
+// Mock do Prisma completo (incluindo printer)
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     product: { findUnique: vi.fn() },
     brand: { findMany: vi.fn() },
     category: { findMany: vi.fn() },
+    printer: { findMany: vi.fn() }, // Adicionado printer
   },
 }));
 
@@ -39,7 +41,7 @@ vi.mock('react-hot-toast', () => ({
 }));
 
 // --- DADOS MOCKADOS ---
-const mockProduct: Product = {
+const mockProduct = {
   id: 101,
   name: 'Toner Teste',
   description: 'Desc',
@@ -51,10 +53,20 @@ const mockProduct: Product = {
   slug: 'toner-teste',
   createdAt: new Date(),
   updatedAt: new Date(),
+  compatibleWith: [], // Adicionado campo obrigatório
 };
 
 const mockBrands: Brand[] = [{ id: 1, name: 'HP', slug: 'hp' }];
 const mockCategories: Category[] = [{ id: 2, name: 'Toners', slug: 'toners', imageUrl: '', parentId: null }];
+const mockPrinters = [{ id: 1, modelName: 'Impressora HP' }]; // Dados para a prop printers
+
+// Props padrão para o componente
+const defaultProps = {
+  product: mockProduct,
+  brands: mockBrands,
+  categories: mockCategories,
+  printers: mockPrinters,
+};
 
 describe('Página Admin/Editar Produto (Componente)', () => {
   const user = userEvent.setup();
@@ -71,7 +83,8 @@ describe('Página Admin/Editar Produto (Componente)', () => {
   it('deve chamar a API de PUT e exibir toast de sucesso ao salvar (Happy Path)', async () => {
     fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
     
-    render(<EditProduct product={mockProduct} brands={mockBrands} categories={mockCategories} />);
+    // Passando todas as props necessárias
+    render(<EditProduct {...defaultProps} />);
     
     const saveBtn = screen.getByText('Atualizar Produto');
     await user.click(saveBtn);
@@ -92,7 +105,7 @@ describe('Página Admin/Editar Produto (Componente)', () => {
       json: async () => ({ error: 'Erro de validação no servidor' }) 
     });
     
-    render(<EditProduct product={mockProduct} brands={mockBrands} categories={mockCategories} />);
+    render(<EditProduct {...defaultProps} />);
     
     const saveBtn = screen.getByText('Atualizar Produto');
     await user.click(saveBtn);
@@ -106,7 +119,7 @@ describe('Página Admin/Editar Produto (Componente)', () => {
   it('deve exibir erro genérico se a API de PUT lançar exceção', async () => {
     fetchMock.mockRejectedValueOnce(new Error('Falha de rede'));
     
-    render(<EditProduct product={mockProduct} brands={mockBrands} categories={mockCategories} />);
+    render(<EditProduct {...defaultProps} />);
     
     const saveBtn = screen.getByText('Atualizar Produto');
     await user.click(saveBtn);
@@ -121,7 +134,7 @@ describe('Página Admin/Editar Produto (Componente)', () => {
   it('deve chamar a API de DELETE e exibir toast de sucesso ao excluir (Happy Path)', async () => {
     fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
     
-    render(<EditProduct product={mockProduct} brands={mockBrands} categories={mockCategories} />);
+    render(<EditProduct {...defaultProps} />);
     
     const delBtn = screen.getByText('Excluir');
     await user.click(delBtn);
@@ -142,7 +155,7 @@ describe('Página Admin/Editar Produto (Componente)', () => {
       json: async () => ({ error: 'Não foi possível excluir' }) 
     });
     
-    render(<EditProduct product={mockProduct} brands={mockBrands} categories={mockCategories} />);
+    render(<EditProduct {...defaultProps} />);
     
     const delBtn = screen.getByText('Excluir');
     await user.click(delBtn);
@@ -156,7 +169,7 @@ describe('Página Admin/Editar Produto (Componente)', () => {
   it('NÃO deve deletar se o usuário cancelar a confirmação', async () => {
     vi.spyOn(window, 'confirm').mockReturnValue(false);
 
-    render(<EditProduct product={mockProduct} brands={mockBrands} categories={mockCategories} />);
+    render(<EditProduct {...defaultProps} />);
     
     const delBtn = screen.getByText('Excluir');
     await user.click(delBtn);
@@ -164,31 +177,29 @@ describe('Página Admin/Editar Produto (Componente)', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
   
-  // --- TESTE PARA COBERTURA DE BRANCH (INICIALIZAÇÃO COM NULLS) ---
-  it('deve inicializar o formulário corretamente quando campos opcionais são nulos (Cobre a linha 35)', () => {
-    // Cria um objeto que simula o produto retornado do Prisma com campos nullable como null
-    const productWithNulls: Product = {
+  // --- TESTE DE BRANCH (CAMPOS NULOS) ---
+  it('deve inicializar o formulário corretamente quando campos opcionais são nulos', () => {
+    const productWithNulls = {
       ...mockProduct,
       description: null,
-      price: null, // Teste para: price ? product.price.toString() : ''
-      imageUrl: null, // Teste para: imageUrl || ''
+      price: null,
+      imageUrl: null,
+      compatibleWith: [] // Garante compatibilidade
     };
 
     render(
       <EditProduct
+        {...defaultProps}
+        // @ts-expect-error Forçando tipo com null para teste
         product={productWithNulls}
-        brands={mockBrands}
-        categories={mockCategories}
       />
     );
 
-    // Verifica se os fallbacks (|| '') funcionaram (preenchendo com string vazia)
     expect(screen.getByLabelText('Descrição')).toHaveValue('');
     expect(screen.getByLabelText('URL da Imagem')).toHaveValue('');
-    // Input type="number" com value: null em React exibe o input vazio
     expect(screen.getByLabelText('Preço (R$)')).toHaveValue(null);
   });
-}); // Fim do bloco de testes do componente
+});
 
 // --- TESTES DO SERVIDOR (getServerSideProps) ---
 describe('getServerSideProps (Server)', () => {
@@ -213,6 +224,8 @@ describe('getServerSideProps (Server)', () => {
     prisma.brand.findMany.mockResolvedValue([]);
     // @ts-expect-error: Mockando array vazio
     prisma.category.findMany.mockResolvedValue([]);
+    // @ts-expect-error: Mockando array vazio
+    prisma.printer.findMany.mockResolvedValue([]);
 
     const response = await getServerSideProps(context);
 
@@ -228,6 +241,8 @@ describe('getServerSideProps (Server)', () => {
     prisma.brand.findMany.mockResolvedValue(mockBrands);
     // @ts-expect-error: Mockando retorno válido
     prisma.category.findMany.mockResolvedValue(mockCategories);
+    // @ts-expect-error: Mockando retorno válido
+    prisma.printer.findMany.mockResolvedValue(mockPrinters);
 
     const response = await getServerSideProps(context);
 
