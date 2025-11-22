@@ -1,15 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { slugify } from '@/lib/utils';
 import { z } from 'zod';
+import { prisma } from '@/lib/prisma'; // Singleton
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
-const prisma = globalForPrisma.prisma || new PrismaClient();
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
-
-// Schema de Validação para Edição
+// Schema de Validação para Edição (Inclui o novo campo)
 const productUpdateSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres.").optional(),
   description: z.string().optional(),
@@ -21,6 +18,7 @@ const productUpdateSchema = z.object({
   brandId: z.coerce.number().int().positive().optional(),
   categoryId: z.coerce.number().int().positive().optional(),
   imageUrl: z.string().url().optional().or(z.literal('')),
+  compatiblePrinterIds: z.array(z.coerce.number().int().positive()).optional(),
 });
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -41,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const productId = parseInt(id, 10);
 
-  // --- GET ---
+  // --- GET --- (Mantido)
   if (method === 'GET') {
     try {
       const product = await prisma.product.findUnique({
@@ -66,43 +64,70 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // --- PUT: Atualizar ---
   if (method === 'PUT') {
     try {
-      // 1. Validação Zod
       const parseResult = productUpdateSchema.safeParse(req.body);
 
       if (!parseResult.success) {
-        return res.status(400).json({
-          error: "Dados inválidos",
-          details: parseResult.error.format()
+        return res.status(400).json({ 
+          error: "Dados inválidos", 
+          details: parseResult.error.format() 
         });
       }
 
-      const { name, description, price, type, brandId, categoryId, imageUrl } = parseResult.data;
+      const { name, description, price, type, brandId, categoryId, imageUrl, compatiblePrinterIds } = parseResult.data;
 
-      const dataToUpdate: Prisma.ProductUpdateInput = {
-        ...(name && { name, slug: slugify(name) }),
-        ...(description !== undefined && { description }),
-        ...(price !== undefined && { price }),
-        ...(type && { type }),
-        ...(imageUrl !== undefined && { imageUrl: imageUrl || null }),
-        ...(brandId && { brand: { connect: { id: brandId } } }),
-        ...(categoryId && { category: { connect: { id: categoryId } } }),
-      };
+      const productPrice = price ?? null;
+      const numericBrandId = brandId;
+      const numericCategoryId = categoryId;
 
-      const updatedProduct = await prisma.product.update({
-        where: { id: productId },
-        data: dataToUpdate,
+      // Transação para garantir atomicidade na atualização
+      const updatedProduct = await prisma.$transaction(async (tx) => {
+        // 1. ATUALIZA O PRODUTO
+        const product = await tx.product.update({
+          where: { id: productId },
+          data: {
+            ...(name && { name, slug: slugify(name) }),
+            ...(description !== undefined && { description }),
+            price: productPrice,
+            ...(type && { type }),
+            imageUrl: imageUrl || null,
+            ...(numericBrandId && { brandId: numericBrandId }),
+            ...(numericCategoryId && { categoryId: numericCategoryId }),
+          },
+        });
+
+        // 2. ATUALIZA COMPATIBILIDADE SOMENTE SE O CAMPO FOI ENVIADO (O select é multi-select, então sempre será enviado)
+        if (compatiblePrinterIds !== undefined) {
+             // DELETA RELAÇÕES EXISTENTES (Limpeza)
+             await tx.printerCompatibility.deleteMany({
+                 where: { cartridgeId: productId },
+             });
+
+             // CRIA NOVAS RELAÇÕES
+             if (compatiblePrinterIds && compatiblePrinterIds.length > 0) {
+                 const compatibilityData = compatiblePrinterIds.map((printerId: number) => ({
+                     cartridgeId: productId,
+                     printerId: printerId,
+                 }));
+                 await tx.printerCompatibility.createMany({ data: compatibilityData });
+             }
+        }
+        
+        return product;
       });
 
+      // Revalidação em paralelo
       try {
         const revalidations = [res.revalidate('/')];
         if (updatedProduct.slug) {
           revalidations.push(res.revalidate(`/produto/${updatedProduct.slug}`));
         }
         await Promise.all(revalidations);
-      } catch {
+      } catch (err) { 
+        console.error('Erro ao revalidar:', err);
       }
 
       return res.status(200).json(updatedProduct);
+
     } catch (error) {
       console.error("Erro ao atualizar:", error);
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -114,22 +139,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 
-  // --- DELETE: Remover ---
+  // --- DELETE: Remover --- (Mantido)
   else if (method === 'DELETE') {
     try {
-      await prisma.printerCompatibility.deleteMany({
-        where: { cartridgeId: productId }
-      });
+      await prisma.printerCompatibility.deleteMany({ where: { cartridgeId: productId } });
 
-      await prisma.product.delete({
-        where: { id: productId },
-      });
+      await prisma.product.delete({ where: { id: productId } });
 
       try {
-        await Promise.all([
-          res.revalidate('/'),
-          res.revalidate('/busca')
-        ]);
+        await Promise.all([res.revalidate('/'), res.revalidate('/busca')]);
       } catch { }
 
       return res.status(200).json({ message: "Produto removido com sucesso" });

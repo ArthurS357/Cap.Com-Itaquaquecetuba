@@ -2,19 +2,23 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { GetServerSideProps } from 'next';
 import { getSession } from 'next-auth/react';
-import { PrismaClient, Brand, Category } from '@prisma/client';
+import { Brand, Category } from '@prisma/client';
 import SEO from '@/components/Seo';
 import Link from 'next/link';
 import { FaArrowLeft, FaSave, FaTimes } from 'react-icons/fa';
 import { UploadButton } from '@/utils/uploadthing';
 import toast from 'react-hot-toast';
+import { prisma } from '@/lib/prisma'; // Singleton do Prisma
+
+type PrinterModel = { id: number; modelName: string };
 
 type NewProductProps = {
   brands: Brand[];
   categories: Category[];
+  printers: PrinterModel[]; // NOVO: Lista de impressoras
 };
 
-export default function NewProduct({ brands, categories }: NewProductProps) {
+export default function NewProduct({ brands, categories, printers }: NewProductProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -26,10 +30,19 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
     brandId: brands.length > 0 ? brands[0].id : '',
     categoryId: categories.length > 0 ? categories[0].id : '',
     imageUrl: '',
+    compatiblePrinterIds: [] as number[], // NOVO: IDs selecionados
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Tratamento especial para multi-select (Modelos de Impressoras)
+    if (e.target instanceof HTMLSelectElement && e.target.name === 'compatiblePrinterIds') {
+      const selectedOptions = Array.from(e.target.options)
+        .filter(option => option.selected)
+        .map(option => Number(option.value));
+      setFormData({ ...formData, compatiblePrinterIds: selectedOptions });
+    } else {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,7 +52,6 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
     const loadingToast = toast.loading('Salvando produto...');
 
     try {
-      // CORREÇÃO AQUI: 'const res' em vez de 'constKP'
       const res = await fetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -74,7 +86,7 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
 
       <form onSubmit={handleSubmit} className="bg-surface-card border border-surface-border rounded-xl p-8 shadow-sm space-y-6">
 
-        {/* --- ÁREA DE UPLOAD DE IMAGEM --- */}
+        {/* --- Upload de Imagem --- */}
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-2">Imagem do Produto</label>
 
@@ -114,9 +126,11 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
           <input type="hidden" name="imageUrl" value={formData.imageUrl} />
         </div>
 
+        {/* --- Campos Principais --- */}
         <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1">Nome do Produto</label>
+          <label htmlFor="name" className="block text-sm font-medium text-text-secondary mb-1">Nome do Produto</label>
           <input
+            id="name"
             name="name"
             type="text"
             required
@@ -128,8 +142,9 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1">Descrição</label>
+          <label htmlFor="description" className="block text-sm font-medium text-text-secondary mb-1">Descrição</label>
           <textarea
+            id="description"
             name="description"
             rows={3}
             value={formData.description}
@@ -141,8 +156,9 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1">Preço (R$)</label>
+            <label htmlFor="price" className="block text-sm font-medium text-text-secondary mb-1">Preço (R$)</label>
             <input
+              id="price"
               name="price"
               type="number"
               step="0.01"
@@ -154,8 +170,9 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1">Tipo</label>
+            <label htmlFor="type" className="block text-sm font-medium text-text-secondary mb-1">Tipo</label>
             <select
+              id="type"
               name="type"
               value={formData.type}
               onChange={handleChange}
@@ -171,8 +188,9 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1">Marca</label>
+            <label htmlFor="brandId" className="block text-sm font-medium text-text-secondary mb-1">Marca</label>
             <select
+              id="brandId"
               name="brandId"
               required
               value={formData.brandId}
@@ -187,8 +205,9 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1">Categoria</label>
+            <label htmlFor="categoryId" className="block text-sm font-medium text-text-secondary mb-1">Categoria</label>
             <select
+              id="categoryId"
               name="categoryId"
               required
               value={formData.categoryId}
@@ -201,6 +220,24 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
               ))}
             </select>
           </div>
+        </div>
+        
+        {/* NOVO CAMPO: SELEÇÃO DE IMPRESSORAS COMPATÍVEIS */}
+        <div>
+          <label htmlFor="compatiblePrinterIds" className="block text-sm font-medium text-text-secondary mb-1">Modelos de Impressoras Compatíveis</label>
+          <select
+            id="compatiblePrinterIds"
+            name="compatiblePrinterIds"
+            multiple={true} // Habilita seleção múltipla
+            value={formData.compatiblePrinterIds.map(String)} // Mapeia para string para o select
+            onChange={handleChange}
+            className="w-full px-4 py-2 rounded-lg border border-surface-border bg-surface-background focus:ring-2 focus:ring-brand-primary outline-none h-48"
+          >
+            {printers.map(printer => (
+              <option key={printer.id} value={printer.id}>{printer.modelName}</option>
+            ))}
+          </select>
+          <p className="text-xs text-text-subtle mt-1">Dica: Segure 'Ctrl' ou 'Cmd' para selecionar múltiplos modelos.</p>
         </div>
 
         <div className="flex justify-end pt-4">
@@ -222,7 +259,7 @@ export default function NewProduct({ brands, categories }: NewProductProps) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps<NewProductProps> = async (context) => {
   const session = await getSession(context);
 
   if (!session) {
@@ -231,14 +268,22 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 
-  const prisma = new PrismaClient();
-  const brands = await prisma.brand.findMany({ orderBy: { name: 'asc' } });
-  const categories = await prisma.category.findMany({ orderBy: { name: 'asc' } });
+  // Uso do Promise.all para buscar todas as dependências do formulário
+  const [brands, categories, printers] = await Promise.all([
+    prisma.brand.findMany({ orderBy: { name: 'asc' } }),
+    prisma.category.findMany({ orderBy: { name: 'asc' } }),
+    // NOVO: Busca todos os modelos de impressora disponíveis
+    prisma.printer.findMany({
+      select: { id: true, modelName: true },
+      orderBy: { modelName: 'asc' },
+    }),
+  ]);
 
   return {
     props: {
       brands: JSON.parse(JSON.stringify(brands)),
       categories: JSON.parse(JSON.stringify(categories)),
+      printers: JSON.parse(JSON.stringify(printers)), // NOVO PROP
     },
   };
 };

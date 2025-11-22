@@ -116,7 +116,7 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
                 className="block w-full md:w-auto text-center bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-3"
               >
                 <FaWhatsapp size={24} />
-                Comprar pelo WhatsApp
+                Consultar pelo WhatsApp
               </a>
 
               <div className="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-surface-border">
