@@ -1,14 +1,18 @@
-import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, waitFor } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ProductForm, { ProductFormData } from '@/components/admin/ProductForm';
 import { Product, Brand, Category } from '@prisma/client';
+import React from 'react';
 
 // --- MOCKS ---
 
-// Mock next/image para simular a imagem
+// Interface para as props do mock da Imagem
+type ImageProps = { src: string; alt: string; [key: string]: unknown };
+
 vi.mock('next/image', () => ({
-  default: (props: any) => <img {...props} data-testid="form-image" alt={props.alt} />,
+  // eslint-disable-next-line @next/next/no-img-element
+  default: (props: ImageProps) => <img {...props as React.ImgHTMLAttributes<HTMLImageElement>} data-testid="form-image" alt={props.alt as string} />,
 }));
 
 // Mock react-hot-toast
@@ -22,9 +26,16 @@ vi.mock('react-hot-toast', () => ({
   default: mockToast,
 }));
 
+// Interface para as props do mock do UploadButton
+interface MockUploadButtonProps {
+  onClientUploadComplete: (res: { url: string }[] | null) => void;
+  onUploadError: (error: Error) => void;
+  [key: string]: unknown;
+}
+
 // Mock UploadButton para simular o upload completo
 vi.mock('@/utils/uploadthing', () => ({
-    UploadButton: (props: any) => (
+    UploadButton: (props: MockUploadButtonProps) => (
         <button 
             data-testid="upload-button" 
             onClick={() => {
