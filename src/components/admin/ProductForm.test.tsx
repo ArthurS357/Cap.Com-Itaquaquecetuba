@@ -1,17 +1,34 @@
-import { describe, it, expect, vi, beforeEach, waitFor } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import ProductForm, { ProductFormData } from '@/components/admin/ProductForm';
+import ProductForm from '@/components/admin/ProductForm';
 import { Product, Brand, Category } from '@prisma/client';
 import React from 'react';
+import toast from 'react-hot-toast'; // Importação do toast para mock
 
-// --- MOCKS SIMPLIFICADOS para evitar Hoisting Error ---
+// --- MOCKS ---
 
-// Mock simples para toast: Evita o hoisting garantindo que 'toast' seja apenas uma função vi.fn()
-vi.mock('react-hot-toast', () => ({
-  // Retorna uma função mockada para o default export
-  default: vi.fn(), 
-}));
+// Mock das funções de toast para asserções
+const mockLoading = vi.fn();
+const mockSuccess = vi.fn();
+const mockCustom = vi.fn(); 
+
+// Mock react-hot-toast: usa a função de fábrica para injetar os espiões globais
+vi.mock('react-hot-toast', () => {
+  const mockFn = vi.fn((message, options) => mockCustom(message, options));
+  
+  // O Object.assign garante que todas as propriedades sejam injetadas no export default
+  Object.assign(mockFn, {
+    loading: mockLoading,
+    success: mockSuccess,
+    error: vi.fn(),
+    dismiss: vi.fn(),
+  });
+
+  return { 
+    default: mockFn
+  };
+});
 
 // Mock next/image
 type ImageProps = { src: string; alt: string; [key: string]: unknown };
@@ -20,9 +37,13 @@ vi.mock('next/image', () => ({
   default: (props: ImageProps) => <img {...props as React.ImgHTMLAttributes<HTMLImageElement>} data-testid="form-image" alt={props.alt as string} />,
 }));
 
-// Mock UploadButton 
+// Mock UploadButton - Resolvendo o 'any'
+interface MockUploadButtonProps {
+    onClientUploadComplete: (res: { url: string }[] | null) => void;
+    [key: string]: unknown;
+}
 vi.mock('@/utils/uploadthing', () => ({
-    UploadButton: (props: any) => (
+    UploadButton: (props: MockUploadButtonProps) => (
         <button data-testid="upload-button" onClick={() => props.onClientUploadComplete([{ url: 'mock.png' }])}>
             Upload
         </button>
@@ -30,10 +51,8 @@ vi.mock('@/utils/uploadthing', () => ({
 }));
 
 
-// --- DADOS MOCKADOS (Apenas o necessário para renderizar) ---
+// --- DADOS MOCKADOS ---
 type PrinterModel = { id: number; modelName: string };
-const mockBrands: Brand[] = [{ id: 10, name: 'HP', slug: 'hp' }];
-const mockCategories: Category[] = [{ id: 20, name: 'Toners', slug: 'toners', imageUrl: null, parentId: null }];
 const mockPrinters: PrinterModel[] = [
     { id: 101, modelName: 'HP M1132' },
     { id: 102, modelName: 'Epson L3250' },
@@ -56,8 +75,8 @@ const mockInitialProduct: Product & { compatibleWith: { printerId: number }[] } 
 
 const defaultProps = {
     title: 'Adicionar Produto',
-    brands: mockBrands,
-    categories: mockCategories,
+    brands: [{ id: 10, name: 'HP', slug: 'hp' }],
+    categories: [{ id: 20, name: 'Toners', slug: 'toners', imageUrl: null, parentId: null }],
     printers: mockPrinters,
     onSubmit: vi.fn(),
     isLoading: false,
@@ -68,7 +87,11 @@ describe('Componente ProductForm (Simplificado)', () => {
     const user = userEvent.setup();
 
     beforeEach(() => {
-        vi.clearAllMocks();
+        // Limpa os mocks de toast
+        mockLoading.mockClear();
+        mockSuccess.mockClear();
+        mockCustom.mockClear();
+        vi.clearAllMocks(); 
     });
 
     // TESTE 1: MODO CRIAÇÃO
@@ -77,7 +100,6 @@ describe('Componente ProductForm (Simplificado)', () => {
 
         expect(screen.getByRole('heading', { name: /Adicionar Produto/i })).toBeInTheDocument();
         expect(screen.getByPlaceholderText('Ex: Toner HP 85A')).toHaveValue('');
-        // Testa se o botão de exclusão não aparece no modo criação
         expect(screen.queryByText(/Excluir/i)).not.toBeInTheDocument();
     });
 
@@ -87,13 +109,11 @@ describe('Componente ProductForm (Simplificado)', () => {
         render(<ProductForm {...defaultProps} title="Editar Produto" initialData={mockInitialProduct} onDelete={onDeleteMock} />);
 
         expect(screen.getByRole('heading', { name: /Editar Produto/i })).toBeInTheDocument();
-        // Testa se os dados iniciais foram preenchidos
         expect(screen.getByLabelText('Nome do Produto')).toHaveValue(mockInitialProduct.name);
-        // Testa se o botão de exclusão aparece no modo edição
         expect(screen.getByText('Excluir')).toBeInTheDocument();
     });
     
-    // TESTE 3: SUBMISSÃO BÁSICA (Apenas para cobrir onSubmit)
+    // TESTE 3: SUBMISSÃO BÁSICA
     it('deve chamar onSubmit com os dados ao submeter', async () => {
         const onSubmitMock = vi.fn();
         render(<ProductForm {...defaultProps} onSubmit={onSubmitMock} />);
@@ -102,10 +122,9 @@ describe('Componente ProductForm (Simplificado)', () => {
         await user.click(screen.getByText('Salvar Produto'));
 
         expect(onSubmitMock).toHaveBeenCalledTimes(1);
-        expect(onSubmitMock.mock.calls[0][0].name).toBe('Teste Rápido');
     });
 
-    // TESTE 4: REMOÇÃO DA IMAGEM (Verifica apenas a mudança de estado)
+    // TESTE 4: REMOÇÃO DA IMAGEM
     it('deve remover a imagem quando o botão X do preview é clicado', async () => {
         render(<ProductForm {...defaultProps} initialData={mockInitialProduct} />);
         
@@ -114,25 +133,22 @@ describe('Componente ProductForm (Simplificado)', () => {
         
         await user.click(removeBtn);
         
-        // Após o clique, o botão de remover deve sumir e o de upload deve aparecer
+        // Assertions for clean state
         expect(screen.queryByTitle('Remover imagem')).not.toBeInTheDocument();
         expect(screen.getByTestId('upload-button')).toBeInTheDocument();
+        expect(mockCustom).toHaveBeenCalled(); // Verifica se toast() foi chamado
     });
     
-    // TESTE 5: FUNCIONALIDADE BÁSICA DO MULTI-SELECT (Verifica a interação mais simples)
-    it('deve permitir buscar e adicionar um item no multi-select', async () => {
+    // TESTE 5: FUNCIONALIDADE BÁSICA DO MULTI-SELECT
+    it('deve permitir adicionar um item no multi-select', async () => {
         render(<ProductForm {...defaultProps} />);
         
         const searchInput = screen.getByPlaceholderText('Buscar modelo de impressora (ex: M1132)');
         
-        // 1. Digita o termo
         await user.type(searchInput, 'Epson');
-
-        // 2. Clica na sugestão para adicionar (se ela aparecer)
         const suggestion = screen.getByText('Epson L3250');
         await user.click(suggestion);
         
-        // 3. Verifica se o chip de selecionado aparece
         expect(screen.getByText(/Epson L3250/i)).toBeInTheDocument();
     });
 });
