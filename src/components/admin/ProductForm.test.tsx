@@ -11,25 +11,23 @@ const mockLoading = vi.fn(() => 'loading-id');
 const mockSuccess = vi.fn();
 const mockError = vi.fn();
 const mockDismiss = vi.fn();
-const mockCustom = vi.fn(); // Para chamadas toast('mensagem')
+const mockCustom = vi.fn(); 
 
-// Objeto mock que será exportado pelo 'react-hot-toast'
-const exportedToastFns = {
-  loading: mockLoading,
-  success: mockSuccess,
-  error: mockError,
-  dismiss: mockDismiss,
-  // A função padrão (sem .success, .error, etc.) é chamada quando se usa 'toast(message)'
-  // Usamos 'custom' como um nome representativo para essa função.
-  (message: string, options?: unknown) => mockCustom(message, options), 
-  custom: mockCustom, // Expondo a função para ser limpada no beforeEach
-};
+// Mock react-hot-toast: usa uma função anônima para evitar o erro de hoisting.
+vi.mock('react-hot-toast', () => {
+  // A função padrão (export default) é o toast em si.
+  const toastFunction = (message: string, options?: unknown) => mockCustom(message, options);
+  
+  // Anexa as funções de utilidade (success, error, etc.) ao objeto da função.
+  toastFunction.loading = mockLoading;
+  toastFunction.success = mockSuccess;
+  toastFunction.error = mockError;
+  toastFunction.dismiss = mockDismiss;
 
-// Mock react-hot-toast: referencia o objeto criado acima.
-vi.mock('react-hot-toast', () => ({
-  // O default export é o objeto com todas as funções de toast
-  default: exportedToastFns, 
-}));
+  return { 
+    default: toastFunction // Exporta a função mockada como default
+  };
+});
 
 
 // --- MOCKS RESTANTES ---
