@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Brand, Category, Product } from '@prisma/client';
 import { FaSave, FaTrash, FaTimes, FaSearch } from 'react-icons/fa';
 import { UploadButton } from '@/utils/uploadthing';
