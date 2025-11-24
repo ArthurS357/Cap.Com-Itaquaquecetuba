@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Brand, Category, Product } from '@prisma/client';
-import { FaSave, FaTrash, FaTimes } from 'react-icons/fa';
+import { FaSave, FaTrash, FaTimes, FaSearch } from 'react-icons/fa';
 import { UploadButton } from '@/utils/uploadthing';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
@@ -31,6 +31,96 @@ type ProductFormProps = {
   title: string;
 };
 
+// --- NOVO SUB-COMPONENTE: MULTI-SELECT MELHORADO ---
+const PrinterMultiSelect = ({ 
+  printers, 
+  selectedIds, 
+  setSelectedIds 
+}: { 
+  printers: PrinterModel[]; 
+  selectedIds: number[]; 
+  setSelectedIds: (ids: number[]) => void 
+}) => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Lógica para adicionar/remover ID
+  const togglePrinter = (id: number) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter(pid => pid !== id));
+    } else {
+      setSelectedIds([...selectedIds, id]);
+    }
+  };
+
+  // Filtra as impressoras disponíveis
+  const filteredPrinters = printers
+    .filter(p => !selectedIds.includes(p.id)) // Exclui as já selecionadas
+    .filter(p => p.modelName.toLowerCase().includes(searchTerm.toLowerCase()));
+
+  // Ordena as impressoras selecionadas por nome para melhor visualização
+  const selectedPrinters = printers
+    .filter(p => selectedIds.includes(p.id))
+    .sort((a, b) => a.modelName.localeCompare(b.modelName));
+    
+  return (
+    <div className="space-y-4">
+      {/* 1. Selecionados */}
+      {selectedPrinters.length > 0 && (
+        <div className="border border-brand-light rounded-lg p-3 bg-brand-light/50">
+          <h4 className="text-sm font-semibold text-text-primary mb-2">Modelos Compatíveis ({selectedPrinters.length})</h4>
+          <div className="flex flex-wrap gap-2 max-h-28 overflow-y-auto custom-scrollbar">
+            {selectedPrinters.map(p => (
+              <span 
+                key={p.id} 
+                className="flex items-center gap-1 bg-brand-primary text-white text-xs px-2 py-1 rounded-full cursor-pointer hover:bg-brand-dark transition-colors"
+                onClick={() => togglePrinter(p.id)}
+                title={`Remover ${p.modelName}`}
+              >
+                {p.modelName} <FaTimes size={10} className="ml-1" />
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 2. Barra de Busca */}
+      <div className="relative">
+        <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-subtle" size={14} />
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Buscar modelo de impressora (ex: M1132)"
+          className="w-full px-4 py-2 pl-10 rounded-lg border border-surface-border bg-surface-background focus:ring-2 focus:ring-brand-primary outline-none"
+        />
+      </div>
+
+      {/* 3. Lista de Sugestões */}
+      <div className="max-h-60 overflow-y-auto border border-surface-border rounded-lg bg-surface-background">
+        {filteredPrinters.length > 0 ? (
+          <ul className="divide-y divide-surface-border">
+            {filteredPrinters.map(p => (
+              <li 
+                key={p.id} 
+                className="p-3 hover:bg-surface-border/50 cursor-pointer text-text-primary text-sm transition-colors"
+                onClick={() => togglePrinter(p.id)}
+              >
+                {p.modelName}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="p-4 text-center text-text-subtle text-sm">
+            {searchTerm ? 'Nenhum modelo encontrado ou todos já selecionados.' : 'Comece a digitar para buscar...'}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+// --- FIM DO NOVO SUB-COMPONENTE ---
+
+
 export default function ProductForm({
   initialData,
   brands,
@@ -56,14 +146,13 @@ export default function ProductForm({
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    if (e.target instanceof HTMLSelectElement && e.target.name === 'compatiblePrinterIds') {
-      const selectedOptions = Array.from(e.target.options)
-        .filter(option => option.selected)
-        .map(option => Number(option.value));
-      setFormData({ ...formData, compatiblePrinterIds: selectedOptions });
-    } else {
-      setFormData({ ...formData, [e.target.name]: e.target.value });
-    }
+    // Lógica antiga do <select multiple> foi removida daqui, agora tratada no PrinterMultiSelect
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+  
+  // NOVA FUNÇÃO para o MultiSelect (atualiza o array de IDs diretamente no formData)
+  const handlePrinterIdsChange = (ids: number[]) => {
+    setFormData(prev => ({ ...prev, compatiblePrinterIds: ids }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -231,23 +320,17 @@ export default function ProductForm({
           </div>
         </div>
 
-        {/* Impressoras Compatíveis */}
+        {/* Impressoras Compatíveis (NOVA IMPLEMENTAÇÃO) */}
         <div>
-          <label htmlFor="compatiblePrinterIds" className="block text-sm font-medium text-text-secondary mb-1">Modelos de Impressoras Compatíveis</label>
-          <select
-            id="compatiblePrinterIds"
-            name="compatiblePrinterIds"
-            multiple={true}
-            value={formData.compatiblePrinterIds.map(String)}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded-lg border border-surface-border bg-surface-background focus:ring-2 focus:ring-brand-primary outline-none h-48"
-          >
-            {printers.map(printer => (
-              <option key={printer.id} value={printer.id}>{printer.modelName}</option>
-            ))}
-          </select>
-          <p className="text-xs text-text-subtle mt-1">Dica: Segure &apos;Ctrl&apos; ou &apos;Cmd&apos; para selecionar múltiplos modelos.</p>
+          <label className="block text-sm font-medium text-text-secondary mb-1">Modelos de Impressoras Compatíveis</label>
+          <PrinterMultiSelect 
+            printers={printers}
+            selectedIds={formData.compatiblePrinterIds}
+            setSelectedIds={handlePrinterIdsChange}
+          />
+          <p className="text-xs text-text-subtle mt-1">Clique para adicionar ou remover. Use a barra de busca para encontrar rapidamente.</p>
         </div>
+
 
         {/* Botão Salvar */}
         <div className="flex justify-end pt-4">
