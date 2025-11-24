@@ -7,6 +7,7 @@ import Link from 'next/link';
 import SearchBar from '../components/SearchBar';
 import { FaAward, FaRegClock } from 'react-icons/fa';
 import { STORE_INFO, GOOGLE_MAPS_EMBED_URL } from '@/config/store';
+import { prisma } from '@/lib/prisma'; // Adicionando import do singleton
 
 type Category = {
   id: number;
@@ -71,8 +72,8 @@ const IconWaze = () => (
 export const getStaticProps: GetStaticProps<{
   mainCategories: Category[];
 }> = async () => {
-  const { PrismaClient } = await import('@prisma/client');
-  const prisma = new PrismaClient();
+  // const { PrismaClient } = await import('@prisma/client'); <-- REMOVIDO
+  // const prisma = new PrismaClient(); <-- REMOVIDO
 
   const allMainCategories = await prisma.category.findMany({
     where: {
@@ -93,7 +94,7 @@ export const getStaticProps: GetStaticProps<{
     return order.indexOf(a.name) - order.indexOf(b.name);
   });
 
-  await prisma.$disconnect();
+  // await prisma.$disconnect(); <-- REMOVIDO
 
   return {
     props: {
