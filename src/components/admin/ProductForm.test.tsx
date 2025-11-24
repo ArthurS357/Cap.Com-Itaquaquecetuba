@@ -5,7 +5,29 @@ import ProductForm, { ProductFormData } from '@/components/admin/ProductForm';
 import { Product, Brand, Category } from '@prisma/client';
 import React from 'react';
 
-// --- MOCKS ---
+// --- MOCKS DE FUNÇÕES DE TOAST (Definidas antes do vi.mock) ---
+// Definimos as funções de mock separadamente para evitar o erro de hoisting.
+const mockLoading = vi.fn(() => 'loading-id');
+const mockSuccess = vi.fn();
+const mockError = vi.fn();
+const mockDismiss = vi.fn();
+
+// O objeto mockToast é composto pelas funções acima
+const mockToast = {
+  loading: mockLoading,
+  success: mockSuccess,
+  error: mockError,
+  dismiss: mockDismiss,
+};
+
+// Mock react-hot-toast
+vi.mock('react-hot-toast', () => ({
+  // Retornamos o objeto mockToast já pronto
+  default: mockToast,
+}));
+
+
+// --- MOCKS RESTANTES ---
 
 // Interface para as props do mock da Imagem
 type ImageProps = { src: string; alt: string; [key: string]: unknown };
@@ -13,17 +35,6 @@ type ImageProps = { src: string; alt: string; [key: string]: unknown };
 vi.mock('next/image', () => ({
   // eslint-disable-next-line @next/next/no-img-element
   default: (props: ImageProps) => <img {...props as React.ImgHTMLAttributes<HTMLImageElement>} data-testid="form-image" alt={props.alt as string} />,
-}));
-
-// Mock react-hot-toast
-const mockToast = {
-  loading: vi.fn(() => 'loading-id'),
-  success: vi.fn(),
-  error: vi.fn(),
-  dismiss: vi.fn(),
-};
-vi.mock('react-hot-toast', () => ({
-  default: mockToast,
 }));
 
 // Interface para as props do mock do UploadButton
