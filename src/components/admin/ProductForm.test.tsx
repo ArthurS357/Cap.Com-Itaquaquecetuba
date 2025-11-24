@@ -5,23 +5,20 @@ import ProductForm, { ProductFormData } from '@/components/admin/ProductForm';
 import { Product, Brand, Category } from '@prisma/client';
 import React from 'react';
 
-// --- MOCKS DE FUNÇÕES DE TOAST (Definidas no topo para evitar Hoisting Error) ---
+// --- MOCKS DE FUNÇÕES DE TOAST (Definidas no topo e usadas no mock) ---
+// Definir como `const` no topo garante que sejam acessíveis pelo escopo do teste.
 const mockLoading = vi.fn(() => 'loading-id');
 const mockSuccess = vi.fn();
 const mockError = vi.fn();
-const mockDismiss = vi.fn();
 
-// Objeto mockToast referenciado no vi.mock abaixo
-const mockToast = {
-  loading: mockLoading,
-  success: mockSuccess,
-  error: mockError,
-  dismiss: mockDismiss,
-};
-
-// Mock react-hot-toast, referenciando as funções globais
+// Mock react-hot-toast: referencia os mocks criados acima
 vi.mock('react-hot-toast', () => ({
-  default: mockToast,
+  default: { // react-hot-toast usa default export
+    loading: mockLoading,
+    success: mockSuccess,
+    error: mockError,
+    dismiss: vi.fn(), // Usa vi.fn() diretamente se não precisa ser rastreado
+  },
 }));
 
 
@@ -176,8 +173,8 @@ describe('Componente ProductForm', () => {
             expect(screen.getByTestId('form-image')).toHaveAttribute('src', 'https://new-image-uploaded.png');
         });
         
-        // Verifica se o toast de sucesso foi chamado
-        expect(mockToast.success).toHaveBeenCalledWith('Upload de imagem concluído!');
+        // Verifica se o toast de sucesso foi chamado, usando mockSuccess diretamente
+        expect(mockSuccess).toHaveBeenCalledWith('Upload de imagem concluído!');
     });
     
     it('deve remover a imagem quando o botão X do preview é clicado', async () => {
