@@ -5,14 +5,13 @@ import ProductForm, { ProductFormData } from '@/components/admin/ProductForm';
 import { Product, Brand, Category } from '@prisma/client';
 import React from 'react';
 
-// --- MOCKS DE FUNÇÕES DE TOAST (Definidas antes do vi.mock) ---
-// Definimos as funções de mock separadamente para evitar o erro de hoisting.
+// --- MOCKS DE FUNÇÕES DE TOAST (Definidas no topo para evitar Hoisting Error) ---
 const mockLoading = vi.fn(() => 'loading-id');
 const mockSuccess = vi.fn();
 const mockError = vi.fn();
 const mockDismiss = vi.fn();
 
-// O objeto mockToast é composto pelas funções acima
+// Objeto mockToast referenciado no vi.mock abaixo
 const mockToast = {
   loading: mockLoading,
   success: mockSuccess,
@@ -20,9 +19,8 @@ const mockToast = {
   dismiss: mockDismiss,
 };
 
-// Mock react-hot-toast
+// Mock react-hot-toast, referenciando as funções globais
 vi.mock('react-hot-toast', () => ({
-  // Retornamos o objeto mockToast já pronto
   default: mockToast,
 }));
 
