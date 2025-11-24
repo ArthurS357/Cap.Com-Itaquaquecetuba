@@ -5,54 +5,31 @@ import ProductForm, { ProductFormData } from '@/components/admin/ProductForm';
 import { Product, Brand, Category } from '@prisma/client';
 import React from 'react';
 
-// --- DEFINIÇÃO DOS MOCKS DE TOAST DENTRO DO MÓDULO DE FÁBRICA ---
+// --- MOCKS DE FUNÇÕES DE TOAST (Definidas no topo para referências no describe) ---
+// Definir como CONST permite que sejam usadas no escopo global e limpas no beforeEach.
+const mockLoading = vi.fn(() => 'loading-id');
+const mockSuccess = vi.fn();
+const mockError = vi.fn();
+const mockCustom = vi.fn(); 
+const mockDismiss = vi.fn();
 
-// Definimos o tipo dos mocks que serão exportados para uso nas asserções do teste
-interface ToastMocks {
-    mockLoading: vi.Mock;
-    mockSuccess: vi.Mock;
-    mockError: vi.Mock;
-    mockCustom: vi.Mock;
-}
-
-// O mock de 'react-hot-toast' agora define seus próprios espiões internamente e
-// os exporta através do objeto `__mocks` para serem acessados pelo teste.
+// Mock react-hot-toast: referencia os mocks criados acima no escopo
+// Esta é a forma mais limpa e direta para contornar o hoisting.
 vi.mock('react-hot-toast', () => {
-    const mockLoading = vi.fn(() => 'loading-id');
-    const mockSuccess = vi.fn();
-    const mockError = vi.fn();
-    const mockCustom = vi.fn(); 
-    const mockDismiss = vi.fn();
+  const toastFunction = (message: string, options?: unknown) => mockCustom(message, options);
+  
+  // O Object.assign garante que todas as propriedades sejam injetadas no export default.
+  Object.assign(toastFunction, {
+    loading: mockLoading,
+    success: mockSuccess,
+    error: mockError,
+    dismiss: mockDismiss,
+  });
 
-    // 1. Define a função padrão (default export)
-    const toastFunction = (message: string, options?: unknown) => mockCustom(message, options);
-    
-    // 2. Anexa as funções de utilidade (success, error, etc.) ao objeto da função.
-    Object.assign(toastFunction, {
-        loading: mockLoading,
-        success: mockSuccess,
-        error: mockError,
-        dismiss: mockDismiss,
-    });
-    
-    // 3. Exporta o mock default E o objeto de espiões
-    return { 
-        default: toastFunction,
-        // Exporta os espiões nomeados para que o teste possa importá-los e limpá-los.
-        __mocks: { mockLoading, mockSuccess, mockError, mockCustom, mockDismiss },
-    };
+  return { 
+    default: toastFunction
+  };
 });
-
-
-// --- IMPORTAÇÃO E EXTRAÇÃO DOS ESPIÕES DE FORMA SEGURA ---
-
-// Importa o módulo mockado de 'react-hot-toast'
-import * as ToastModule from 'react-hot-toast'; 
-
-// Extrai os espiões usando o export __mocks que definimos no mock
-// @ts-expect-error: Acessa o mock exportado que definimos
-const toastMocks = (ToastModule as unknown as { __mocks: ToastMocks }).__mocks; 
-
 
 // --- MOCKS RESTANTES ---
 
@@ -125,11 +102,11 @@ describe('Componente ProductForm', () => {
     const user = userEvent.setup();
 
     beforeEach(() => {
-        // Limpa os mocks de toast usando as referências extraídas
-        toastMocks.mockLoading.mockClear();
-        toastMocks.mockSuccess.mockClear();
-        toastMocks.mockError.mockClear();
-        toastMocks.mockCustom.mockClear(); 
+        // Limpa os mocks de toast
+        mockLoading.mockClear();
+        mockSuccess.mockClear();
+        mockError.mockClear();
+        mockCustom.mockClear();
         vi.clearAllMocks(); // Limpa outros mocks como onSubmit
     });
 
@@ -211,7 +188,7 @@ describe('Componente ProductForm', () => {
         });
         
         // Verifica se o toast de sucesso foi chamado, usando mockSuccess
-        expect(toastMocks.mockSuccess).toHaveBeenCalledWith('Upload de imagem concluído!', expect.anything());
+        expect(mockSuccess).toHaveBeenCalledWith('Upload de imagem concluído!', expect.anything());
     });
     
     it('deve remover a imagem quando o botão X do preview é clicado', async () => {
@@ -225,7 +202,7 @@ describe('Componente ProductForm', () => {
         await user.click(removeBtn);
         
         // Verifica se o toast genérico foi chamado (toast('Imagem removida'))
-        expect(toastMocks.mockCustom).toHaveBeenCalledWith('Imagem removida', { icon: '🗑️' });
+        expect(mockCustom).toHaveBeenCalledWith('Imagem removida', { icon: '🗑️' });
         
         // Imagem Preview deve sumir e o botão de upload deve aparecer
         expect(screen.queryByTestId('form-image')).not.toBeInTheDocument();
@@ -236,7 +213,7 @@ describe('Componente ProductForm', () => {
 
     it('deve chamar onDelete quando o botão Excluir é clicado', async () => {
         const onDeleteMock = vi.fn();
-        render(<ProductForm {...defaultProps} initialData={mockInitialProduct} title="Editar Produto" onDelete={onDeleteMock} />);
+        render(<ProductForm {...defaultProps} title="Editar Produto" initialData={mockInitialProduct} onDelete={onDeleteMock} />);
 
         await user.click(screen.getByText('Excluir'));
 
