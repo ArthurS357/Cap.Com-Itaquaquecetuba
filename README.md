@@ -32,7 +32,7 @@
 
 Este é o repositório oficial do catálogo online e site institucional da **Cap.Com Itaquaquecetuba**, uma loja especializada em soluções de impressão. O projeto evoluiu para incluir um **CMS (Sistema de Gerenciamento de Conteúdo)** completo.
 
-O projeto utiliza **Next.js 15 (Turbopack)**, **React 19**, **Prisma** e **NextAuth.js**, combinando alta performance (ISR) com segurança e gerenciamento de dados em tempo real.
+O projeto utiliza **Next.js 15 (Turbopack)**, **React 19**, **Prisma** e **NextAuth.js**, combinando alta performance (ISR) com segurança e gerenciamento de dados em tempo real. A arquitetura é modular, com uma clara **Camada de Serviços** (Service Layer) para isolar a lógica de negócio do banco de dados e das rotas de frontend.
 
 ## ✨ Features Principais
 
@@ -46,10 +46,11 @@ O projeto utiliza **Next.js 15 (Turbopack)**, **React 19**, **Prisma** e **NextA
 
 ### 🛡️ Área Administrativa (Restrita)
 * **Autenticação Segura:** Login via **NextAuth.js** para proteger as rotas de administração.
-* **Dashboard:** Visão geral e navegação rápida para gerentes.
-* **Gestão de Produtos (CRUD):** Adicionar, editar e remover produtos com upload de imagens integrado.
+* **Validação Robusta:** Uso de **Zod** para garantir a integridade e segurança dos dados de entrada nas APIs.
+* **UX Aprimorada:** O formulário de edição de produtos agora inclui um campo **Multi-Select com Busca** para selecionar impressoras compatíveis.
+* **Gestão de Produtos (CRUD):** Adicionar, editar e remover produtos com upload de imagens integrado, incluindo gerenciamento de compatibilidade.
 * **Gestão de Categorias:** Criar e organizar a hierarquia de categorias da loja.
-* **Configurações da Loja:** Controle dinâmico do Banner de Avisos/Promoções que aparece no topo do site.
+* **Configurações da Loja:** Controle dinâmico do Banner de Avisos/Promoções que aparece no topo do site (Com logging aprimorado para monitoramento).
 * **Upload de Imagens:** Integração com **UploadThing** para hospedagem e gerenciamento de fotos dos produtos.
 
 ## 🛠️ Stack de Tecnologias
@@ -59,6 +60,7 @@ O projeto utiliza **Next.js 15 (Turbopack)**, **React 19**, **Prisma** e **NextA
 * **Estilo:** [Tailwind CSS](https://tailwindcss.com/) & [Next-Themes](https://github.com/pacocoursey/next-themes)
 * **Banco de Dados:** [Prisma ORM](https://www.prisma.io/) & [PostgreSQL](https://www.postgresql.org/)
 * **Validação:** [Zod](https://zod.dev/)
+* **Arquitetura:** Camada de Serviços e Prisma Singleton para alta performance.
 * **Auth:** [NextAuth.js](https://next-auth.js.org/)
 * **Uploads:** [UploadThing](https://uploadthing.com/)
 * **Testes:** [Vitest](https://vitest.dev/) & [React Testing Library](https://testing-library.com/)
@@ -125,6 +127,7 @@ src/
 
 </details>
 
+
 <br>
 
 <details>
@@ -137,7 +140,7 @@ src/
 
 This is the official repository for the online catalog and institutional website of **Cap.Com Itaquaquecetuba**. The project has evolved into a full **CMS (Content Management System)** for printing solutions.
 
-Built with **Next.js 15 (Turbopack)**, **React 19**, **Prisma**, and **NextAuth.js**, balancing high performance (ISR) with secure, dynamic data management.
+Built with **Next.js 15 (Turbopack)**, **React 19**, **Prisma**, and **NextAuth.js**, balancing high performance (ISR) with secure, dynamic data management. The architecture features a clear **Service Layer** to isolate business logic from the database and frontend routes.
 
 ## ✨ Key Features
 
@@ -153,10 +156,11 @@ Built with **Next.js 15 (Turbopack)**, **React 19**, **Prisma**, and **NextAuth.
 ### 🛡️ Admin Area (Restricted)
 
   * **Secure Auth:** **NextAuth.js** login to protect administrative routes.
-  * **Dashboard:** Overview and quick navigation for managers.
-  * **Product Management (CRUD):** Add, edit, and delete products with integrated image uploads.
+  * **Robust Validation:** Uses **Zod** to ensure integrity and security of API input data.
+  * **Enhanced UX:** The product editing form now includes a **Searchable Multi-Select** field for selecting compatible printers.
+  * **Product Management (CRUD):** Add, edit, and delete products with integrated image uploads, including compatibility management.
   * **Category Management:** Create and organize the store's category hierarchy.
-  * **Store Settings:** Dynamic control of the Promo Banner displayed at the top of the site.
+  * **Store Settings:** Dynamic control of the Promo Banner displayed at the top of the site (With improved logging for monitoring).
   * **Image Uploads:** Integration with **UploadThing** for hosting and managing product photos.
 
 ## 🛠️ Tech Stack
@@ -166,6 +170,7 @@ Built with **Next.js 15 (Turbopack)**, **React 19**, **Prisma**, and **NextAuth.
   * **Style:** [Tailwind CSS](https://tailwindcss.com/) & [Next-Themes](https://github.com/pacocoursey/next-themes)
   * **Database:** [Prisma ORM](https://www.prisma.io/) & [PostgreSQL](https://www.postgresql.org/)
   * **Validation:** [Zod](https://zod.dev/)
+  * **Architecture:** Service Layer and Prisma Singleton for high performance.
   * **Auth:** [NextAuth.js](https://next-auth.js.org/)
   * **Uploads:** [UploadThing](https://uploadthing.com/)
   * **Testing:** [Vitest](https://vitest.dev/) & [React Testing Library](https://testing-library.com/)
