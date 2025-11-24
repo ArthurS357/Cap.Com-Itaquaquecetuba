@@ -5,28 +5,45 @@ import ProductForm, { ProductFormData } from '@/components/admin/ProductForm';
 import { Product, Brand, Category } from '@prisma/client';
 import React from 'react';
 
-// --- MOCKS DE FUNÇÕES DE TOAST (Definidas no topo e usadas no mock) ---
-// Definir como `const` no topo garante que sejam acessíveis.
-const mockLoading = vi.fn(() => 'loading-id');
-const mockSuccess = vi.fn();
-const mockError = vi.fn();
-const mockDismiss = vi.fn();
-const mockCustom = vi.fn(); 
+// --- MOCKS DE FUNÇÕES DE TOAST (Variáveis globais para asserções, inicializadas com let) ---
+// Estas variáveis serão REATRIBUÍDAS dentro do vi.mock para contornar o erro de Hoisting.
+let mockLoading = vi.fn(() => 'loading-id') as vi.Mock;
+let mockSuccess = vi.fn() as vi.Mock;
+let mockError = vi.fn() as vi.Mock;
+let mockCustom = vi.fn() as vi.Mock; 
+let mockDismiss = vi.fn() as vi.Mock; 
 
-// Mock react-hot-toast: usa uma função anônima para evitar o erro de hoisting.
+
+// Mock react-hot-toast
 vi.mock('react-hot-toast', () => {
-  // A função padrão (export default) é o toast em si.
-  const toastFunction = (message: string, options?: unknown) => mockCustom(message, options);
-  
-  // Anexa as funções de utilidade (success, error, etc.) ao objeto da função.
-  toastFunction.loading = mockLoading;
-  toastFunction.success = mockSuccess;
-  toastFunction.error = mockError;
-  toastFunction.dismiss = mockDismiss;
+    // 1. Define NOVOS spies localmente. Estes são os que serão usados pelo ProductForm.
+    const loading = vi.fn(() => 'loading-id');
+    const success = vi.fn();
+    const error = vi.fn();
+    const custom = vi.fn(); 
+    const dismiss = vi.fn();
 
-  return { 
-    default: toastFunction // Exporta a função mockada como default
-  };
+    // 2. Reatribui as variáveis globais. 
+    // Isso é a ÚNICA forma de o código de teste (expect(mockSuccess).toHaveBeenCalled())
+    // referenciar as funções de mock que o Vitest realmente injeta.
+    mockLoading = loading;
+    mockSuccess = success;
+    mockError = error;
+    mockCustom = custom;
+    mockDismiss = dismiss;
+
+    // 3. Define a função padrão (default export)
+    const toastFn = (message: string, options?: unknown) => custom(message, options);
+
+    // 4. Retorna o objeto mock completo
+    return { 
+        default: Object.assign(toastFn, {
+            loading,
+            success,
+            error,
+            dismiss,
+        })
+    };
 });
 
 
