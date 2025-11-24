@@ -6,10 +6,14 @@ import PromoBanner from './PromoBanner';
 const fetchMock = vi.fn();
 global.fetch = fetchMock;
 
+// Mock do console.error para evitar poluição no console e verificar o logging
+const consoleErrorMock = vi.spyOn(console, 'error').mockImplementation(() => {});
+
 describe('Componente PromoBanner', () => {
 
   beforeEach(() => {
     fetchMock.mockClear();
+    consoleErrorMock.mockClear(); // Limpar o mock do console.error
   });
 
   // --- NOVO TESTE PARA COBRIR O CATCH (Linha 17) ---
@@ -26,6 +30,9 @@ describe('Componente PromoBanner', () => {
 
     // Aguarda a rejeição ser processada pelo catch do useEffect
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+    
+    // Verifica se o erro foi logado (novo comportamento após o último refactor)
+    expect(consoleErrorMock).toHaveBeenCalled();
     
     // O catch deve garantir que o componente retorne null (container vazio)
     expect(container).toBeEmptyDOMElement();
@@ -48,28 +55,32 @@ describe('Componente PromoBanner', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  // TESTE CORRIGIDO: Uso de Regex
   it('deve renderizar o texto se a API retornar ativo', async () => {
     // Simula resposta positiva
     fetchMock.mockResolvedValue({
+      ok: true,
       json: async () => ({ value: 'Frete Grátis Hoje!', isActive: true }),
     });
 
     render(<PromoBanner />);
 
-    // Usa findByText que já espera (await) o elemento aparecer
-    const bannerText = await screen.findByText('Frete Grátis Hoje!');
+    // CORREÇÃO: Usa regex (/texto/i) para encontrar o texto, que é mais resiliente ao ícone adjacente.
+    const bannerText = await screen.findByText(/Frete Grátis Hoje!/i);
     expect(bannerText).toBeInTheDocument();
   });
 
+  // TESTE CORRIGIDO: Uso de Regex
   it('deve fechar o banner ao clicar no botão', async () => {
     fetchMock.mockResolvedValue({
+      ok: true,
       json: async () => ({ value: 'Banner Fechável', isActive: true }),
     });
 
     render(<PromoBanner />);
 
-    // Espera aparecer
-    const bannerText = await screen.findByText('Banner Fechável');
+    // CORREÇÃO: Usa regex para encontrar o texto
+    const bannerText = await screen.findByText(/Banner Fechável/i);
     expect(bannerText).toBeInTheDocument();
 
     // Encontra e clica no botão de fechar (ícone FaTimes)
