@@ -6,19 +6,29 @@ import { Product, Brand, Category } from '@prisma/client';
 import React from 'react';
 
 // --- MOCKS DE FUNÇÕES DE TOAST (Definidas no topo e usadas no mock) ---
-// Definir como `const` no topo garante que sejam acessíveis pelo escopo do teste.
+// Definir como `const` no topo garante que sejam acessíveis.
 const mockLoading = vi.fn(() => 'loading-id');
 const mockSuccess = vi.fn();
 const mockError = vi.fn();
+const mockDismiss = vi.fn();
+const mockCustom = vi.fn(); // Para chamadas toast('mensagem')
 
-// Mock react-hot-toast: referencia os mocks criados acima
+// Objeto mock que será exportado pelo 'react-hot-toast'
+const exportedToastFns = {
+  loading: mockLoading,
+  success: mockSuccess,
+  error: mockError,
+  dismiss: mockDismiss,
+  // A função padrão (sem .success, .error, etc.) é chamada quando se usa 'toast(message)'
+  // Usamos 'custom' como um nome representativo para essa função.
+  (message: string, options?: unknown) => mockCustom(message, options), 
+  custom: mockCustom, // Expondo a função para ser limpada no beforeEach
+};
+
+// Mock react-hot-toast: referencia o objeto criado acima.
 vi.mock('react-hot-toast', () => ({
-  default: { // react-hot-toast usa default export
-    loading: mockLoading,
-    success: mockSuccess,
-    error: mockError,
-    dismiss: vi.fn(), // Usa vi.fn() diretamente se não precisa ser rastreado
-  },
+  // O default export é o objeto com todas as funções de toast
+  default: exportedToastFns, 
 }));
 
 
@@ -93,7 +103,13 @@ describe('Componente ProductForm', () => {
     const user = userEvent.setup();
 
     beforeEach(() => {
-        vi.clearAllMocks();
+        // Limpa os mocks de toast antes de cada teste
+        mockLoading.mockClear();
+        mockSuccess.mockClear();
+        mockError.mockClear();
+        mockCustom.mockClear();
+        mockDismiss.mockClear(); 
+        vi.clearAllMocks(); // Limpa outros mocks como onSubmit
     });
 
     // --- TESTES DE RENDERIZAÇÃO E INICIALIZAÇÃO ---
@@ -173,7 +189,7 @@ describe('Componente ProductForm', () => {
             expect(screen.getByTestId('form-image')).toHaveAttribute('src', 'https://new-image-uploaded.png');
         });
         
-        // Verifica se o toast de sucesso foi chamado, usando mockSuccess diretamente
+        // Verifica se o toast de sucesso foi chamado, usando mockSuccess
         expect(mockSuccess).toHaveBeenCalledWith('Upload de imagem concluído!');
     });
     
@@ -186,6 +202,9 @@ describe('Componente ProductForm', () => {
         // Clica no botão de remover (ícone FaTimes)
         const removeBtn = screen.getByTitle('Remover imagem');
         await user.click(removeBtn);
+        
+        // Verifica se o toast genérico foi chamado (toast('Imagem removida'))
+        expect(mockCustom).toHaveBeenCalledWith('Imagem removida', { icon: '🗑️' });
         
         // Imagem Preview deve sumir e o botão de upload deve aparecer
         expect(screen.queryByTestId('form-image')).not.toBeInTheDocument();
