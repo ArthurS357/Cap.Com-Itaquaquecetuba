@@ -10,7 +10,6 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Senha", type: "password" }
       },
       async authorize(credentials) {
-        // Verifica se o login e senha batem com o .env
         if (
           credentials?.username === process.env.ADMIN_USER &&
           credentials?.password === process.env.ADMIN_PASSWORD
@@ -22,8 +21,7 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   pages: {
-    // Apontamos para a nova página customizada aqui
-    signIn: '/auth/login',
+    signIn: '/auth/login', // <--- ESTA LINHA É FUNDAMENTAL PARA EVITAR O 404
   },
   secret: process.env.NEXTAUTH_SECRET,
 };

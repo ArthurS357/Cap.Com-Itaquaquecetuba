@@ -12,7 +12,9 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/api/auth/signin");
+      // Alterado para redirecionar para a nova página de login
+      // O parâmetro callbackUrl garante que ele volte para o /admin depois
+      router.push("/auth/login?callbackUrl=/admin");
     }
   }, [status, router]);
 
