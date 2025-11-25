@@ -1,6 +1,4 @@
 import { useSession, signOut } from "next-auth/react";
-import { useRouter } from "next/router";
-import { useEffect } from "react";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import Link from "next/link";
 import { FaUserShield, FaBoxOpen, FaSignOutAlt, FaTags, FaCog } from "react-icons/fa";
@@ -8,20 +6,13 @@ import SEO from "@/components/Seo";
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
-  const router = useRouter();
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      // Alterado para redirecionar para a nova página de login
-      // O parâmetro callbackUrl garante que ele volte para o /admin depois
-      router.push("/auth/login?callbackUrl=/admin");
-    }
-  }, [status, router]);
-
+  // Exibe o spinner enquanto o NextAuth verifica a sessão no cliente
   if (status === "loading") {
     return <LoadingSpinner />;
   }
 
+  // Proteção extra: se o middleware falhar ou o usuário for deslogado na página, não exibe nada
   if (!session) {
     return null;
   }
