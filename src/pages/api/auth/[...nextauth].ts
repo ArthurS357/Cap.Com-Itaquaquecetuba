@@ -15,17 +15,15 @@ export const authOptions: NextAuthOptions = {
           credentials?.username === process.env.ADMIN_USER &&
           credentials?.password === process.env.ADMIN_PASSWORD
         ) {
-          // Retorna o objeto do usuário se sucesso
           return { id: "1", name: "Admin Cap.Com", email: "admin@capcom.com" };
         }
-        // Retorna null se falhar
         return null;
       }
     })
   ],
   pages: {
-    // Pgina padrão por enquanto para testar rápido
-    // signIn: '/auth/login', 
+    // Apontamos para a nova página customizada aqui
+    signIn: '/auth/login',
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
