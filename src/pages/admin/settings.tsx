@@ -4,8 +4,8 @@ import { getSession } from 'next-auth/react';
 import SEO from '@/components/Seo';
 import Link from 'next/link';
 import { FaArrowLeft, FaSave, FaBullhorn } from 'react-icons/fa';
-import toast from 'react-hot-toast'; // Importar toast
-import { prisma } from '@/lib/prisma'; // Usar singleton
+import toast from 'react-hot-toast';
+import { prisma } from '@/lib/prisma';
 
 type SettingsProps = {
   initialBannerText: string;

@@ -6,7 +6,7 @@ import ProductCard from '@/components/cards/ProductCard';
 import { FaFilter, FaTimes } from 'react-icons/fa';
 import { productService } from '@/services/productService';
 
-// Usamos o ReturnType para inferir o tipo de retorno da função do serviço automaticamente
+//ReturnType para inferir o tipo de retorno da função do serviço automaticamente
 type SearchResultProduct = Awaited<ReturnType<typeof productService.search>>[number];
 
 type FilterOption = {

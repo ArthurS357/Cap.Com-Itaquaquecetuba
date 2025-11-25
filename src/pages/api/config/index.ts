@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
-import { prisma } from '@/lib/prisma'; // Usar singleton
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
@@ -43,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Revalida a home para atualizar o banner imediatamente
       try {
         await res.revalidate('/');
-      } catch(err) {
+      } catch (err) {
         console.error('Erro ao revalidar home após salvar config:', err);
       }
 

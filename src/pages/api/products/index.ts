@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { slugify } from '@/lib/utils';
 import { z } from 'zod';
-import { prisma } from '@/lib/prisma'; // Singleton
+import { prisma } from '@/lib/prisma'; 
 
 // Schema de Validação com Zod
 const productCreateSchema = z.object({

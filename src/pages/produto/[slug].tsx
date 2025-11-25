@@ -6,7 +6,7 @@ import SEO from '@/components/Seo';
 import ProductCard from '@/components/cards/ProductCard';
 import { FaWhatsapp, FaTruck, FaShieldAlt, FaTag, FaArrowLeft, FaCheckCircle } from 'react-icons/fa';
 import { getWhatsappLink, STORE_INFO } from '@/config/store';
-import { prisma } from '@/lib/prisma'; // Singleton
+import { prisma } from '@/lib/prisma';
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;

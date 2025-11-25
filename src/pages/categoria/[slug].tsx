@@ -6,7 +6,7 @@ import SEO from '@/components/Seo';
 import Link from 'next/link';
 import ProductCard from '@/components/cards/ProductCard';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { prisma } from '@/lib/prisma'; // Usando o singleton
+import { prisma } from '@/lib/prisma';
 
 
 
@@ -24,7 +24,6 @@ type CategoryWithDetails = Prisma.CategoryGetPayload<{
 
 // Gera os paths para todas as categorias com slug definido
 export const getStaticPaths: GetStaticPaths = async () => {
-  // const prisma = new PrismaClient(); <-- REMOVIDO
   let paths: { params: { slug: string } }[] = [];
   try {
     const categories = await prisma.category.findMany({
@@ -34,12 +33,11 @@ export const getStaticPaths: GetStaticPaths = async () => {
     paths = categories
       .map((category) => ({
         // Garante que o slug não seja null, embora o schema sugira que ele seja.
-        params: { slug: category.slug! }, 
+        params: { slug: category.slug! },
       }));
   } catch (error) {
     console.error("Erro ao gerar paths estáticos para categorias:", error);
-  } 
-  // Removido: finally { await prisma.$disconnect(); }
+  }
 
   return { paths, fallback: 'blocking' };
 };
@@ -52,7 +50,6 @@ export const getStaticProps: GetStaticProps<{
   const slug = context.params?.slug as string;
   if (!slug) return { notFound: true };
 
-  // const prisma = new PrismaClient(); <-- REMOVIDO
   let categoryWithDetails: CategoryWithDetails | null = null;
 
   try {
@@ -69,13 +66,11 @@ export const getStaticProps: GetStaticProps<{
     });
 
     if (!categoryWithDetails) {
-      // await prisma.$disconnect(); <-- REMOVIDO
       return { notFound: true }; // Retorna 404 se não encontrar
     }
 
     // Serializa os dados
     const serializableCategory = JSON.parse(JSON.stringify(categoryWithDetails));
-    // await prisma.$disconnect(); <-- REMOVIDO
 
     return {
       props: {
@@ -85,7 +80,6 @@ export const getStaticProps: GetStaticProps<{
     };
   } catch (error) {
     console.error(`Erro ao buscar dados da categoria para slug "${slug}":`, error);
-    // await prisma.$disconnect(); <-- REMOVIDO
     return { notFound: true }; // Retorna 404 em caso de erro
   }
 };

@@ -8,9 +8,6 @@ export type ProductSearchParams = {
 };
 
 export const productService = {
-    /**
-     * Busca todas as marcas e tipos disponíveis para os filtros
-     */
     async getFilters() {
         const [brands, types] = await Promise.all([
             prisma.brand.findMany({
@@ -35,7 +32,6 @@ export const productService = {
         const { query = '', brands = [], types = [] } = params;
 
         // 1. Condição de Busca por Texto (Nome, Descrição, Marca, Impressora)
-        // Utilizamos 'as const' no mode para evitar erro de tipagem do TypeScript
         const textSearchCondition: Prisma.ProductWhereInput = query.trim()
             ? {
                 OR: [

@@ -24,7 +24,7 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   pages: {
-    // Vamos usar a página padrão por enquanto para testar rápido
+    // Pgina padrão por enquanto para testar rápido
     // signIn: '/auth/login', 
   },
   secret: process.env.NEXTAUTH_SECRET,

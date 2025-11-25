@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { slugify } from '@/lib/utils';
 import { z } from 'zod';
-import { prisma } from '@/lib/prisma'; // Singleton
+import { prisma } from '@/lib/prisma'; 
 
 // Schema de Validação para Edição (Inclui o novo campo)
 const productUpdateSchema = z.object({
@@ -39,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const productId = parseInt(id, 10);
 
-  // --- GET --- (Mantido)
+  // --- GET --- 
   if (method === 'GET') {
     try {
       const product = await prisma.product.findUnique({
@@ -139,7 +139,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 
-  // --- DELETE: Remover --- (Mantido)
+  // --- DELETE: Remover --- 
   else if (method === 'DELETE') {
     try {
       await prisma.printerCompatibility.deleteMany({ where: { cartridgeId: productId } });
