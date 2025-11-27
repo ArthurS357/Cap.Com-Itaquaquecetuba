@@ -7,9 +7,9 @@ import ProductCard from '@/components/cards/ProductCard';
 import { FaWhatsapp, FaTruck, FaShieldAlt, FaTag, FaArrowLeft, FaCheckCircle, FaShoppingBag } from 'react-icons/fa';
 import { getWhatsappLink, STORE_INFO } from '@/config/store';
 import { prisma } from '@/lib/prisma';
-import { useCart } from '@/context/CartContext'; 
+import { useCart } from '@/context/CartContext';
 
-// Tipagem dos dados com as relações necessárias
+// Tipagem dos dados
 type ProductWithRelations = Product & {
   brand: Brand;
   category: Category;
@@ -22,13 +22,12 @@ type ProductPageProps = {
 };
 
 export default function ProductPage({ product, relatedProducts }: ProductPageProps) {
-  // Se a página estiver em fallback (geração estática), não renderiza nada para evitar erros
-  if (!product) return null;
-
-  // Hook do carrinho para adicionar o produto atual à lista de orçamento
+  // 1. Hooks devem ser chamados no nível superior, antes de qualquer return
   const { addToCart } = useCart();
 
-  // Link direto caso o cliente queira pular o carrinho e falar imediatamente
+  // 2. Agora podemos fazer a verificação de segurança
+  if (!product) return null;
+
   const whatsappMessage = `Olá! Vi o produto *${product.name}* no site e gostaria de saber mais.`;
   const whatsappLink = getWhatsappLink(whatsappMessage);
 
@@ -40,18 +39,16 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
         image={product.imageUrl || undefined}
       />
 
-      {/* Navegação de retorno */}
       <div className="mb-6">
         <Link href="/" className="inline-flex items-center gap-2 text-text-secondary hover:text-brand-primary transition-colors">
           <FaArrowLeft /> Voltar para a loja
         </Link>
       </div>
 
-      {/* Card Principal do Produto */}
       <div className="bg-surface-card border border-surface-border rounded-2xl p-6 md:p-10 shadow-sm mb-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
 
-          {/* Coluna da Imagem */}
+          {/* Imagem */}
           <div className="relative bg-white rounded-xl overflow-hidden border border-surface-border aspect-square flex items-center justify-center p-4">
             {product.imageUrl ? (
               <Image
@@ -71,7 +68,7 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
             </span>
           </div>
 
-          {/* Coluna das Informações */}
+          {/* Informações */}
           <div className="flex flex-col h-full">
             <div className="mb-2 text-brand-primary font-semibold flex items-center gap-2">
               <FaTag size={14} /> {product.brand.name}
@@ -87,7 +84,7 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
               </p>
             )}
 
-            {/* --- Seção de Impressoras Compatíveis --- */}
+            {/* --- IMPRESSORAS COMPATÍVEIS --- */}
             {product.compatibleWith && product.compatibleWith.length > 0 && (
               <div className="mb-8 bg-surface-background p-4 rounded-xl border border-surface-border">
                 <h3 className="text-sm font-bold text-text-primary mb-3 uppercase tracking-wide flex items-center gap-2">
@@ -118,9 +115,8 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
                 )}
               </div>
 
-              {/* --- Ações de Venda (Botões) --- */}
+              {/* Ações de Venda */}
               <div className="flex flex-col gap-3">
-                {/* Botão Principal: Adicionar ao Carrinho */}
                 <button
                   onClick={() => addToCart(product)}
                   className="w-full md:w-auto text-center bg-brand-primary hover:bg-brand-dark text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-3"
@@ -129,7 +125,6 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
                   Adicionar ao Orçamento
                 </button>
 
-                {/* Botão Secundário: WhatsApp Direto */}
                 <a
                   href={whatsappLink}
                   target="_blank"
@@ -141,7 +136,6 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
                 </a>
               </div>
 
-              {/* Benefícios (Entrega e Garantia) */}
               <div className="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-surface-border">
                 <div className="flex items-center gap-3 text-text-secondary text-sm">
                   <FaTruck className="text-brand-primary text-xl" />
@@ -157,7 +151,6 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
         </div>
       </div>
 
-      {/* Produtos Relacionados */}
       {relatedProducts.length > 0 && (
         <div className="mt-16">
           <h2 className="text-2xl font-bold text-text-primary mb-8 border-l-4 border-brand-primary pl-4">
@@ -186,17 +179,15 @@ export const getStaticPaths: GetStaticPaths = async () => {
       params: { slug: product.slug! },
     }));
 
-  // fallback: 'blocking' garante que novos produtos sejam gerados via SSR na primeira visita
   return { paths, fallback: 'blocking' };
 };
 
-// 2. GERA OS DADOS DA PÁGINA (COM REVALIDAÇÃO ISR)
+// 2. GERA OS DADOS DA PÁGINA (COM REVALIDAÇÃO)
 export const getStaticProps: GetStaticProps = async (context) => {
   const slug = context.params?.slug as string;
 
   if (!slug) return { notFound: true };
 
-  // Busca o produto e suas relações (Marca, Categoria, Impressoras Compatíveis)
   const product = await prisma.product.findUnique({
     where: { slug },
     include: {
@@ -214,7 +205,6 @@ export const getStaticProps: GetStaticProps = async (context) => {
     return { notFound: true };
   }
 
-  // Busca produtos relacionados da mesma categoria (excluindo o atual)
   const relatedProducts = await prisma.product.findMany({
     where: {
       categoryId: product.categoryId,
@@ -233,6 +223,6 @@ export const getStaticProps: GetStaticProps = async (context) => {
       product: JSON.parse(JSON.stringify(product)),
       relatedProducts: JSON.parse(JSON.stringify(relatedProducts)),
     },
-    revalidate: 60, // Atualiza o cache a cada 60 segundos se houver acesso
+    revalidate: 60, 
   };
 };
