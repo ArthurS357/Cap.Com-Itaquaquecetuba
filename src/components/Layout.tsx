@@ -6,7 +6,7 @@ import { FaBars, FaTimes } from 'react-icons/fa'; // Ícones para o menu mobile
 
 // Importação dos componentes existentes
 import ThemeToggleButton from './ThemeToggleButton';
-import WhatsAppButton from './WhatsAppButton';
+import FloatingActionGroup from './FloatingActionGroup'; // NOVO COMPONENTE
 import Breadcrumbs from './Breadcrumbs';
 import PromoBanner from './PromoBanner';
 import SearchBar from './SearchBar'; // Importando a barra de busca
@@ -201,7 +201,8 @@ export default function Layout({ children }: LayoutProps) {
         {children}
       </main>
       <Footer />
-      <WhatsAppButton />
+      {/* Botões flutuantes agora gerenciados aqui */}
+      <FloatingActionGroup /> 
     </div>
   );
 }
