@@ -1,5 +1,5 @@
 import { useCart } from '@/context/CartContext';
-import { getWhatsappLink } from '@/config/store'; 
+import { getWhatsappLink } from '@/config/store';
 import { FaTimes, FaTrash, FaWhatsapp, FaShoppingBag } from 'react-icons/fa';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
@@ -12,7 +12,6 @@ export default function CartSidebar() {
 
   if (!mounted) return null;
 
-  // Gera a mensagem do WhatsApp
   const handleCheckout = () => {
     if (items.length === 0) return;
 
@@ -26,36 +25,25 @@ export default function CartSidebar() {
     const link = getWhatsappLink(message);
     window.open(link, '_blank');
   };
-
-  // Botão Flutuante (Aparece quando fechado)
-  if (!isCartOpen) {
-    return (
-      <button
-        onClick={toggleCart}
-        className="fixed bottom-24 right-4 md:bottom-28 md:right-8 z-40 bg-white text-brand-primary p-3 md:p-4 rounded-full shadow-xl border-2 border-brand-primary hover:scale-110 transition-transform flex items-center justify-center"
-        title="Ver Orçamento"
-      >
-        <FaShoppingBag size={24} />
-        {items.length > 0 && (
-          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full border-2 border-white">
-            {items.reduce((acc, i) => acc + i.quantity, 0)}
-          </span>
-        )}
-      </button>
-    );
-  }
-
-  // Sidebar (Aparece quando aberto)
+  
+  // Se o carrinho não estiver aberto, não renderiza nada (o botão agora fica no FloatingActionGroup)
+  
   return (
     <>
       {/* Overlay Escuro */}
       <div 
-        className="fixed inset-0 bg-black/50 z-50 transition-opacity" 
+        className={`fixed inset-0 bg-black/50 z-[60] transition-opacity duration-300 ${
+          isCartOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
         onClick={toggleCart}
       />
 
       {/* Painel Lateral */}
-      <div className="fixed inset-y-0 right-0 z-[60] w-full max-w-sm bg-surface-card shadow-2xl transform transition-transform duration-300 ease-in-out border-l border-surface-border flex flex-col">
+      <div 
+        className={`fixed inset-y-0 right-0 z-[70] w-full max-w-sm bg-surface-card shadow-2xl transform transition-transform duration-300 ease-in-out border-l border-surface-border flex flex-col ${
+          isCartOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
         
         {/* Cabeçalho */}
         <div className="p-4 border-b border-surface-border flex items-center justify-between bg-surface-background">
