@@ -20,7 +20,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
   // Renderização principal (produto válido com slug e marca)
   if (product && product.slug && product.brand) {
     return (
-      <Link href={`/produto/${product.slug}`} key={product.id}>
+      <Link href={`/produto/${product.slug}`} key={product.id} className="block h-full">
         <div className="group bg-surface-card rounded-xl p-4 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer h-full flex flex-col justify-between items-center text-center border border-surface-border hover:scale-105">
 
           {/* Imagem do produto */}
@@ -110,3 +110,4 @@ const ProductCard = ({ product }: ProductCardProps) => {
 };
 
 export default ProductCard;
+
