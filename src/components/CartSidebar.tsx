@@ -1,5 +1,5 @@
 import { useCart } from '@/context/CartContext';
-import { STORE_INFO, getWhatsappLink } from '@/config/store';
+import { getWhatsappLink } from '@/config/store'; 
 import { FaTimes, FaTrash, FaWhatsapp, FaShoppingBag } from 'react-icons/fa';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
