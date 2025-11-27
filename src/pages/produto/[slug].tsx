@@ -1,4 +1,4 @@
-import { GetServerSideProps } from 'next';
+import { GetStaticPaths, GetStaticProps } from 'next';
 import { PrismaClient, Product, Brand, Category, Printer } from '@prisma/client';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,9 +8,7 @@ import { FaWhatsapp, FaTruck, FaShieldAlt, FaTag, FaArrowLeft, FaCheckCircle } f
 import { getWhatsappLink, STORE_INFO } from '@/config/store';
 import { prisma } from '@/lib/prisma';
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
-
+// Tipagem dos dados
 type ProductWithRelations = Product & {
   brand: Brand;
   category: Category;
@@ -23,6 +21,9 @@ type ProductPageProps = {
 };
 
 export default function ProductPage({ product, relatedProducts }: ProductPageProps) {
+  // Se a página estiver sendo gerada (fallback), mostra algo ou retorna null (o layout cuida do loading)
+  if (!product) return null;
+
   const whatsappMessage = `Olá! Vi o produto *${product.name}* no site e gostaria de saber mais.`;
   const whatsappLink = getWhatsappLink(whatsappMessage);
 
@@ -53,6 +54,7 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
                 height={500}
                 className="object-contain max-h-full w-auto hover:scale-105 transition-transform duration-500"
                 priority
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
             ) : (
               <div className="text-gray-300 text-6xl">📷</div>
@@ -109,7 +111,7 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
                 )}
               </div>
 
-              {/* Ação de Venda Alterada */}
+              {/* Ação de Venda */}
               <a
                 href={whatsappLink}
                 target="_blank"
@@ -151,8 +153,30 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { slug } = context.params as { slug: string };
+// 1. GERA OS CAMINHOS (SLUGS) NO BUILD
+export const getStaticPaths: GetStaticPaths = async () => {
+  // Busca todos os slugs para gerar páginas estáticas
+  const products = await prisma.product.findMany({
+    select: { slug: true },
+  });
+
+  const paths = products
+    .filter((p) => p.slug)
+    .map((product) => ({
+      params: { slug: product.slug! },
+    }));
+
+  // fallback: 'blocking' é vital para a pagina. 
+  // Se um produto novo for criado DEPOIS do build, a Vercel gera a página na hora (SSR) 
+  // e depois a salva como estática para os próximos (ISR).
+  return { paths, fallback: 'blocking' };
+};
+
+// 2. GERA OS DADOS DA PÁGINA (COM REVALIDAÇÃO)
+export const getStaticProps: GetStaticProps = async (context) => {
+  const slug = context.params?.slug as string;
+
+  if (!slug) return { notFound: true };
 
   const product = await prisma.product.findUnique({
     where: { slug },
@@ -189,5 +213,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       product: JSON.parse(JSON.stringify(product)),
       relatedProducts: JSON.parse(JSON.stringify(relatedProducts)),
     },
+    // Atualiza o cache desta página a cada 60 segundos se houver acesso.
+    revalidate: 60, 
   };
 };
