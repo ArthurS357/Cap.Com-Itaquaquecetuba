@@ -2,18 +2,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ProductForm from '@/components/admin/ProductForm';
-import { Product, Brand, Category } from '@prisma/client';
+import { Product } from '@prisma/client'; 
 import React from 'react';
-import toast from 'react-hot-toast'; // Importação do toast para mock
 
 // --- MOCKS ---
 
-// Mock react-hot-toast: Cria um mock simples de fábrica que retorna vi.fn().
-// Isso é o suficiente para o componente não quebrar e evita o ReferenceError.
+// Mock react-hot-toast
 vi.mock('react-hot-toast', () => {
   const mockFn = vi.fn();
   
-  // Injeta stubs vazios para as funções que o componente chama (.success, .loading, etc.)
   Object.assign(mockFn, {
     loading: vi.fn(),
     success: vi.fn(),
@@ -26,14 +23,14 @@ vi.mock('react-hot-toast', () => {
   };
 });
 
-// Mock next/image (Resolvido o 'any' e o warning 'no-img-element')
+// Mock next/image
 type ImageProps = { src: string; alt: string; [key: string]: unknown };
 vi.mock('next/image', () => ({
   // eslint-disable-next-line @next/next/no-img-element
   default: (props: ImageProps) => <img {...props as React.ImgHTMLAttributes<HTMLImageElement>} data-testid="form-image" alt={props.alt as string} />,
 }));
 
-// Mock UploadButton (Resolvido o 'any' na interface)
+// Mock UploadButton
 interface MockUploadButtonProps {
     onClientUploadComplete: (res: { url: string }[] | null) => void;
     [key: string]: unknown;
@@ -84,7 +81,6 @@ describe('Componente ProductForm (Simplificado)', () => {
 
     beforeEach(() => {
         vi.clearAllMocks(); 
-        // Não é necessário limpar mockLoading, etc., pois eles são anônimos agora.
     });
 
     // TESTE 1: MODO CRIAÇÃO
