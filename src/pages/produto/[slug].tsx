@@ -1,14 +1,15 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
-import { PrismaClient, Product, Brand, Category, Printer } from '@prisma/client';
+import { Product, Brand, Category, Printer } from '@prisma/client';
 import Image from 'next/image';
 import Link from 'next/link';
 import SEO from '@/components/Seo';
 import ProductCard from '@/components/cards/ProductCard';
-import { FaWhatsapp, FaTruck, FaShieldAlt, FaTag, FaArrowLeft, FaCheckCircle } from 'react-icons/fa';
+import { FaWhatsapp, FaTruck, FaShieldAlt, FaTag, FaArrowLeft, FaCheckCircle, FaShoppingBag } from 'react-icons/fa';
 import { getWhatsappLink, STORE_INFO } from '@/config/store';
 import { prisma } from '@/lib/prisma';
+import { useCart } from '@/context/CartContext'; 
 
-// Tipagem dos dados
+// Tipagem dos dados com as relações necessárias
 type ProductWithRelations = Product & {
   brand: Brand;
   category: Category;
@@ -21,9 +22,13 @@ type ProductPageProps = {
 };
 
 export default function ProductPage({ product, relatedProducts }: ProductPageProps) {
-  // Se a página estiver sendo gerada (fallback), mostra algo ou retorna null (o layout cuida do loading)
+  // Se a página estiver em fallback (geração estática), não renderiza nada para evitar erros
   if (!product) return null;
 
+  // Hook do carrinho para adicionar o produto atual à lista de orçamento
+  const { addToCart } = useCart();
+
+  // Link direto caso o cliente queira pular o carrinho e falar imediatamente
   const whatsappMessage = `Olá! Vi o produto *${product.name}* no site e gostaria de saber mais.`;
   const whatsappLink = getWhatsappLink(whatsappMessage);
 
@@ -35,16 +40,18 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
         image={product.imageUrl || undefined}
       />
 
+      {/* Navegação de retorno */}
       <div className="mb-6">
         <Link href="/" className="inline-flex items-center gap-2 text-text-secondary hover:text-brand-primary transition-colors">
           <FaArrowLeft /> Voltar para a loja
         </Link>
       </div>
 
+      {/* Card Principal do Produto */}
       <div className="bg-surface-card border border-surface-border rounded-2xl p-6 md:p-10 shadow-sm mb-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
 
-          {/* Imagem */}
+          {/* Coluna da Imagem */}
           <div className="relative bg-white rounded-xl overflow-hidden border border-surface-border aspect-square flex items-center justify-center p-4">
             {product.imageUrl ? (
               <Image
@@ -64,7 +71,7 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
             </span>
           </div>
 
-          {/* Informações */}
+          {/* Coluna das Informações */}
           <div className="flex flex-col h-full">
             <div className="mb-2 text-brand-primary font-semibold flex items-center gap-2">
               <FaTag size={14} /> {product.brand.name}
@@ -80,7 +87,7 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
               </p>
             )}
 
-            {/* --- IMPRESSORAS COMPATÍVEIS --- */}
+            {/* --- Seção de Impressoras Compatíveis --- */}
             {product.compatibleWith && product.compatibleWith.length > 0 && (
               <div className="mb-8 bg-surface-background p-4 rounded-xl border border-surface-border">
                 <h3 className="text-sm font-bold text-text-primary mb-3 uppercase tracking-wide flex items-center gap-2">
@@ -111,17 +118,30 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
                 )}
               </div>
 
-              {/* Ação de Venda */}
-              <a
-                href={whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full md:w-auto text-center bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-3"
-              >
-                <FaWhatsapp size={24} />
-                Consultar pelo WhatsApp
-              </a>
+              {/* --- Ações de Venda (Botões) --- */}
+              <div className="flex flex-col gap-3">
+                {/* Botão Principal: Adicionar ao Carrinho */}
+                <button
+                  onClick={() => addToCart(product)}
+                  className="w-full md:w-auto text-center bg-brand-primary hover:bg-brand-dark text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-3"
+                >
+                  <FaShoppingBag size={24} />
+                  Adicionar ao Orçamento
+                </button>
 
+                {/* Botão Secundário: WhatsApp Direto */}
+                <a
+                  href={whatsappLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full md:w-auto text-center border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  <FaWhatsapp size={20} />
+                  Falar agora no WhatsApp
+                </a>
+              </div>
+
+              {/* Benefícios (Entrega e Garantia) */}
               <div className="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-surface-border">
                 <div className="flex items-center gap-3 text-text-secondary text-sm">
                   <FaTruck className="text-brand-primary text-xl" />
@@ -137,6 +157,7 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
         </div>
       </div>
 
+      {/* Produtos Relacionados */}
       {relatedProducts.length > 0 && (
         <div className="mt-16">
           <h2 className="text-2xl font-bold text-text-primary mb-8 border-l-4 border-brand-primary pl-4">
@@ -155,7 +176,6 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
 
 // 1. GERA OS CAMINHOS (SLUGS) NO BUILD
 export const getStaticPaths: GetStaticPaths = async () => {
-  // Busca todos os slugs para gerar páginas estáticas
   const products = await prisma.product.findMany({
     select: { slug: true },
   });
@@ -166,18 +186,17 @@ export const getStaticPaths: GetStaticPaths = async () => {
       params: { slug: product.slug! },
     }));
 
-  // fallback: 'blocking' é vital para a pagina. 
-  // Se um produto novo for criado DEPOIS do build, a Vercel gera a página na hora (SSR) 
-  // e depois a salva como estática para os próximos (ISR).
+  // fallback: 'blocking' garante que novos produtos sejam gerados via SSR na primeira visita
   return { paths, fallback: 'blocking' };
 };
 
-// 2. GERA OS DADOS DA PÁGINA (COM REVALIDAÇÃO)
+// 2. GERA OS DADOS DA PÁGINA (COM REVALIDAÇÃO ISR)
 export const getStaticProps: GetStaticProps = async (context) => {
   const slug = context.params?.slug as string;
 
   if (!slug) return { notFound: true };
 
+  // Busca o produto e suas relações (Marca, Categoria, Impressoras Compatíveis)
   const product = await prisma.product.findUnique({
     where: { slug },
     include: {
@@ -195,6 +214,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
     return { notFound: true };
   }
 
+  // Busca produtos relacionados da mesma categoria (excluindo o atual)
   const relatedProducts = await prisma.product.findMany({
     where: {
       categoryId: product.categoryId,
@@ -213,7 +233,6 @@ export const getStaticProps: GetStaticProps = async (context) => {
       product: JSON.parse(JSON.stringify(product)),
       relatedProducts: JSON.parse(JSON.stringify(relatedProducts)),
     },
-    // Atualiza o cache desta página a cada 60 segundos se houver acesso.
-    revalidate: 60, 
+    revalidate: 60, // Atualiza o cache a cada 60 segundos se houver acesso
   };
 };
