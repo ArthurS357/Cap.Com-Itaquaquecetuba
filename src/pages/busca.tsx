@@ -22,6 +22,10 @@ export const getServerSideProps: GetServerSideProps<{
   types: string[];
   error?: string;
 }> = async (context) => {
+  context.res.setHeader(
+    'Cache-Control',
+    'public, s-maxage=60, stale-while-revalidate=120'
+  );
   const query = (context.query.q as string) || '';
   const brandFilter = context.query.brand;
   const typeFilter = context.query.type;
