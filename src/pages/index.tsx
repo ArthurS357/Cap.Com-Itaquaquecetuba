@@ -122,6 +122,7 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
           objectFit="cover"
           style={{ zIndex: 0 }}
           priority
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
         />
         <div className="absolute inset-0 bg-black bg-opacity-70 z-10"></div>
         <div className="relative z-20 p-6 max-w-3xl mx-auto animate-fade-in-up flex flex-col items-center">
