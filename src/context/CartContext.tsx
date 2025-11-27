@@ -10,9 +10,18 @@ export type CartItem = {
   quantity: number;
 };
 
+// Tipo para o objeto que vem do ProductPage, sem a propriedade quantity
+type ProductInput = {
+  id: number;
+  name: string;
+  slug: string | null; // Aceita null para compatibilidade, embora deva ser string
+  price: number | null;
+  imageUrl: string | null;
+};
+
 type CartContextType = {
   items: CartItem[];
-  addToCart: (product: any) => void;
+  addToCart: (product: ProductInput) => void;
   removeFromCart: (productId: number) => void;
   clearCart: () => void;
   cartCount: number;
@@ -43,7 +52,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('capcom_cart', JSON.stringify(items));
   }, [items]);
 
-  const addToCart = (product: any) => {
+  const addToCart = (product: ProductInput) => {
     setItems((prev) => {
       const existing = prev.find((i) => i.id === product.id);
       if (existing) {
@@ -57,7 +66,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return [...prev, { 
         id: product.id, 
         name: product.name, 
-        slug: product.slug, 
+        slug: product.slug || '', // Garante string
         price: product.price, 
         imageUrl: product.imageUrl, 
         quantity: 1 
