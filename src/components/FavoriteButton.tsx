@@ -1,18 +1,22 @@
-import { useWishlist } from '@/context/WishlistContext';
+import { useWishlist, WishlistInput } from '@/context/WishlistContext'; 
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
 
 type FavoriteButtonProps = {
-  product: any;
+  product: WishlistInput; 
   size?: number;
   className?: string;
 };
 
 export default function FavoriteButton({ product, size = 20, className = "" }: FavoriteButtonProps) {
   const { isInWishlist, toggleWishlist } = useWishlist();
+  
+  // Verificação de segurança caso o produto seja null/undefined
+  if (!product) return null;
+
   const isFavorite = isInWishlist(product.id);
 
   const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault(); // Evita clicar no link do produto se estiver dentro de um card
+    e.preventDefault(); 
     e.stopPropagation();
     toggleWishlist(product);
   };
