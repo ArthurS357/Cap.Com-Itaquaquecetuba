@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { FaArrowLeft, FaSave } from 'react-icons/fa';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
-import { prisma } from '@/lib/prisma'; // Usar singleton
+import { prisma } from '@/lib/prisma';
 
 export default function NewCategory({ categories }: { categories: Category[] }) {
   const router = useRouter();

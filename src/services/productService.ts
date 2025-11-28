@@ -5,12 +5,10 @@ export type ProductSearchParams = {
     query?: string;
     brands?: string[];
     types?: string[];
+    sort?: string; 
 };
 
 export const productService = {
-    /**
-     * Busca todas as marcas e tipos disponíveis para os filtros
-     */
     async getFilters() {
         const [brands, types] = await Promise.all([
             prisma.brand.findMany({
@@ -30,12 +28,10 @@ export const productService = {
         };
     },
 
-
     async search(params: ProductSearchParams) {
-        const { query = '', brands = [], types = [] } = params;
+        const { query = '', brands = [], types = [], sort = 'name_asc' } = params; // Default para A-Z
 
-        // 1. Condição de Busca por Texto (Nome, Descrição, Marca, Impressora)
-        // Utilizamos 'as const' no mode para evitar erro de tipagem do TypeScript
+        // 1. Condição de Busca por Texto
         const textSearchCondition: Prisma.ProductWhereInput = query.trim()
             ? {
                 OR: [
@@ -55,7 +51,7 @@ export const productService = {
             }
             : {};
 
-        // 2. Cláusula WHERE final combinando texto e filtros
+        // 2. Cláusula WHERE final
         const whereClause: Prisma.ProductWhereInput = {
             AND: [
                 textSearchCondition,
@@ -72,7 +68,27 @@ export const productService = {
             ],
         };
 
-        // 3. Executa a busca
+        // 3. Definição da Ordenação (NOVA LÓGICA)
+        let orderBy: Prisma.ProductOrderByWithRelationInput = { name: 'asc' };
+        
+        switch (sort) {
+            case 'price_asc':
+                orderBy = { price: 'asc' };
+                break;
+            case 'price_desc':
+                orderBy = { price: 'desc' };
+                break;
+            case 'name_desc':
+                orderBy = { name: 'desc' };
+                break;
+            case 'newest':
+                orderBy = { createdAt: 'desc' };
+                break;
+            default:
+                orderBy = { name: 'asc' };
+        }
+
+        // 4. Executa a busca
         const products = await prisma.product.findMany({
             where: whereClause,
             select: {
@@ -87,9 +103,9 @@ export const productService = {
                     select: { id: true, name: true },
                 },
             },
-            orderBy: { name: 'asc' },
+            orderBy: orderBy, 
         });
 
         return products;
     },
-}; 
+};

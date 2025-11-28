@@ -1,16 +1,17 @@
-import { GetServerSideProps } from 'next';
-import { PrismaClient, Product, Brand, Category, Printer } from '@prisma/client';
+import { GetStaticPaths, GetStaticProps } from 'next';
+import { Product, Brand, Category, Printer } from '@prisma/client';
 import Image from 'next/image';
 import Link from 'next/link';
 import SEO from '@/components/Seo';
 import ProductCard from '@/components/cards/ProductCard';
-import { FaWhatsapp, FaTruck, FaShieldAlt, FaTag, FaArrowLeft, FaCheckCircle } from 'react-icons/fa';
+import { FaWhatsapp, FaTruck, FaShieldAlt, FaTag, FaArrowLeft, FaCheckCircle, FaShoppingBag } from 'react-icons/fa';
 import { getWhatsappLink, STORE_INFO } from '@/config/store';
-import { prisma } from '@/lib/prisma'; // Singleton
+import { prisma } from '@/lib/prisma';
+import { useCart } from '@/context/CartContext';
+import RecentlyViewed from '@/components/RecentlyViewed';
+import SocialShare from '@/components/SocialShare';
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
-
+// Tipagem dos dados
 type ProductWithRelations = Product & {
   brand: Brand;
   category: Category;
@@ -23,6 +24,12 @@ type ProductPageProps = {
 };
 
 export default function ProductPage({ product, relatedProducts }: ProductPageProps) {
+  // 1. Hook chamado no nível superior para respeitar as regras do React
+  const { addToCart } = useCart();
+
+  // 2. Verificação de segurança
+  if (!product) return null;
+
   const whatsappMessage = `Olá! Vi o produto *${product.name}* no site e gostaria de saber mais.`;
   const whatsappLink = getWhatsappLink(whatsappMessage);
 
@@ -53,6 +60,7 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
                 height={500}
                 className="object-contain max-h-full w-auto hover:scale-105 transition-transform duration-500"
                 priority
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
             ) : (
               <div className="text-gray-300 text-6xl">📷</div>
@@ -109,16 +117,26 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
                 )}
               </div>
 
-              {/* Ação de Venda Alterada */}
-              <a
-                href={whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full md:w-auto text-center bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-3"
-              >
-                <FaWhatsapp size={24} />
-                Consultar pelo WhatsApp
-              </a>
+              {/* Ações de Venda */}
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => addToCart(product)}
+                  className="w-full md:w-auto text-center bg-brand-primary hover:bg-brand-dark text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-3"
+                >
+                  <FaShoppingBag size={24} />
+                  Adicionar ao Orçamento
+                </button>
+
+                <a
+                  href={whatsappLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full md:w-auto text-center border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  <FaWhatsapp size={20} />
+                  Falar agora no WhatsApp
+                </a>
+              </div>
 
               <div className="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-surface-border">
                 <div className="flex items-center gap-3 text-text-secondary text-sm">
@@ -130,11 +148,15 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
                   <span>Garantia de<br />Qualidade Cap.Com</span>
                 </div>
               </div>
+
+              {/* Botões de Compartilhamento Social */}
+              <SocialShare productName={product.name} />
             </div>
           </div>
         </div>
       </div>
 
+      {/* Produtos Relacionados */}
       {relatedProducts.length > 0 && (
         <div className="mt-16">
           <h2 className="text-2xl font-bold text-text-primary mb-8 border-l-4 border-brand-primary pl-4">
@@ -147,12 +169,33 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
           </div>
         </div>
       )}
+
+      {/* Histórico de Vistos Recentemente */}
+      <RecentlyViewed currentProduct={product} />
     </div>
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { slug } = context.params as { slug: string };
+// 1. GERA OS CAMINHOS (SLUGS) NO BUILD
+export const getStaticPaths: GetStaticPaths = async () => {
+  const products = await prisma.product.findMany({
+    select: { slug: true },
+  });
+
+  const paths = products
+    .filter((p) => p.slug)
+    .map((product) => ({
+      params: { slug: product.slug! },
+    }));
+
+  return { paths, fallback: 'blocking' };
+};
+
+// 2. GERA OS DADOS DA PÁGINA (COM REVALIDAÇÃO)
+export const getStaticProps: GetStaticProps = async (context) => {
+  const slug = context.params?.slug as string;
+
+  if (!slug) return { notFound: true };
 
   const product = await prisma.product.findUnique({
     where: { slug },
@@ -189,5 +232,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       product: JSON.parse(JSON.stringify(product)),
       relatedProducts: JSON.parse(JSON.stringify(relatedProducts)),
     },
+    revalidate: 60, 
   };
 };

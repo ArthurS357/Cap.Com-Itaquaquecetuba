@@ -47,7 +47,6 @@ const FAQPage = () => {
       {/* Cabeçalho */}
       <div className="text-center max-w-3xl mx-auto mb-12">
         <div className="flex justify-center mb-4">
-          {/* Ícone agora em verde (green-600) */}
           <FaQuestionCircle className="text-green-600 text-5xl opacity-20" />
         </div>
         <h1 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">

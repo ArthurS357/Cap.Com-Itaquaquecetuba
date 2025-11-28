@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { FaArrowLeft, FaSave, FaTrash } from 'react-icons/fa';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
-import { prisma } from '@/lib/prisma'; // Usar singleton
+import { prisma } from '@/lib/prisma';
 
 export default function EditCategory({ category, categories }: { category: Category, categories: Category[] }) {
   const router = useRouter();
@@ -22,16 +22,16 @@ export default function EditCategory({ category, categories }: { category: Categ
     setIsLoading(true);
 
     const loadingToast = toast.loading('Atualizando categoria...');
-    
+
     try {
-      const res = await fetch(`/api/categories/${category.id}`, { 
-        method: 'PUT', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify(formData) 
+      const res = await fetch(`/api/categories/${category.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       });
 
       const data = await res.json();
-      
+
       if (!res.ok) {
         throw new Error(data.error || 'Erro ao atualizar categoria');
       }
@@ -49,7 +49,7 @@ export default function EditCategory({ category, categories }: { category: Categ
   const handleDelete = async () => {
     // A confirmação é feita no componente para dar mais controle
     if (!confirm("Tem certeza que deseja EXCLUIR esta categoria?")) return;
-    
+
     setIsDeleting(true);
     const loadingToast = toast.loading('Excluindo categoria...');
 
@@ -60,7 +60,7 @@ export default function EditCategory({ category, categories }: { category: Categ
       if (!res.ok) {
         throw new Error(data.error || 'Erro ao excluir');
       }
-      
+
       toast.success('Categoria excluída com sucesso!', { id: loadingToast });
       router.push('/admin/categories');
     } catch (err: unknown) {
@@ -92,16 +92,16 @@ export default function EditCategory({ category, categories }: { category: Categ
                 height={128}
                 className="h-32 w-auto object-contain"
               />
-              <button 
-                type="button" 
-                onClick={() => setFormData({ ...formData, imageUrl: '' })} 
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, imageUrl: '' })}
                 className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs"
               >
                 X
               </button>
             </div> :
-            <UploadButton 
-              endpoint="imageUploader" 
+            <UploadButton
+              endpoint="imageUploader"
               onClientUploadComplete={(res) => {
                 if (res && res[0]) {
                   setFormData({ ...formData, imageUrl: res[0].url });
@@ -136,7 +136,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context);
   if (!session) return { redirect: { destination: '/api/auth/signin', permanent: false } };
   const { id } = context.params as { id: string };
-  
+
   // Usar singleton
   const category = await prisma.category.findUnique({ where: { id: Number(id) } });
   const categories = await prisma.category.findMany({ orderBy: { name: 'asc' } });

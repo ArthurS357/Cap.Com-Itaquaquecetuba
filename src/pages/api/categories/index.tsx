@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/client';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { slugify } from '@/lib/utils';
-import { prisma } from '@/lib/prisma'; // Usando o singleton
+import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
 // Schema de Validação para Criação
@@ -41,11 +41,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       // 1. Validação Zod
       const parseResult = categoryCreateSchema.safeParse(req.body);
-      
+
       if (!parseResult.success) {
-        return res.status(400).json({ 
-          error: "Dados inválidos", 
-          details: parseResult.error.format() 
+        return res.status(400).json({
+          error: "Dados inválidos",
+          details: parseResult.error.format()
         });
       }
 

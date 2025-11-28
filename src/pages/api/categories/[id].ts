@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/client';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { slugify } from '@/lib/utils';
-import { prisma } from '@/lib/prisma'; // Usando o singleton
+import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
 // Schema de Validação para Edição
@@ -41,9 +41,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const parseResult = categoryUpdateSchema.safeParse(req.body);
 
       if (!parseResult.success) {
-        return res.status(400).json({ 
-          error: "Dados inválidos", 
-          details: parseResult.error.format() 
+        return res.status(400).json({
+          error: "Dados inválidos",
+          details: parseResult.error.format()
         });
       }
 
@@ -95,8 +95,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (countSubs > 0) return res.status(400).json({ error: `Esta categoria tem ${countSubs} subcategorias. Remova-as primeiro.` });
 
       await prisma.category.delete({ where: { id: categoryId } });
-      
-      await res.revalidate('/').catch(() => {}); // Tenta revalidar home, ignora erro
+
+      await res.revalidate('/').catch(() => { }); // Tenta revalidar home, ignora erro
 
       return res.status(200).json({ message: "Sucesso" });
     } catch (error) {

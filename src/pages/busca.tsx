@@ -6,7 +6,7 @@ import ProductCard from '@/components/cards/ProductCard';
 import { FaFilter, FaTimes } from 'react-icons/fa';
 import { productService } from '@/services/productService';
 
-// Usamos o ReturnType para inferir o tipo de retorno da função do serviço automaticamente
+//ReturnType para inferir o tipo de retorno da função do serviço automaticamente
 type SearchResultProduct = Awaited<ReturnType<typeof productService.search>>[number];
 
 type FilterOption = {
@@ -22,6 +22,10 @@ export const getServerSideProps: GetServerSideProps<{
   types: string[];
   error?: string;
 }> = async (context) => {
+  context.res.setHeader(
+    'Cache-Control',
+    'public, s-maxage=60, stale-while-revalidate=120'
+  );
   const query = (context.query.q as string) || '';
   const brandFilter = context.query.brand;
   const typeFilter = context.query.type;

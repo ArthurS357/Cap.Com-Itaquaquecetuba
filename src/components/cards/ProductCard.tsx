@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import FavoriteButton from '../FavoriteButton';
 
 export type MinimalProduct = {
   id: number;
   name: string;
   slug: string | null;
   imageUrl: string | null;
+  price: number | null;
   brand: {
     name: string;
   } | null;
@@ -20,12 +22,18 @@ const ProductCard = ({ product }: ProductCardProps) => {
   // Renderização principal (produto válido com slug e marca)
   if (product && product.slug && product.brand) {
     return (
-      <Link href={`/produto/${product.slug}`} key={product.id}>
+      <Link href={`/produto/${product.slug}`} key={product.id} className="block h-full">
         <div className="group bg-surface-card rounded-xl p-4 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer h-full flex flex-col justify-between items-center text-center border border-surface-border hover:scale-105">
 
           {/* Imagem do produto */}
           {product.imageUrl ? (
-            <div className="bg-white p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
+            <div className="relative bg-white p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
+              
+              {/* Botão de Favorito */}
+              <div className="absolute top-2 right-2 z-10">
+                <FavoriteButton product={product} className="bg-white/80 p-1.5 rounded-full shadow-sm backdrop-blur-sm" />
+              </div>
+
               <Image
                 src={product.imageUrl}
                 alt={product.name}
@@ -36,7 +44,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
             </div>
           ) : (
             // Placeholder (sem imagem)
-            <div className="bg-surface-border p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
+            <div className="relative bg-surface-border p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
+              
+              <div className="absolute top-2 right-2 z-10">
+                <FavoriteButton product={product} className="bg-white/80 p-1.5 rounded-full shadow-sm backdrop-blur-sm" />
+              </div>
+
               <span className="text-text-subtle text-sm">Sem imagem</span>
             </div>
           )}
@@ -45,6 +58,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
           <div className="w-full">
             <h2 className="text-lg font-semibold text-text-primary">{product.name}</h2>
             <p className="text-sm text-text-subtle mt-2">{product.brand.name}</p>
+            
+            {/* CORREÇÃO AQUI: Verificação explícita > 0 para não renderizar "0" */}
+            {product.price && product.price > 0 ? (
+               <p className="text-sm font-bold text-green-600 mt-1">
+                 {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
+               </p>
+            ) : null}
           </div>
 
           {/* Efeito de hover */}
@@ -64,7 +84,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
       console.warn('Rendering non-link ProductCard: brand is missing.', product);
     }
 
-    // Corrigido para if/else para forçar 100% de cobertura (era a linha 63)
     let key: number | string;
     if (product) {
       key = product.id;
@@ -79,7 +98,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
     return (
       <div key={key} className="bg-surface-card rounded-xl p-4 shadow-lg border border-surface-border flex flex-col justify-between items-center text-center opacity-50 cursor-not-allowed h-full">
 
-        {/* Imagem ou placeholder (Fallback) */}
         {imageUrl ? (
           <div className="bg-white p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
             <Image
@@ -96,13 +114,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </div>
         )}
 
-        {/* Informações (Fallback) */}
         <div className="w-full">
           <h2 className="text-lg font-semibold text-text-primary">{name}</h2>
           <p className="text-sm text-text-subtle mt-2">{brandName}</p>
         </div>
 
-        {/* Linha (Fallback) */}
         <div className="w-1/2 h-1 bg-gray-500 rounded-full mt-4"></div>
       </div>
     );

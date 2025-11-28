@@ -18,7 +18,6 @@ vi.mock('next-auth/react', () => ({
   getSession: vi.fn(),
 }));
 
-// Mock do Prisma completo
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     product: { findUnique: vi.fn() },
@@ -53,7 +52,7 @@ const mockProduct = {
   slug: 'toner-teste',
   createdAt: new Date(),
   updatedAt: new Date(),
-  compatibleWith: [], // Campo necessário
+  compatibleWith: [],
 };
 
 const mockBrands: Brand[] = [{ id: 1, name: 'HP', slug: 'hp' }];
@@ -81,10 +80,11 @@ describe('Página Admin/Editar Produto (Componente)', () => {
 
   it('deve chamar a API de PUT e exibir toast de sucesso ao salvar (Happy Path)', async () => {
     fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
-    
+
     render(<EditProduct {...defaultProps} />);
-    
-    const saveBtn = screen.getByText('Atualizar Produto');
+
+    // O botão agora vem do ProductForm e diz "Salvar Produto"
+    const saveBtn = screen.getByText('Salvar Produto');
     await user.click(saveBtn);
 
     await waitFor(() => {
@@ -92,20 +92,22 @@ describe('Página Admin/Editar Produto (Componente)', () => {
         expect.stringContaining('/api/products/101'),
         expect.objectContaining({ method: 'PUT' })
       );
-      expect(toast.success).toHaveBeenCalledWith('Produto atualizado com sucesso!', expect.any(Object));
+      // Mensagem atualizada para "Produto atualizado!"
+      expect(toast.success).toHaveBeenCalledWith('Produto atualizado!', expect.any(Object));
       expect(pushMock).toHaveBeenCalledWith('/admin/products');
     });
   });
 
   it('deve exibir erro se a API de PUT falhar (Error Path)', async () => {
-    fetchMock.mockResolvedValueOnce({ 
-      ok: false, 
-      json: async () => ({ error: 'Erro de validação no servidor' }) 
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ error: 'Erro de validação no servidor' })
     });
-    
+
     render(<EditProduct {...defaultProps} />);
-    
-    const saveBtn = screen.getByText('Atualizar Produto');
+
+    // Botão "Salvar Produto"
+    const saveBtn = screen.getByText('Salvar Produto');
     await user.click(saveBtn);
 
     await waitFor(() => {
@@ -116,10 +118,11 @@ describe('Página Admin/Editar Produto (Componente)', () => {
 
   it('deve exibir erro genérico se a API de PUT lançar exceção', async () => {
     fetchMock.mockRejectedValueOnce(new Error('Falha de rede'));
-    
+
     render(<EditProduct {...defaultProps} />);
-    
-    const saveBtn = screen.getByText('Atualizar Produto');
+
+    // CORREÇÃO: Botão "Salvar Produto"
+    const saveBtn = screen.getByText('Salvar Produto');
     await user.click(saveBtn);
 
     await waitFor(() => {
@@ -131,9 +134,9 @@ describe('Página Admin/Editar Produto (Componente)', () => {
 
   it('deve chamar a API de DELETE e exibir toast de sucesso ao excluir (Happy Path)', async () => {
     fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
-    
+
     render(<EditProduct {...defaultProps} />);
-    
+
     const delBtn = screen.getByText('Excluir');
     await user.click(delBtn);
 
@@ -142,19 +145,20 @@ describe('Página Admin/Editar Produto (Componente)', () => {
         expect.stringContaining('/api/products/101'),
         expect.objectContaining({ method: 'DELETE' })
       );
-      expect(toast.success).toHaveBeenCalledWith('Produto excluído com sucesso!', expect.any(Object));
+      // Mensagem atualizada para "Produto excluído!"
+      expect(toast.success).toHaveBeenCalledWith('Produto excluído!', expect.any(Object));
       expect(pushMock).toHaveBeenCalledWith('/admin/products');
     });
   });
 
   it('deve exibir erro se a API de DELETE falhar (Error Path)', async () => {
-    fetchMock.mockResolvedValueOnce({ 
-      ok: false, 
-      json: async () => ({ error: 'Não foi possível excluir' }) 
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ error: 'Não foi possível excluir' })
     });
-    
+
     render(<EditProduct {...defaultProps} />);
-    
+
     const delBtn = screen.getByText('Excluir');
     await user.click(delBtn);
 
@@ -168,21 +172,21 @@ describe('Página Admin/Editar Produto (Componente)', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(false);
 
     render(<EditProduct {...defaultProps} />);
-    
+
     const delBtn = screen.getByText('Excluir');
     await user.click(delBtn);
 
     expect(fetchMock).not.toHaveBeenCalled();
   });
-  
+
   // --- TESTE DE BRANCH (CAMPOS NULOS) ---
   it('deve inicializar o formulário corretamente quando campos opcionais são nulos', () => {
     const productWithNulls = {
       ...mockProduct,
       description: null,
       price: null,
-      imageUrl: null, // Imagem nula deve renderizar a área de upload
-      compatibleWith: [] 
+      imageUrl: null,
+      compatibleWith: []
     };
 
     render(
@@ -193,17 +197,10 @@ describe('Página Admin/Editar Produto (Componente)', () => {
       />
     );
 
-    // 1. Descrição deve estar vazia
     expect(screen.getByLabelText('Descrição')).toHaveValue('');
-    
-    // 2. Preço deve estar vazio (null)
-    expect(screen.getByLabelText('Preço (R$)')).toHaveValue(null);
-
-    // 3. Imagem: Em vez de procurar um input de texto, verificamos se a área de upload está visível.
-    // O texto "Imagem do Produto" é o label do bloco.
-    expect(screen.getByText('Imagem do Produto')).toBeInTheDocument();
-    // O texto de suporte do componente de upload confirma que ele foi renderizado.
+    // Verific se o componente de upload renderizou procurando o texto de suporte
     expect(screen.getByText(/Suporta: PNG, JPG/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Preço (R$)')).toHaveValue(null);
   });
 });
 
@@ -223,9 +220,9 @@ describe('getServerSideProps (Server)', () => {
 
   it('deve retornar notFound se o produto não existir', async () => {
     (getSession as Mock).mockResolvedValue({ user: { name: 'Admin' } });
-    
+
     // @ts-expect-error: Mockando retorno nulo
-    prisma.product.findUnique.mockResolvedValue(null); 
+    prisma.product.findUnique.mockResolvedValue(null);
     // @ts-expect-error: Mockando array vazio
     prisma.brand.findMany.mockResolvedValue([]);
     // @ts-expect-error: Mockando array vazio
@@ -240,7 +237,7 @@ describe('getServerSideProps (Server)', () => {
 
   it('deve retornar os dados se o produto existir', async () => {
     (getSession as Mock).mockResolvedValue({ user: { name: 'Admin' } });
-    
+
     // @ts-expect-error: Mockando retorno válido
     prisma.product.findUnique.mockResolvedValue(mockProduct);
     // @ts-expect-error: Mockando retorno válido
@@ -253,7 +250,7 @@ describe('getServerSideProps (Server)', () => {
     const response = await getServerSideProps(context);
 
     expect(response).toHaveProperty('props');
-    
+
     if ('props' in response) {
       const props = await Promise.resolve(response.props) as { product: Product };
       expect(props.product.id).toEqual(mockProduct.id);

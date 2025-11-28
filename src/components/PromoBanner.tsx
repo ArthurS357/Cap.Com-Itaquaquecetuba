@@ -8,17 +8,26 @@ export default function PromoBanner() {
   useEffect(() => {
     // Busca a configuração do banner ao carregar o site
     fetch('/api/config')
-      .then((res) => res.json())
+      .then((res) => {
+        // Se a resposta HTTP for um erro (ex: 404, 500), joga um erro para o bloco .catch
+        if (!res.ok) {
+            throw new Error(`Erro HTTP: ${res.status} ao buscar config do banner.`);
+        }
+        return res.json();
+      })
       .then((data) => {
         if (data && data.value) {
           setBanner({ text: data.value, isActive: data.isActive });
         }
       })
-      .catch(() => null); // Ignora erros silenciosamente
+      .catch((error) => {
+        // Agora, logamos o erro para fins de monitoramento.
+        // O banner não será exibido, mantendo a UX limpa.
+        console.error('Falha ao buscar ou processar configuração do banner. Verifique o servidor /api/config.', error);
+      });
   }, []);
 
-  // Usa uma variável explícita para o status de exibição (Melhora a cobertura)
-  // O código original era: if (!banner.isActive || !banner.text || !isVisible)
+  // Usa uma variável explícita para o status de exibição
   const shouldRender = banner.isActive && banner.text && isVisible;
 
   // Se não deve renderizar, retorna null
