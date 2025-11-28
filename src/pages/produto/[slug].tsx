@@ -7,8 +7,9 @@ import ProductCard from '@/components/cards/ProductCard';
 import { FaWhatsapp, FaTruck, FaShieldAlt, FaTag, FaArrowLeft, FaCheckCircle, FaShoppingBag } from 'react-icons/fa';
 import { getWhatsappLink, STORE_INFO } from '@/config/store';
 import { prisma } from '@/lib/prisma';
-import { useCart } from '@/context/CartContext'; 
-import RecentlyViewed from '@/components/RecentlyViewed'; 
+import { useCart } from '@/context/CartContext';
+import RecentlyViewed from '@/components/RecentlyViewed';
+import SocialShare from '@/components/SocialShare';
 
 // Tipagem dos dados
 type ProductWithRelations = Product & {
@@ -23,10 +24,10 @@ type ProductPageProps = {
 };
 
 export default function ProductPage({ product, relatedProducts }: ProductPageProps) {
-  // 1. O hook deve ser chamado SEMPRE na raiz do componente, antes de qualquer retorno
+  // 1. Hook chamado no nível superior para respeitar as regras do React
   const { addToCart } = useCart();
 
-  // 2. verifica se o produto existe
+  // 2. Verificação de segurança
   if (!product) return null;
 
   const whatsappMessage = `Olá! Vi o produto *${product.name}* no site e gostaria de saber mais.`;
@@ -147,11 +148,15 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
                   <span>Garantia de<br />Qualidade Cap.Com</span>
                 </div>
               </div>
+
+              {/* Botões de Compartilhamento Social */}
+              <SocialShare productName={product.name} />
             </div>
           </div>
         </div>
       </div>
 
+      {/* Produtos Relacionados */}
       {relatedProducts.length > 0 && (
         <div className="mt-16">
           <h2 className="text-2xl font-bold text-text-primary mb-8 border-l-4 border-brand-primary pl-4">
@@ -165,7 +170,7 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
         </div>
       )}
 
-      {/* Seção de Vistos Recentemente */}
+      {/* Histórico de Vistos Recentemente */}
       <RecentlyViewed currentProduct={product} />
     </div>
   );
