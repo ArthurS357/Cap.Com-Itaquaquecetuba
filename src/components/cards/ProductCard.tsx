@@ -7,7 +7,7 @@ export type MinimalProduct = {
   name: string;
   slug: string | null;
   imageUrl: string | null;
-  price: number | null; // Campo obrigatório para a Wishlist
+  price: number | null;
   brand: {
     name: string;
   } | null;
@@ -29,7 +29,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           {product.imageUrl ? (
             <div className="relative bg-white p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
               
-              {/* Botão de Favorito no canto superior direito */}
+              {/* Botão de Favorito */}
               <div className="absolute top-2 right-2 z-10">
                 <FavoriteButton product={product} className="bg-white/80 p-1.5 rounded-full shadow-sm backdrop-blur-sm" />
               </div>
@@ -59,12 +59,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
             <h2 className="text-lg font-semibold text-text-primary">{product.name}</h2>
             <p className="text-sm text-text-subtle mt-2">{product.brand.name}</p>
             
-            {/* Exibir preço se disponível */}
-            {product.price && (
+            {/* CORREÇÃO AQUI: Verificação explícita > 0 para não renderizar "0" */}
+            {product.price && product.price > 0 ? (
                <p className="text-sm font-bold text-green-600 mt-1">
                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
                </p>
-            )}
+            ) : null}
           </div>
 
           {/* Efeito de hover */}
@@ -98,7 +98,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
     return (
       <div key={key} className="bg-surface-card rounded-xl p-4 shadow-lg border border-surface-border flex flex-col justify-between items-center text-center opacity-50 cursor-not-allowed h-full">
 
-        {/* Imagem ou placeholder (Fallback) */}
         {imageUrl ? (
           <div className="bg-white p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
             <Image
@@ -115,13 +114,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </div>
         )}
 
-        {/* Informações (Fallback) */}
         <div className="w-full">
           <h2 className="text-lg font-semibold text-text-primary">{name}</h2>
           <p className="text-sm text-text-subtle mt-2">{brandName}</p>
         </div>
 
-        {/* Linha (Fallback) */}
         <div className="w-1/2 h-1 bg-gray-500 rounded-full mt-4"></div>
       </div>
     );
