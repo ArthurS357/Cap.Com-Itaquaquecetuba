@@ -1,21 +1,18 @@
 import type { GetStaticProps, InferGetStaticPropsType } from 'next';
 import SEO from '../components/Seo';
 import CategoryCard from '../components/cards/CategoryCard';
+import ProductCard from '../components/cards/ProductCard'; 
 import { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import SearchBar from '../components/SearchBar';
-import { FaAward, FaRegClock } from 'react-icons/fa';
+import { FaAward, FaRegClock, FaStar } from 'react-icons/fa';
 import { STORE_INFO, GOOGLE_MAPS_EMBED_URL } from '@/config/store';
 import { prisma } from '@/lib/prisma';
+import { Category, Product, Brand } from '@prisma/client';
 
-type Category = {
-  id: number;
-  name: string;
-  slug: string;
-  imageUrl: string | null;
-  parentId: number | null;
-};
+// Tipo auxiliar para os produtos em destaque (Produto + Marca)
+type FeaturedProduct = Product & { brand: Brand };
 
 const useScrollAnimation = (options?: IntersectionObserverInit) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -71,8 +68,10 @@ const IconWaze = () => (
 // --- Lógica da Página ---
 export const getStaticProps: GetStaticProps<{
   mainCategories: Category[];
+  featuredProducts: FeaturedProduct[]; 
 }> = async () => {
 
+  // 1. Busca Categorias Principais
   const allMainCategories = await prisma.category.findMany({
     where: {
       parentId: null,
@@ -92,15 +91,24 @@ export const getStaticProps: GetStaticProps<{
     return order.indexOf(a.name) - order.indexOf(b.name);
   });
 
+  // 2. Busca Produtos em Destaque (NOVO)
+  const featuredProducts = await prisma.product.findMany({
+    where: { isFeatured: true },
+    take: 8, // Limita a 8 produtos para não poluir
+    include: { brand: true }, // Inclui marca para o card
+    orderBy: { id: 'desc' } // Mostra os mais recentes primeiro
+  });
+
   return {
     props: {
       mainCategories: JSON.parse(JSON.stringify(orderedCategories)),
+      featuredProducts: JSON.parse(JSON.stringify(featuredProducts)),
     },
     revalidate: 60,
   };
 };
 
-function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticProps>) {
+function HomePage({ mainCategories, featuredProducts }: InferGetStaticPropsType<typeof getStaticProps>) {
   const encodedAddress = encodeURIComponent(STORE_INFO.address);
   const wazeUrl = `https://waze.com/ul?q=${encodedAddress}&navigate=yes`;
 
@@ -137,7 +145,6 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
           <div className="w-full max-w-lg mb-8 flex justify-center">
             <SearchBar />
           </div>
-          {/* -------------------------------- */}
 
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 w-full">
             <a
@@ -155,6 +162,33 @@ function HomePage({ mainCategories }: InferGetStaticPropsType<typeof getStaticPr
           </div>
         </div>
       </section>
+
+      {/* ===== SEÇÃO DE PRODUTOS EM DESTAQUE (NOVO) ===== */}
+      {featuredProducts && featuredProducts.length > 0 && (
+        <>
+          <section className="max-w-6xl mx-auto mb-16 animate-fade-in-up px-4">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-bold text-text-primary flex items-center justify-center gap-3">
+                <FaStar className="text-yellow-500" /> Ofertas em Destaque
+              </h2>
+              <p className="text-lg text-text-secondary mt-2">
+                Confira nossa seleção especial para você.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredProducts.map((product) => (
+                <div key={product.id} className="h-full">
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Separador */}
+          <hr className="border-t-2 border-surface-border max-w-5xl mx-auto my-16" />
+        </>
+      )}
 
       {/* ===== SEÇÃO DAS CATEGORIAS ===== */}
       <section

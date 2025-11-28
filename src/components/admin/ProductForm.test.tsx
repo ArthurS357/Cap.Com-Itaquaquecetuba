@@ -2,32 +2,32 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ProductForm from '@/components/admin/ProductForm';
-import { Product } from '@prisma/client'; 
+import { Product } from '@prisma/client';
 import React from 'react';
 
 // --- MOCKS ---
 
 // Mock react-hot-toast
 vi.mock('react-hot-toast', () => {
-  const mockFn = vi.fn();
-  
-  Object.assign(mockFn, {
-    loading: vi.fn(),
-    success: vi.fn(),
-    error: vi.fn(),
-    dismiss: vi.fn(),
-  });
+    const mockFn = vi.fn();
 
-  return { 
-    default: mockFn
-  };
+    Object.assign(mockFn, {
+        loading: vi.fn(),
+        success: vi.fn(),
+        error: vi.fn(),
+        dismiss: vi.fn(),
+    });
+
+    return {
+        default: mockFn
+    };
 });
 
 // Mock next/image
-type ImageProps = { src: string; alt: string; [key: string]: unknown };
+type ImageProps = { src: string; alt: string;[key: string]: unknown };
 vi.mock('next/image', () => ({
-  // eslint-disable-next-line @next/next/no-img-element
-  default: (props: ImageProps) => <img {...props as React.ImgHTMLAttributes<HTMLImageElement>} data-testid="form-image" alt={props.alt as string} />,
+    // eslint-disable-next-line @next/next/no-img-element
+    default: (props: ImageProps) => <img {...props as React.ImgHTMLAttributes<HTMLImageElement>} data-testid="form-image" alt={props.alt as string} />,
 }));
 
 // Mock UploadButton
@@ -51,6 +51,8 @@ const mockPrinters: PrinterModel[] = [
     { id: 102, modelName: 'Epson L3250' },
     { id: 103, modelName: 'Brother DCP-L2540DW' },
 ];
+
+// ATUALIZAÇÃO AQUI: Adicionado isFeatured: false
 const mockInitialProduct: Product & { compatibleWith: { printerId: number }[] } = {
     id: 1,
     name: 'Toner Teste 85A',
@@ -63,7 +65,8 @@ const mockInitialProduct: Product & { compatibleWith: { printerId: number }[] } 
     slug: 'toner-teste-85a',
     createdAt: new Date(),
     updatedAt: new Date(),
-    compatibleWith: [{ printerId: 101 }], 
+    isFeatured: false,
+    compatibleWith: [{ printerId: 101 }],
 };
 
 const defaultProps = {
@@ -80,7 +83,7 @@ describe('Componente ProductForm (Simplificado)', () => {
     const user = userEvent.setup();
 
     beforeEach(() => {
-        vi.clearAllMocks(); 
+        vi.clearAllMocks();
     });
 
     // TESTE 1: MODO CRIAÇÃO
@@ -100,8 +103,11 @@ describe('Componente ProductForm (Simplificado)', () => {
         expect(screen.getByRole('heading', { name: /Editar Produto/i })).toBeInTheDocument();
         expect(screen.getByLabelText('Nome do Produto')).toHaveValue(mockInitialProduct.name);
         expect(screen.getByText('Excluir')).toBeInTheDocument();
+
+        // Verifica se o checkbox de destaque aparece (opcional)
+        expect(screen.getByLabelText(/Destacar na Página Inicial/i)).toBeInTheDocument();
     });
-    
+
     // TESTE 3: SUBMISSÃO BÁSICA
     it('deve chamar onSubmit com os dados ao submeter', async () => {
         const onSubmitMock = vi.fn();
@@ -116,25 +122,25 @@ describe('Componente ProductForm (Simplificado)', () => {
     // TESTE 4: REMOÇÃO DA IMAGEM
     it('deve remover a imagem quando o botão X do preview é clicado', async () => {
         render(<ProductForm {...defaultProps} initialData={mockInitialProduct} />);
-        
+
         const removeBtn = screen.getByTitle('Remover imagem');
-        
+
         await user.click(removeBtn);
-        
+
         expect(screen.queryByTitle('Remover imagem')).not.toBeInTheDocument();
         expect(screen.getByTestId('upload-button')).toBeInTheDocument();
     });
-    
+
     // TESTE 5: FUNCIONALIDADE BÁSICA DO MULTI-SELECT
     it('deve permitir adicionar um item no multi-select', async () => {
         render(<ProductForm {...defaultProps} />);
-        
+
         const searchInput = screen.getByPlaceholderText('Buscar modelo de impressora (ex: M1132)');
-        
+
         await user.type(searchInput, 'Epson');
         const suggestion = screen.getByText('Epson L3250');
         await user.click(suggestion);
-        
+
         expect(screen.getByText(/Epson L3250/i)).toBeInTheDocument();
     });
 });

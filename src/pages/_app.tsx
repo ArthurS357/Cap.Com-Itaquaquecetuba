@@ -8,7 +8,8 @@ import { SessionProvider } from "next-auth/react";
 import { Toaster } from 'react-hot-toast';
 import { CartProvider } from '@/context/CartContext'; 
 import CartSidebar from '@/components/CartSidebar';   
-import { WishlistProvider } from '@/context/WishlistContext'; // Importação da Wishlist
+import { WishlistProvider } from '@/context/WishlistContext';
+import Script from 'next/script'; 
 
 export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   const [showSplash, setShowSplash] = useState(true);
@@ -34,6 +35,27 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
       <WishlistProvider>
         <CartProvider>
           
+          {/* --- GOOGLE ANALYTICS --- */}
+          {process.env.NEXT_PUBLIC_GA_ID && (
+            <>
+              <Script
+                strategy="afterInteractive"
+                src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+              />
+              <Script id="google-analytics" strategy="afterInteractive">
+                {`
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', {
+                    page_path: window.location.pathname,
+                  });
+                `}
+              </Script>
+            </>
+          )}
+          {/* ------------------------ */}
+
           {showSplash && (
             <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-surface-background">
                <WelcomeSplash />

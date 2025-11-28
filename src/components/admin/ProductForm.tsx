@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { Brand, Category, Product } from '@prisma/client';
-import { FaSave, FaTrash, FaTimes, FaSearch } from 'react-icons/fa';
+import { FaSave, FaTrash, FaTimes, FaSearch, FaStar } from 'react-icons/fa';
 import { UploadButton } from '@/utils/uploadthing';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 
 type PrinterModel = { id: number; modelName: string };
 
-// Tipo para os dados do formulário (o que a API espera)
+// Tipo atualizado com isFeatured
 export type ProductFormData = {
   name: string;
   description: string;
@@ -17,33 +17,33 @@ export type ProductFormData = {
   categoryId: number | '';
   imageUrl: string;
   compatiblePrinterIds: number[];
+  isFeatured: boolean;
 };
 
 type ProductFormProps = {
-  initialData?: Product & { compatibleWith?: { printerId: number }[] }; // Opcional (só para edição)
+  initialData?: Product & { compatibleWith?: { printerId: number }[] };
   brands: Brand[];
   categories: Category[];
   printers: PrinterModel[];
   onSubmit: (data: ProductFormData) => Promise<void>;
-  onDelete?: () => Promise<void>; // Opcional (só para edição)
+  onDelete?: () => Promise<void>;
   isLoading: boolean;
   isDeleting?: boolean;
   title: string;
 };
 
-// --- NOVO SUB-COMPONENTE: MULTI-SELECT MELHORADO ---
-const PrinterMultiSelect = ({ 
-  printers, 
-  selectedIds, 
-  setSelectedIds 
-}: { 
-  printers: PrinterModel[]; 
-  selectedIds: number[]; 
-  setSelectedIds: (ids: number[]) => void 
+// --- SUB-COMPONENTE: MULTI-SELECT ---
+const PrinterMultiSelect = ({
+  printers,
+  selectedIds,
+  setSelectedIds
+}: {
+  printers: PrinterModel[];
+  selectedIds: number[];
+  setSelectedIds: (ids: number[]) => void
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Lógica para adicionar/remover ID
   const togglePrinter = (id: number) => {
     if (selectedIds.includes(id)) {
       setSelectedIds(selectedIds.filter(pid => pid !== id));
@@ -52,26 +52,24 @@ const PrinterMultiSelect = ({
     }
   };
 
-  // Filtra as impressoras disponíveis
   const filteredPrinters = printers
-    .filter(p => !selectedIds.includes(p.id)) // Exclui as já selecionadas
+    .filter(p => !selectedIds.includes(p.id))
     .filter(p => p.modelName.toLowerCase().includes(searchTerm.toLowerCase()));
 
-  // Ordena as impressoras selecionadas por nome para melhor visualização
   const selectedPrinters = printers
     .filter(p => selectedIds.includes(p.id))
     .sort((a, b) => a.modelName.localeCompare(b.modelName));
-    
+
   return (
     <div className="space-y-4">
-      {/* 1. Selecionados */}
+      {/* Selecionados */}
       {selectedPrinters.length > 0 && (
         <div className="border border-brand-light rounded-lg p-3 bg-brand-light/50">
           <h4 className="text-sm font-semibold text-text-primary mb-2">Modelos Compatíveis ({selectedPrinters.length})</h4>
           <div className="flex flex-wrap gap-2 max-h-28 overflow-y-auto custom-scrollbar">
             {selectedPrinters.map(p => (
-              <span 
-                key={p.id} 
+              <span
+                key={p.id}
                 className="flex items-center gap-1 bg-brand-primary text-white text-xs px-2 py-1 rounded-full cursor-pointer hover:bg-brand-dark transition-colors"
                 onClick={() => togglePrinter(p.id)}
                 title={`Remover ${p.modelName}`}
@@ -83,7 +81,7 @@ const PrinterMultiSelect = ({
         </div>
       )}
 
-      {/* 2. Barra de Busca */}
+      {/* Busca */}
       <div className="relative">
         <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-subtle" size={14} />
         <input
@@ -95,13 +93,13 @@ const PrinterMultiSelect = ({
         />
       </div>
 
-      {/* 3. Lista de Sugestões */}
+      {/* Lista */}
       <div className="max-h-60 overflow-y-auto border border-surface-border rounded-lg bg-surface-background">
         {filteredPrinters.length > 0 ? (
           <ul className="divide-y divide-surface-border">
             {filteredPrinters.map(p => (
-              <li 
-                key={p.id} 
+              <li
+                key={p.id}
                 className="p-3 hover:bg-surface-border/50 cursor-pointer text-text-primary text-sm transition-colors"
                 onClick={() => togglePrinter(p.id)}
               >
@@ -118,9 +116,8 @@ const PrinterMultiSelect = ({
     </div>
   );
 };
-// --- FIM DO NOVO SUB-COMPONENTE ---
 
-
+// --- COMPONENTE PRINCIPAL ---
 export default function ProductForm({
   initialData,
   brands,
@@ -132,8 +129,7 @@ export default function ProductForm({
   isDeleting = false,
   title
 }: ProductFormProps) {
-  
-  // Estado inicial baseado em se é Edição ou Criação
+
   const [formData, setFormData] = useState<ProductFormData>({
     name: initialData?.name || '',
     description: initialData?.description || '',
@@ -143,14 +139,13 @@ export default function ProductForm({
     categoryId: initialData?.categoryId || (categories.length > 0 ? categories[0].id : ''),
     imageUrl: initialData?.imageUrl || '',
     compatiblePrinterIds: initialData?.compatibleWith?.map(c => c.printerId) || [],
+    isFeatured: initialData?.isFeatured || false, // Inicializa com o valor do banco ou false
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    // Lógica antiga do <select multiple> foi removida daqui, agora tratada no PrinterMultiSelect
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  
-  // NOVA FUNÇÃO para o MultiSelect (atualiza o array de IDs diretamente no formData)
+
   const handlePrinterIdsChange = (ids: number[]) => {
     setFormData(prev => ({ ...prev, compatiblePrinterIds: ids }));
   };
@@ -164,8 +159,7 @@ export default function ProductForm({
     <div className="max-w-4xl mx-auto animate-fade-in-up">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-text-primary">{title}</h1>
-        
-        {/* Botão de Excluir (Só aparece se a função onDelete for passada) */}
+
         {onDelete && (
           <button
             onClick={onDelete}
@@ -184,12 +178,12 @@ export default function ProductForm({
           <label className="block text-sm font-medium text-text-secondary mb-2">Imagem do Produto</label>
           {formData.imageUrl ? (
             <div className="relative w-40 h-40 border-2 border-surface-border rounded-lg overflow-hidden bg-white flex items-center justify-center">
-              <Image 
-                src={formData.imageUrl} 
-                alt="Preview" 
-                width={160} 
-                height={160} 
-                className="max-w-full max-h-full object-contain" 
+              <Image
+                src={formData.imageUrl}
+                alt="Preview"
+                width={160}
+                height={160}
+                className="max-w-full max-h-full object-contain"
               />
               <button
                 type="button"
@@ -220,6 +214,35 @@ export default function ProductForm({
               <p className="text-xs text-text-subtle mt-2">Suporta: PNG, JPG (máx 4MB)</p>
             </div>
           )}
+        </div>
+
+        {/* Checkbox de Destaque */}
+        <div
+          className={`flex items-center gap-3 p-4 border rounded-lg transition-colors cursor-pointer ${formData.isFeatured
+              ? 'bg-yellow-50 border-yellow-200'
+              : 'bg-surface-background border-surface-border hover:border-brand-primary/50'
+            }`}
+          onClick={() => setFormData({ ...formData, isFeatured: !formData.isFeatured })}
+        >
+          <div className={`p-2 rounded-full ${formData.isFeatured ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-400'}`}>
+            <FaStar />
+          </div>
+          <div className="flex-1">
+            <label htmlFor="isFeatured" className="block text-sm font-semibold text-text-primary cursor-pointer select-none">
+              Destacar na Página Inicial
+            </label>
+            <p className="text-xs text-text-secondary select-none">
+              Se marcado, este produto aparecerá na seção de ofertas em destaque da Home.
+            </p>
+          </div>
+          <input
+            type="checkbox"
+            id="isFeatured"
+            name="isFeatured"
+            checked={formData.isFeatured}
+            onChange={() => { }} // Controlado pelo onClick da div pai
+            className="w-5 h-5 text-brand-primary rounded focus:ring-brand-primary cursor-pointer accent-brand-primary"
+          />
         </div>
 
         {/* Campos de Texto */}
@@ -320,17 +343,16 @@ export default function ProductForm({
           </div>
         </div>
 
-        {/* Impressoras Compatíveis (NOVA IMPLEMENTAÇÃO) */}
+        {/* Impressoras Compatíveis */}
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-1">Modelos de Impressoras Compatíveis</label>
-          <PrinterMultiSelect 
+          <PrinterMultiSelect
             printers={printers}
             selectedIds={formData.compatiblePrinterIds}
             setSelectedIds={handlePrinterIdsChange}
           />
           <p className="text-xs text-text-subtle mt-1">Clique para adicionar ou remover. Use a barra de busca para encontrar rapidamente.</p>
         </div>
-
 
         {/* Botão Salvar */}
         <div className="flex justify-end pt-4">

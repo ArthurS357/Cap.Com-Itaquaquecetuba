@@ -17,7 +17,7 @@ type DashboardStats = {
 };
 
 type AdminDashboardProps = {
-  user: { name?: string | null; email?: string | null; };
+  user: { name?: string | null; email?: string | null; image?: string | null };
   stats: DashboardStats;
 };
 
@@ -70,7 +70,7 @@ export default function AdminDashboard({ user, stats }: AdminDashboardProps) {
   );
 }
 
-// --- Componentes Auxiliares com Tipagem Correta ---
+// --- Componentes Auxiliares ---
 
 type StatCardProps = {
   label: string;
@@ -100,7 +100,6 @@ type MenuCardProps = {
 };
 
 const MenuCard = ({ href, title, desc, icon, theme }: MenuCardProps) => {
-  // Tipagem explícita para o objeto de temas
   const themeClasses: Record<string, string> = {
     blue: "bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white",
     purple: "bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white",
@@ -147,9 +146,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     prisma.printer.count(),
   ]);
 
+  const serializedUser = JSON.parse(JSON.stringify(session.user || { name: 'Admin' }));
+
   return {
     props: {
-      user: session.user || { name: 'Admin' },
+      user: serializedUser,
       stats: {
         products,
         categories,

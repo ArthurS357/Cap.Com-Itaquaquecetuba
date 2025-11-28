@@ -22,12 +22,13 @@ model Category {
 
 model Product {
   id             Int                    @id @default(autoincrement())
-  name           String                 // Ex: "Toner HP 85A", "Impressora HP DeskJet 2774"
+  name           String
   slug           String                 @unique
   description    String?
   imageUrl       String?
-  price          Float?                 // Preço para produtos de venda direta
-  type           String                 // Ex: "TONER", "IMPRESSORA", "RECARGA_JATO_TINTA"
+  price          Float?
+  type           String
+  isFeatured     Boolean                @default(false)
   brandId        Int
   brand          Brand                  @relation(fields: [brandId], references: [id])
   categoryId     Int

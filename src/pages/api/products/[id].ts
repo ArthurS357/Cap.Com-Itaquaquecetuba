@@ -6,7 +6,7 @@ import { slugify } from '@/lib/utils';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma'; 
 
-// Schema de Validação para Edição (Inclui o novo campo)
+// Schema de Validação para Edição
 const productUpdateSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres.").optional(),
   description: z.string().optional(),
@@ -17,8 +17,14 @@ const productUpdateSchema = z.object({
   type: z.string().min(1).optional(),
   brandId: z.coerce.number().int().positive().optional(),
   categoryId: z.coerce.number().int().positive().optional(),
-  imageUrl: z.string().url().optional().or(z.literal('')),
+  
+  // Aceita caminhos relativos (sem .url())
+  imageUrl: z.string().optional().or(z.literal('')), 
+  
   compatiblePrinterIds: z.array(z.coerce.number().int().positive()).optional(),
+  
+  // Campo de Destaque
+  isFeatured: z.boolean().optional(),
 });
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -39,7 +45,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const productId = parseInt(id, 10);
 
-  // --- GET --- 
+  // --- GET: Buscar produto único --- 
   if (method === 'GET') {
     try {
       const product = await prisma.product.findUnique({
@@ -73,13 +79,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
       }
 
-      const { name, description, price, type, brandId, categoryId, imageUrl, compatiblePrinterIds } = parseResult.data;
+      const { 
+        name, 
+        description, 
+        price, 
+        type, 
+        brandId, 
+        categoryId, 
+        imageUrl, 
+        compatiblePrinterIds,
+        isFeatured 
+      } = parseResult.data;
 
       const productPrice = price ?? null;
       const numericBrandId = brandId;
       const numericCategoryId = categoryId;
 
-      // Transação para garantir atomicidade na atualização
+      // Transação para garantir atomicidade
       const updatedProduct = await prisma.$transaction(async (tx) => {
         // 1. ATUALIZA O PRODUTO
         const product = await tx.product.update({
@@ -92,17 +108,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             imageUrl: imageUrl || null,
             ...(numericBrandId && { brandId: numericBrandId }),
             ...(numericCategoryId && { categoryId: numericCategoryId }),
+            ...(isFeatured !== undefined && { isFeatured }), 
           },
         });
 
-        // 2. ATUALIZA COMPATIBILIDADE SOMENTE SE O CAMPO FOI ENVIADO (O select é multi-select, então sempre será enviado)
+        // 2. ATUALIZA COMPATIBILIDADE
         if (compatiblePrinterIds !== undefined) {
-          // DELETA RELAÇÕES EXISTENTES (Limpeza)
           await tx.printerCompatibility.deleteMany({
             where: { cartridgeId: productId },
           });
 
-          // CRIA NOVAS RELAÇÕES
           if (compatiblePrinterIds && compatiblePrinterIds.length > 0) {
             const compatibilityData = compatiblePrinterIds.map((printerId: number) => ({
               cartridgeId: productId,
@@ -117,7 +132,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Revalidação em paralelo
       try {
-        const revalidations = [res.revalidate('/')];
+        const revalidations = [
+          res.revalidate('/'),
+          res.revalidate('/busca')
+        ];
         if (updatedProduct.slug) {
           revalidations.push(res.revalidate(`/produto/${updatedProduct.slug}`));
         }
@@ -139,11 +157,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 
-  // --- DELETE: Remover --- 
+  // --- DELETE --- 
   else if (method === 'DELETE') {
     try {
       await prisma.printerCompatibility.deleteMany({ where: { cartridgeId: productId } });
-
       await prisma.product.delete({ where: { id: productId } });
 
       try {

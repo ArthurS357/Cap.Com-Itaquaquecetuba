@@ -40,6 +40,7 @@ vi.mock('react-hot-toast', () => ({
 }));
 
 // --- DADOS MOCKADOS ---
+// ATUALIZAÇÃO AQUI: Adicionado isFeatured: false
 const mockProduct = {
   id: 101,
   name: 'Toner Teste',
@@ -52,6 +53,7 @@ const mockProduct = {
   slug: 'toner-teste',
   createdAt: new Date(),
   updatedAt: new Date(),
+  isFeatured: false, // <--- CAMPO NOVO OBRIGATÓRIO
   compatibleWith: [],
 };
 
@@ -198,7 +200,7 @@ describe('Página Admin/Editar Produto (Componente)', () => {
     );
 
     expect(screen.getByLabelText('Descrição')).toHaveValue('');
-    // Verific se o componente de upload renderizou procurando o texto de suporte
+    // Verifica se o componente de upload renderizou procurando o texto de suporte
     expect(screen.getByText(/Suporta: PNG, JPG/i)).toBeInTheDocument();
     expect(screen.getByLabelText('Preço (R$)')).toHaveValue(null);
   });

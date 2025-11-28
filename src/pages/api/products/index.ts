@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { slugify } from '@/lib/utils';
 import { z } from 'zod';
-import { prisma } from '@/lib/prisma'; 
+import { prisma } from '@/lib/prisma';
 
 // Schema de Validação com Zod
 const productCreateSchema = z.object({
@@ -17,9 +17,13 @@ const productCreateSchema = z.object({
   type: z.string().min(1, "O tipo é obrigatório."),
   brandId: z.coerce.number().int().positive("Marca inválida."),
   categoryId: z.coerce.number().int().positive("Categoria inválida."),
-  imageUrl: z.string().url("URL da imagem inválida").optional().or(z.literal('')),
-  // NOVO CAMPO: Array opcional de IDs numéricos para compatibilidade
+  imageUrl: z.string().optional().or(z.literal('')),
+
+  // Array opcional de IDs numéricos para compatibilidade
   compatiblePrinterIds: z.array(z.coerce.number().int().positive()).optional(),
+
+  // Campo booleano opcional para destaque
+  isFeatured: z.boolean().optional(),
 });
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -33,6 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).end();
   }
 
+  // --- GET: Listar todos os produtos ---
   if (method === 'GET') {
     try {
       const products = await prisma.product.findMany({
@@ -49,6 +54,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 
+  // --- POST: Criar novo produto (Protegido) ---
   else if (method === 'POST') {
     try {
       const session = await getServerSession(req, res, authOptions);
@@ -65,10 +71,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
       }
 
-      const { name, description, price, type, brandId, categoryId, imageUrl, compatiblePrinterIds } = parseResult.data;
+      const {
+        name,
+        description,
+        price,
+        type,
+        brandId,
+        categoryId,
+        imageUrl,
+        compatiblePrinterIds,
+        isFeatured
+      } = parseResult.data;
 
-      // Transação para garantir que o produto e as compatibilidades sejam criados ou nada seja criado.
+      // Transação para garantir integridade
       const [newProduct] = await prisma.$transaction(async (tx) => {
+        // 1. Cria o produto
         const product = await tx.product.create({
           data: {
             name,
@@ -77,13 +94,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             price: price ?? null,
             type,
             imageUrl: imageUrl || null,
+            isFeatured: isFeatured || false,
             brand: { connect: { id: brandId } },
             category: { connect: { id: categoryId } },
           },
+          // O include garante que o objeto retornado tenha a propriedade 'category'
           include: { category: true }
         });
 
-        // CRIA RELAÇÕES DE COMPATIBILIDADE (M:N)
+        // 2. Cria compatibilidades se houver
         if (Array.isArray(compatiblePrinterIds) && compatiblePrinterIds.length > 0) {
           const compatibilityData = compatiblePrinterIds.map((printerId: number) => ({
             cartridgeId: product.id,
@@ -95,7 +114,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return [product];
       });
 
-      // Revalidação em paralelo
+      // Revalidação em paralelo (ISR)
       try {
         await Promise.all([
           res.revalidate('/'),
