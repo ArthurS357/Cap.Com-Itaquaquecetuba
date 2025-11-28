@@ -5,9 +5,10 @@ import { signOut } from "next-auth/react";
 import { FaUserShield, FaBoxOpen, FaSignOutAlt, FaTags, FaCog, FaPrint, FaChartPie, FaLayerGroup } from "react-icons/fa";
 import SEO from "@/components/Seo";
 import { prisma } from '@/lib/prisma';
-import Link from "next/link"; // Importante importar o Link
+import Link from "next/link";
+import { ReactNode } from 'react';
 
-// Tipagem
+// Tipagem para os dados do Dashboard
 type DashboardStats = {
   products: number;
   categories: number;
@@ -69,34 +70,92 @@ export default function AdminDashboard({ user, stats }: AdminDashboardProps) {
   );
 }
 
-// Componentes Auxiliares
-const StatCard = ({ label, value, icon, color }: any) => (
-  <div className="bg-surface-card border border-surface-border p-4 rounded-xl flex items-center gap-4 shadow-sm">
-    <div className={`p-3 rounded-lg text-white ${color}`}>{icon}</div>
-    <div><p className="text-2xl font-bold text-text-primary">{value}</p><p className="text-xs text-text-subtle uppercase">{label}</p></div>
+// --- Componentes Auxiliares com Tipagem Correta ---
+
+type StatCardProps = {
+  label: string;
+  value: number;
+  icon: ReactNode;
+  color: string;
+};
+
+const StatCard = ({ label, value, icon, color }: StatCardProps) => (
+  <div className="bg-surface-card border border-surface-border p-4 rounded-xl flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
+    <div className={`p-3 rounded-lg text-white ${color} shadow-lg shadow-black/5`}>
+      {icon}
+    </div>
+    <div>
+      <p className="text-2xl font-bold text-text-primary">{value}</p>
+      <p className="text-xs text-text-subtle font-medium uppercase tracking-wider">{label}</p>
+    </div>
   </div>
 );
 
-const MenuCard = ({ href, title, desc, icon, theme }: any) => {
-  const themes: any = { blue: "bg-blue-100 text-blue-600", purple: "bg-purple-100 text-purple-600", gray: "bg-gray-100 text-gray-600" };
+type MenuCardProps = {
+  href: string;
+  title: string;
+  desc: string;
+  icon: ReactNode;
+  theme: 'blue' | 'purple' | 'gray';
+};
+
+const MenuCard = ({ href, title, desc, icon, theme }: MenuCardProps) => {
+  // Tipagem explícita para o objeto de temas
+  const themeClasses: Record<string, string> = {
+    blue: "bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white",
+    purple: "bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white",
+    gray: "bg-gray-50 text-gray-600 group-hover:bg-gray-600 group-hover:text-white"
+  };
+
   return (
-    <Link href={href}>
-      <div className="bg-surface-card p-6 rounded-xl border border-surface-border hover:border-brand-primary/50 hover:shadow-lg transition-all cursor-pointer h-full">
-        <div className={`w-12 h-12 flex items-center justify-center rounded-xl mb-4 ${themes[theme]}`}>{icon}</div>
-        <h3 className="text-xl font-bold text-text-primary mb-2">{title}</h3>
-        <p className="text-text-secondary text-sm">{desc}</p>
+    <Link href={href} className="group h-full">
+      <div className="bg-surface-card p-6 rounded-xl border border-surface-border hover:border-brand-primary/50 hover:shadow-lg transition-all cursor-pointer h-full flex flex-col">
+        <div className="flex items-center justify-between mb-4">
+          <div className={`p-3 rounded-xl transition-colors duration-300 ${themeClasses[theme]}`}>
+            {icon}
+          </div>
+        </div>
+        <h3 className="text-xl font-bold text-text-primary mb-2 group-hover:text-brand-primary transition-colors">
+          {title}
+        </h3>
+        <p className="text-text-secondary text-sm leading-relaxed">
+          {desc}
+        </p>
       </div>
     </Link>
   );
 };
 
+// --- Lógica do Servidor ---
+
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions);
-  if (!session) return { redirect: { destination: '/api/auth/signin', permanent: false } };
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/api/auth/signin',
+        permanent: false,
+      },
+    };
+  }
 
   const [products, categories, brands, printers] = await Promise.all([
-    prisma.product.count(), prisma.category.count(), prisma.brand.count(), prisma.printer.count(),
+    prisma.product.count(),
+    prisma.category.count(),
+    prisma.brand.count(),
+    prisma.printer.count(),
   ]);
 
-  return { props: { user: session.user || { name: 'Admin' }, stats: { products, categories, brands, printers } } };
+  return {
+    props: {
+      user: session.user || { name: 'Admin' },
+      stats: {
+        products,
+        categories,
+        brands,
+        printers
+      }
+    },
+  };
 };
