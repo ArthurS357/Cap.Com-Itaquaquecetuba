@@ -19,18 +19,18 @@ export default function NewCategory({ categories }: { categories: Category[] }) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     const loadingToast = toast.loading('Criando categoria...');
 
     try {
-      const res = await fetch('/api/categories', { 
-        method: 'POST', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify(formData) 
+      const res = await fetch('/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       });
 
       const data = await res.json();
-      
+
       if (!res.ok) {
         throw new Error(data.error || 'Erro ao criar categoria');
       }
@@ -64,23 +64,23 @@ export default function NewCategory({ categories }: { categories: Category[] }) 
                 height={128}
                 className="h-32 w-auto object-contain"
               />
-              <button 
-                type="button" 
-                onClick={() => setFormData({ ...formData, imageUrl: '' })} 
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, imageUrl: '' })}
                 className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs"
               >
                 X
               </button>
             </div>
           ) : (
-            <UploadButton 
-              endpoint="imageUploader" 
+            <UploadButton
+              endpoint="imageUploader"
               onClientUploadComplete={(res) => {
                 if (res && res[0]) {
                   setFormData({ ...formData, imageUrl: res[0].url });
                   toast.success('Upload de imagem concluído!');
                 }
-              }} 
+              }}
               onUploadError={(error: Error) => {
                 toast.error(`Erro no upload: ${error.message}`);
               }}
@@ -108,9 +108,9 @@ export default function NewCategory({ categories }: { categories: Category[] }) 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context);
   if (!session) return { redirect: { destination: '/api/auth/signin', permanent: false } };
-  
+
   // Usar singleton
   const categories = await prisma.category.findMany({ orderBy: { name: 'asc' } });
-  
+
   return { props: { categories: JSON.parse(JSON.stringify(categories)) } };
 };
