@@ -1,20 +1,19 @@
 import { GetServerSideProps } from 'next';
 import { getSession } from "next-auth/react";
 import Link from 'next/link';
-import { useState } from 'react'; // Importar useState
-import { FaArrowLeft, FaPlus, FaEdit, FaSearch, FaBoxOpen } from 'react-icons/fa'; // Adicionar ícones
+import { useState } from 'react';
+import { FaArrowLeft, FaPlus, FaEdit, FaSearch, FaBoxOpen, FaFileDownload } from 'react-icons/fa'; // Adicionado FaFileDownload
 import SEO from '@/components/Seo';
 import Image from 'next/image'; 
 import { prisma } from '@/lib/prisma';
 import { Product, Brand } from '@prisma/client';
+import toast from 'react-hot-toast'; // Adicionado Toast para feedback
 
 type ProductWithBrand = Product & { brand: Brand };
 
 export default function AdminProductsList({ products }: { products: ProductWithBrand[] }) {
-  // Estado para armazenar o texto da busca
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Lógica de filtragem: Filtra por Nome, Marca ou Tipo
   const filteredProducts = products.filter((product) => {
     const term = searchTerm.toLowerCase();
     return (
@@ -24,6 +23,48 @@ export default function AdminProductsList({ products }: { products: ProductWithB
       product.id.toString().includes(term)
     );
   });
+
+  // --- FUNÇÃO DE EXPORTAÇÃO  ---
+  const handleExportCSV = () => {
+    if (filteredProducts.length === 0) {
+      toast.error("Não há produtos para exportar.");
+      return;
+    }
+
+    // 1. Cabeçalho do CSV
+    // CORREÇÃO 1: Muda "ID" para "Código". O Excel trava se o arquivo começar com "ID".
+    const headers = ["Código", "Nome", "Marca", "Tipo", "Preço", "Criado em"];
+    
+    // 2. Mapear os dados
+    const rows = filteredProducts.map(p => [
+      p.id,
+      `"${p.name.replace(/"/g, '""')}"`, // Escapar aspas duplas no nome
+      `"${p.brand.name.replace(/"/g, '""')}"`, // Escapar aspas na marca
+      p.type,
+      p.price ? p.price.toString().replace('.', ',') : "0,00", // Formato BR
+      new Date(p.createdAt).toLocaleDateString('pt-BR')
+    ]);
+
+    // 3. Montar o conteúdo
+    const csvContent = [
+      headers.join(';'),
+      ...rows.map(row => row.join(';'))
+    ].join('\n');
+
+    // 4. Criar o Blob e baixar
+    // CORREÇÃO 2: Adiciona '\uFEFF' no início. Isso é o BOM, que força o Excel a ler em UTF-8 (corrige acentos).
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `produtos_capcom_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success("Relatório baixado com sucesso!");
+  };
 
   return (
     <div className="animate-fade-in-up">
@@ -41,12 +82,23 @@ export default function AdminProductsList({ products }: { products: ProductWithB
           </div>
         </div>
         
-        <Link 
-          href="/admin/products/new" 
-          className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-bold shadow-md transform hover:scale-105 duration-200"
-        >
-          <FaPlus /> Novo Produto
-        </Link>
+        <div className="flex gap-3 w-full md:w-auto">
+          {/* BOTÃO EXPORTAR */}
+          <button
+            onClick={handleExportCSV}
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-blue-50 text-blue-600 border border-blue-200 px-4 py-3 rounded-lg hover:bg-blue-100 transition-colors font-semibold shadow-sm"
+            title="Baixar lista em Excel/CSV"
+          >
+            <FaFileDownload /> Exportar
+          </button>
+
+          <Link 
+            href="/admin/products/new" 
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-bold shadow-md transform hover:scale-105 duration-200"
+          >
+            <FaPlus /> Novo
+          </Link>
+        </div>
       </div>
 
       {/* Barra de Busca */}
@@ -60,8 +112,8 @@ export default function AdminProductsList({ products }: { products: ProductWithB
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         {searchTerm && (
-          <span className="text-xs text-text-subtle">
-            {filteredProducts.length} encontrados
+          <span className="text-xs text-text-subtle whitespace-nowrap">
+            {filteredProducts.length} itens
           </span>
         )}
       </div>
