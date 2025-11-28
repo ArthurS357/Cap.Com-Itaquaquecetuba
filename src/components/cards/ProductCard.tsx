@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import FavoriteButton from '../FavoriteButton'; 
 
 export type MinimalProduct = {
   id: number;
@@ -25,7 +26,14 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
           {/* Imagem do produto */}
           {product.imageUrl ? (
-            <div className="bg-white p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
+            // Adicionado 'relative' para posicionar o botão de favorito
+            <div className="relative bg-white p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
+              
+              {/* Botão de Favorito no canto superior direito */}
+              <div className="absolute top-2 right-2 z-10">
+                <FavoriteButton product={product} className="bg-white/80 p-1.5 rounded-full shadow-sm backdrop-blur-sm" />
+              </div>
+
               <Image
                 src={product.imageUrl}
                 alt={product.name}
@@ -35,8 +43,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
               />
             </div>
           ) : (
-            // Placeholder (sem imagem)
-            <div className="bg-surface-border p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
+            // Placeholder (sem imagem) - Também com botão de favorito
+            <div className="relative bg-surface-border p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
+              
+              <div className="absolute top-2 right-2 z-10">
+                <FavoriteButton product={product} className="bg-white/80 p-1.5 rounded-full shadow-sm backdrop-blur-sm" />
+              </div>
+
               <span className="text-text-subtle text-sm">Sem imagem</span>
             </div>
           )}
@@ -64,7 +77,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
       console.warn('Rendering non-link ProductCard: brand is missing.', product);
     }
 
-    // Corrigido para if/else para forçar 100% de cobertura (era a linha 63)
     let key: number | string;
     if (product) {
       key = product.id;
@@ -110,4 +122,3 @@ const ProductCard = ({ product }: ProductCardProps) => {
 };
 
 export default ProductCard;
-
