@@ -7,7 +7,7 @@ export type MinimalProduct = {
   name: string;
   slug: string | null;
   imageUrl: string | null;
-  price: number | null; 
+  price: number | null; // Campo obrigatório para a Wishlist
   brand: {
     name: string;
   } | null;
@@ -31,7 +31,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
               
               {/* Botão de Favorito no canto superior direito */}
               <div className="absolute top-2 right-2 z-10">
-                {/* Agora 'product' tem a propriedade 'price', satisfazendo o tipo WishlistInput */}
                 <FavoriteButton product={product} className="bg-white/80 p-1.5 rounded-full shadow-sm backdrop-blur-sm" />
               </div>
 
@@ -59,7 +58,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
           <div className="w-full">
             <h2 className="text-lg font-semibold text-text-primary">{product.name}</h2>
             <p className="text-sm text-text-subtle mt-2">{product.brand.name}</p>
-            {/* Opcional: Exibir o preço no card também, já que agora temos acesso a ele */}
+            
+            {/* Exibir preço se disponível */}
             {product.price && (
                <p className="text-sm font-bold text-green-600 mt-1">
                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
