@@ -7,7 +7,8 @@ import ProductCard from '@/components/cards/ProductCard';
 import { FaWhatsapp, FaTruck, FaShieldAlt, FaTag, FaArrowLeft, FaCheckCircle, FaShoppingBag } from 'react-icons/fa';
 import { getWhatsappLink, STORE_INFO } from '@/config/store';
 import { prisma } from '@/lib/prisma';
-import { useCart } from '@/context/CartContext';
+import { useCart } from '@/context/CartContext'; 
+import RecentlyViewed from '@/components/RecentlyViewed'; 
 
 // Tipagem dos dados
 type ProductWithRelations = Product & {
@@ -22,10 +23,10 @@ type ProductPageProps = {
 };
 
 export default function ProductPage({ product, relatedProducts }: ProductPageProps) {
-  // 1. Hooks devem ser chamados no nível superior, antes de qualquer return
+  // 1. O hook deve ser chamado SEMPRE na raiz do componente, antes de qualquer retorno
   const { addToCart } = useCart();
 
-  // 2. Agora podemos fazer a verificação de segurança
+  // 2. verifica se o produto existe
   if (!product) return null;
 
   const whatsappMessage = `Olá! Vi o produto *${product.name}* no site e gostaria de saber mais.`;
@@ -163,6 +164,9 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
           </div>
         </div>
       )}
+
+      {/* Seção de Vistos Recentemente */}
+      <RecentlyViewed currentProduct={product} />
     </div>
   );
 }
