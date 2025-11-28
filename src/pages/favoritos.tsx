@@ -2,7 +2,7 @@ import { useWishlist } from '@/context/WishlistContext';
 import ProductCard from '@/components/cards/ProductCard';
 import SEO from '@/components/Seo';
 import Link from 'next/link';
-import { FaHeart, FaArrowRight, FaRegHeart } from 'react-icons/fa'; 
+import { FaHeart, FaArrowRight, FaRegHeart } from 'react-icons/fa';
 
 export default function FavoritesPage() {
   const { items } = useWishlist();
@@ -24,14 +24,12 @@ export default function FavoritesPage() {
           {items.map((item) => (
             <div key={item.id} className="relative">
                <ProductCard product={{
-                 ...item,
-                 // Mock para preencher os campos obrigatórios do ProductCard que não temos na wishlist
-                 brand: { name: '', slug: '', id: 0, createdAt: new Date(), updatedAt: new Date(), imageUrl: null }, 
-                 category: { name: item.categoryName || '', slug: '', id: 0, imageUrl: null, parentId: null, createdAt: new Date(), updatedAt: new Date() },
-                 type: 'PRODUTO',
-                 description: '',
-                 createdAt: new Date(),
-                 updatedAt: new Date()
+                 id: item.id,
+                 name: item.name,
+                 slug: item.slug,
+                 imageUrl: item.imageUrl,
+                 price: item.price,
+                 brand: { name: '' } 
                }} />
             </div>
           ))}
@@ -39,7 +37,6 @@ export default function FavoritesPage() {
       ) : (
         <div className="text-center py-20 bg-surface-card rounded-2xl border border-surface-border">
           <div className="w-20 h-20 bg-surface-border rounded-full flex items-center justify-center mx-auto mb-6 text-gray-400">
-            {/* Agora o componente existe */}
             <FaRegHeart size={40} /> 
           </div>
           <h2 className="text-xl font-bold text-text-primary mb-2">Sua lista está vazia</h2>
