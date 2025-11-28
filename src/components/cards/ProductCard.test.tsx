@@ -1,8 +1,24 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import ProductCard, { type MinimalProduct } from './ProductCard'; 
+import ProductCard, { type MinimalProduct } from './ProductCard';
+
+// --- MOCK NECESSÁRIO ---
+// Simula o hook useWishlist para que o FavoriteButton funcione isoladamente
+vi.mock('@/context/WishlistContext', () => ({
+  useWishlist: () => ({
+    isInWishlist: vi.fn(() => false), // Retorna falso por padrão
+    toggleWishlist: vi.fn(),
+    removeFromWishlist: vi.fn(),
+    items: [],
+    wishlistCount: 0
+  }),
+}));
 
 describe('Componente ProductCard', () => {
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('deve renderizar as informações do produto corretamente (caminho feliz)', () => {
     const mockProduct: MinimalProduct = {
@@ -10,6 +26,7 @@ describe('Componente ProductCard', () => {
       name: 'Toner Teste 123',
       slug: 'toner-teste-123',
       imageUrl: '/fake-image.png',
+      price: 150.00, // Adicionado campo obrigatório
       brand: {
         name: 'Marca Falsa',
       },
@@ -28,6 +45,7 @@ describe('Componente ProductCard', () => {
       name: 'Toner Sem Imagem',
       slug: 'toner-sem-imagem',
       imageUrl: null,
+      price: 80.00, // Adicionado campo obrigatório
       brand: {
         name: 'Marca Válida',
       },
@@ -40,9 +58,7 @@ describe('Componente ProductCard', () => {
     expect(screen.getByText('Sem imagem')).toBeInTheDocument();
   });
 
-  // Teste modificado para forçar a cobertura da branch Math.random() (Linha 63)
   it('deve renderizar o estado de fallback se o produto for nulo', () => {
-    // Espiona e simula Math.random() para garantir que a branch seja executada e verificada
     const randomMock = vi.spyOn(Math, 'random').mockReturnValue(0.123);
     
     render(<ProductCard product={null} />);
@@ -51,10 +67,9 @@ describe('Componente ProductCard', () => {
     expect(screen.getByText('Marca Desconhecida')).toBeInTheDocument();
     expect(screen.getByText('Sem imagem')).toBeInTheDocument(); 
     
-    // Verifica se Math.random foi chamado, provando que o branch do 'else' foi executado.
     expect(randomMock).toHaveBeenCalledTimes(1); 
     
-    randomMock.mockRestore(); // Limpa o mock
+    randomMock.mockRestore();
   });
 
   it('deve renderizar o fallback (com imagem) se o produto não tiver slug', () => {
@@ -63,6 +78,7 @@ describe('Componente ProductCard', () => {
       name: 'Toner Sem Slug',
       slug: null,
       imageUrl: '/imagem-real.png',
+      price: 120.00, // Adicionado campo obrigatório
       brand: {
         name: 'Marca Sem Slug',
       },
@@ -81,6 +97,7 @@ describe('Componente ProductCard', () => {
       name: 'Produto Sem Marca',
       slug: 'produto-sem-marca',
       imageUrl: null,
+      price: 50.00, // Adicionado campo obrigatório
       brand: null,
     };
 
