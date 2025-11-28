@@ -24,7 +24,7 @@ export default function AdminProductsList({ products }: { products: ProductWithB
     );
   });
 
-  // --- NOVA FUNÇÃO DE EXPORTAÇÃO ---
+  // --- FUNÇÃO DE EXPORTAÇÃO  ---
   const handleExportCSV = () => {
     if (filteredProducts.length === 0) {
       toast.error("Não há produtos para exportar.");
@@ -32,13 +32,14 @@ export default function AdminProductsList({ products }: { products: ProductWithB
     }
 
     // 1. Cabeçalho do CSV
-    const headers = ["ID", "Nome", "Marca", "Tipo", "Preço", "Criado em"];
+    // CORREÇÃO 1: Muda "ID" para "Código". O Excel trava se o arquivo começar com "ID".
+    const headers = ["Código", "Nome", "Marca", "Tipo", "Preço", "Criado em"];
     
-    // 2. Mapear os dados (convertendo para string segura)
+    // 2. Mapear os dados
     const rows = filteredProducts.map(p => [
       p.id,
       `"${p.name.replace(/"/g, '""')}"`, // Escapar aspas duplas no nome
-      p.brand.name,
+      `"${p.brand.name.replace(/"/g, '""')}"`, // Escapar aspas na marca
       p.type,
       p.price ? p.price.toString().replace('.', ',') : "0,00", // Formato BR
       new Date(p.createdAt).toLocaleDateString('pt-BR')
@@ -46,12 +47,14 @@ export default function AdminProductsList({ products }: { products: ProductWithB
 
     // 3. Montar o conteúdo
     const csvContent = [
-      headers.join(';'), // Ponto e vírgula é (Brasil)
+      headers.join(';'),
       ...rows.map(row => row.join(';'))
     ].join('\n');
 
     // 4. Criar o Blob e baixar
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    // CORREÇÃO 2: Adiciona '\uFEFF' no início. Isso é o BOM, que força o Excel a ler em UTF-8 (corrige acentos).
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -80,7 +83,7 @@ export default function AdminProductsList({ products }: { products: ProductWithB
         </div>
         
         <div className="flex gap-3 w-full md:w-auto">
-          {/* BOTÃO EXPORTAR (NOVO) */}
+          {/* BOTÃO EXPORTAR */}
           <button
             onClick={handleExportCSV}
             className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-blue-50 text-blue-600 border border-blue-200 px-4 py-3 rounded-lg hover:bg-blue-100 transition-colors font-semibold shadow-sm"
