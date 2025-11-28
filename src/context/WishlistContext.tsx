@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import toast from 'react-hot-toast';
 
-// Tipo simplificado do produto para salvar apenas o necessário
 export type WishlistItem = {
   id: number;
   name: string;
@@ -11,9 +10,19 @@ export type WishlistItem = {
   categoryName?: string;
 };
 
+// Define o que a função aceita receber (pode vir da página de produto ou do card)
+export type WishlistInput = {
+  id: number;
+  name: string;
+  slug: string | null;
+  price: number | null;
+  imageUrl: string | null;
+  category?: { name: string } | null;
+};
+
 type WishlistContextType = {
   items: WishlistItem[];
-  toggleWishlist: (product: any) => void;
+  toggleWishlist: (product: WishlistInput) => void; 
   removeFromWishlist: (productId: number) => void;
   isInWishlist: (productId: number) => boolean;
   wishlistCount: number;
@@ -41,7 +50,8 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('capcom_wishlist', JSON.stringify(items));
   }, [items]);
 
-  const toggleWishlist = (product: any) => {
+  // Substituído 'any' por 'WishlistInput'
+  const toggleWishlist = (product: WishlistInput) => {
     setItems((prev) => {
       const exists = prev.find((i) => i.id === product.id);
       
