@@ -2,6 +2,7 @@ import { GetStaticPaths, GetStaticProps } from 'next';
 import { Product, Brand, Category, Printer } from '@prisma/client';
 import Image from 'next/image';
 import Link from 'next/link';
+import Head from 'next/head'; // <--- IMPORTAÇÃO ADICIONADA
 import SEO from '@/components/Seo';
 import ProductCard from '@/components/cards/ProductCard';
 import { FaWhatsapp, FaTruck, FaShieldAlt, FaTag, FaArrowLeft, FaCheckCircle, FaShoppingBag } from 'react-icons/fa';
@@ -33,8 +34,42 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
   const whatsappMessage = `Olá! Vi o produto *${product.name}* no site e gostaria de saber mais.`;
   const whatsappLink = getWhatsappLink(whatsappMessage);
 
+  // --- NOVO: DADOS ESTRUTURADOS PARA O GOOGLE (JSON-LD) ---
+  const jsonLd = {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "name": product.name,
+    "image": product.imageUrl ? [product.imageUrl] : [],
+    "description": product.description || `Produto ${product.name} disponível na Cap.Com Itaquaquecetuba.`,
+    "brand": {
+      "@type": "Brand",
+      "name": product.brand.name
+    },
+    "offers": {
+      "@type": "Offer",
+      "priceCurrency": "BRL",
+      "price": product.price || "0.00",
+      "availability": "https://schema.org/InStock",
+      "url": `https://cap-com-itaquaquecetuba.vercel.app/produto/${product.slug}`,
+      "seller": {
+        "@type": "Organization",
+        "name": STORE_INFO.name
+      }
+    }
+  };
+  // --------------------------------------------------------
+
   return (
     <div className="animate-fade-in-up pb-16">
+      {/* --- INJEÇÃO DO SCRIPT JSON-LD NO CABEÇALHO --- */}
+      <Head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </Head>
+      {/* ----------------------------------------------- */}
+
       <SEO
         title={product.name}
         description={product.description || `Compre ${product.name} na ${STORE_INFO.name}. Qualidade e melhor preço.`}
@@ -232,6 +267,6 @@ export const getStaticProps: GetStaticProps = async (context) => {
       product: JSON.parse(JSON.stringify(product)),
       relatedProducts: JSON.parse(JSON.stringify(relatedProducts)),
     },
-    revalidate: 60, 
+    revalidate: 60,
   };
 };
