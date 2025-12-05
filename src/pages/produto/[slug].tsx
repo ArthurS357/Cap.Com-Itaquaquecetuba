@@ -2,7 +2,7 @@ import { GetStaticPaths, GetStaticProps } from 'next';
 import { Product, Brand, Category, Printer } from '@prisma/client';
 import Image from 'next/image';
 import Link from 'next/link';
-import Head from 'next/head'; // <--- IMPORTAÇÃO ADICIONADA
+import Head from 'next/head';
 import SEO from '@/components/Seo';
 import ProductCard from '@/components/cards/ProductCard';
 import { FaWhatsapp, FaTruck, FaShieldAlt, FaTag, FaArrowLeft, FaCheckCircle, FaShoppingBag } from 'react-icons/fa';
