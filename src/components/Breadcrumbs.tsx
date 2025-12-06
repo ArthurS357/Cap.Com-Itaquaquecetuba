@@ -49,8 +49,6 @@ const Breadcrumbs = () => {
           const name = nameMap[cleanSegment] || decodeURIComponent(cleanSegment.replace(/-/g, ' '));
 
           // --- LÓGICA DO LINK ---
-          // 1. Se tiver um link personalizado no mapa, usa ele.
-          // 2. Se não, constrói o caminho padrão acumulado.
           let href = customLinks[cleanSegment];
 
           if (!href) {

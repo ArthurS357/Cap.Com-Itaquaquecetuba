@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; 
+import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 
 const SearchBar = () => {
@@ -23,7 +23,7 @@ const SearchBar = () => {
                    bg-surface-card
                    text-text-primary
                    placeholder-text-secondary
-                   focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent" 
+                   focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent"
       />
     </form>
   );

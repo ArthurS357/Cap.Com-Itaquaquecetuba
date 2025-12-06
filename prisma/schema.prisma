@@ -35,6 +35,10 @@ model Product {
   category       Category               @relation(fields: [categoryId], references: [id])
   compatibleWith PrinterCompatibility[] @relation("CartridgeSide")
   createdAt      DateTime               @default(now())
+  
+  @@index([isFeatured]) // Otimiza a Home
+  @@index([brandId])    // Otimiza filtros por marca
+  @@index([categoryId]) // Otimiza filtros por categoria
 }
 
 model Printer {

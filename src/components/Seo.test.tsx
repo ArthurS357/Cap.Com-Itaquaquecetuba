@@ -7,7 +7,7 @@ import React from 'react';
 vi.mock('next/head', async () => {
   // Importa o React real com tipagem para usar Children e isValidElement
   const ReactActual = await vi.importActual<typeof import('react')>('react');
-  
+
   return {
     // Define explicitamente o tipo de children como ReactNode em vez de any
     default: ({ children }: { children: ReactActual.ReactNode }) => {
@@ -19,17 +19,17 @@ vi.mock('next/head', async () => {
 
             // Verifica se é um elemento React válido para acessar .type e .props com segurança
             if (ReactActual.isValidElement(child)) {
-                // Se for tag <title>, transforma em div data-tag="title"
-                if (child.type === 'title') {
-                   // @ts-expect-error Acessando children de forma segura após validação
-                   return <div data-tag="title">{child.props.children}</div>;
-                }
-                // Se for tag <meta>, transforma em div data-tag="meta" e repassa props
-                if (child.type === 'meta') {
-                   return <div data-tag="meta" {...child.props} />;
-                }
+              // Se for tag <title>, transforma em div data-tag="title"
+              if (child.type === 'title') {
+                // @ts-expect-error Acessando children de forma segura após validação
+                return <div data-tag="title">{child.props.children}</div>;
+              }
+              // Se for tag <meta>, transforma em div data-tag="meta" e repassa props
+              if (child.type === 'meta') {
+                return <div data-tag="meta" {...child.props} />;
+              }
             }
-            
+
             // Retorna outros filhos normalmente
             return child;
           })}
@@ -58,7 +58,7 @@ describe('Componente SEO', () => {
 
     // 3. Verifica Descrição Padrão
     const defaultDescText = 'Especialistas em manutenção de impressoras e remanufatura de cartuchos e toners em Itaquaquecetuba.';
-    
+
     const metaDesc = container.querySelector('[data-tag="meta"][name="description"]');
     expect(metaDesc).not.toBeNull();
     expect(metaDesc).toHaveAttribute('content', defaultDescText);
@@ -73,10 +73,10 @@ describe('Componente SEO', () => {
     const customImg = 'https://exemplo.com/imagem-produto.jpg';
 
     const { container } = render(
-      <SEO 
-        title="Produto X" 
-        description={customDesc} 
-        image={customImg} 
+      <SEO
+        title="Produto X"
+        description={customDesc}
+        image={customImg}
       />
     );
 

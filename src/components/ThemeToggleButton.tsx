@@ -4,7 +4,7 @@ import { FaSun, FaMoon } from 'react-icons/fa';
 
 const ThemeToggleButton = () => {
   const [mounted, setMounted] = useState(false);
-  
+
   // Obter o 'resolvedTheme'
   const { setTheme, resolvedTheme } = useTheme();
 
@@ -12,7 +12,7 @@ const ThemeToggleButton = () => {
 
   if (!mounted) {
     return (
-      <button 
+      <button
         aria-label="Carregando tema"
         className="p-2 rounded-full bg-surface-border animate-pulse"
         disabled

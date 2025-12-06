@@ -3,28 +3,8 @@ import { Prisma } from '@prisma/client';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { slugify } from '@/lib/utils';
-import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-
-// Schema de Validação com Zod
-const productCreateSchema = z.object({
-  name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
-  description: z.string().optional(),
-  price: z.preprocess(
-    (val) => (val === '' ? null : val),
-    z.coerce.number().nonnegative("O preço não pode ser negativo.").optional().nullable()
-  ),
-  type: z.string().min(1, "O tipo é obrigatório."),
-  brandId: z.coerce.number().int().positive("Marca inválida."),
-  categoryId: z.coerce.number().int().positive("Categoria inválida."),
-  imageUrl: z.string().optional().or(z.literal('')),
-
-  // Array opcional de IDs numéricos para compatibilidade
-  compatiblePrinterIds: z.array(z.coerce.number().int().positive()).optional(),
-
-  // Campo booleano opcional para destaque
-  isFeatured: z.boolean().optional(),
-});
+import { productCreateSchema } from '@/lib/schemas';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -37,17 +17,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).end();
   }
 
-  // --- GET: Listar todos os produtos ---
+  // --- GET: Listar produtos (COM PAGINAÇÃO) ---
   if (method === 'GET') {
     try {
+      // 1. Captura page e limit da query string (padrão: página 1, 20 itens)
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 20;
+      const skip = (page - 1) * limit;
+
+      // 2. Busca o total para saber quantas páginas existem
+      const totalCount = await prisma.product.count();
+
+      // 3. Busca apenas os produtos da página atual
       const products = await prisma.product.findMany({
+        skip: skip,
+        take: limit,
         include: {
           brand: true,
           category: true,
         },
         orderBy: { id: 'desc' }
       });
-      return res.status(200).json(products);
+
+      // 4. Retorna os dados + metadados de paginação
+      return res.status(200).json({
+        data: products,
+        meta: {
+          total: totalCount,
+          page,
+          last_page: Math.ceil(totalCount / limit),
+          limit
+        }
+      });
     } catch (error) {
       console.error("Failed to fetch products:", error);
       return res.status(500).json({ error: 'Failed to fetch products' });

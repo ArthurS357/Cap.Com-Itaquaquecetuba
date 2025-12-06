@@ -1,8 +1,7 @@
 import type { GetStaticProps, InferGetStaticPropsType } from 'next';
 import SEO from '../components/Seo';
 import CategoryCard from '../components/cards/CategoryCard';
-import ProductCard from '../components/cards/ProductCard'; 
-import { useRef, useState, useEffect } from 'react';
+import ProductCard from '../components/cards/ProductCard';
 import Image from 'next/image';
 import Link from 'next/link';
 import SearchBar from '../components/SearchBar';
@@ -10,41 +9,10 @@ import { FaAward, FaRegClock, FaStar } from 'react-icons/fa';
 import { STORE_INFO, GOOGLE_MAPS_EMBED_URL } from '@/config/store';
 import { prisma } from '@/lib/prisma';
 import { Category, Product, Brand } from '@prisma/client';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
 // Tipo auxiliar para os produtos em destaque (Produto + Marca)
 type FeaturedProduct = Product & { brand: Brand };
-
-const useScrollAnimation = (options?: IntersectionObserverInit) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const elementRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.unobserve(entry.target);
-        }
-      });
-    }, {
-      threshold: 0.1,
-      ...options,
-    });
-
-    const currentElement = elementRef.current;
-    if (currentElement) {
-      observer.observe(currentElement);
-    }
-
-    return () => {
-      if (currentElement) {
-        observer.unobserve(currentElement);
-      }
-    };
-  }, [options]);
-
-  return [elementRef, isVisible] as const;
-};
 
 // --- Ícones SVG ---
 const IconRecycle = () => (
@@ -68,7 +36,7 @@ const IconWaze = () => (
 // --- Lógica da Página ---
 export const getStaticProps: GetStaticProps<{
   mainCategories: Category[];
-  featuredProducts: FeaturedProduct[]; 
+  featuredProducts: FeaturedProduct[];
 }> = async () => {
 
   // 1. Busca Categorias Principais
@@ -91,12 +59,24 @@ export const getStaticProps: GetStaticProps<{
     return order.indexOf(a.name) - order.indexOf(b.name);
   });
 
-  // 2. Busca Produtos em Destaque (NOVO)
+  // 2. Busca Produtos em Destaque OTIMIZADO
   const featuredProducts = await prisma.product.findMany({
     where: { isFeatured: true },
-    take: 8, // Limita a 8 produtos para não poluir
-    include: { brand: true }, // Inclui marca para o card
-    orderBy: { id: 'desc' } // Mostra os mais recentes primeiro
+    take: 8,
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      imageUrl: true,
+      price: true,
+      isFeatured: true, // Importante incluir pois é usado no filtro/tipo
+      brand: {
+        select: {
+          name: true // Só precisa do nome da marca no Card
+        }
+      }
+    },
+    orderBy: { id: 'desc' }
   });
 
   return {
@@ -163,7 +143,7 @@ function HomePage({ mainCategories, featuredProducts }: InferGetStaticPropsType<
         </div>
       </section>
 
-      {/* ===== SEÇÃO DE PRODUTOS EM DESTAQUE (NOVO) ===== */}
+      {/* ===== SEÇÃO DE PRODUTOS EM DESTAQUE ===== */}
       {featuredProducts && featuredProducts.length > 0 && (
         <>
           <section className="max-w-6xl mx-auto mb-16 animate-fade-in-up px-4">

@@ -2,14 +2,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Inter } from 'next/font/google';
-import { FaBars, FaTimes } from 'react-icons/fa'; // Ícones para o menu mobile
+import { FaBars, FaTimes } from 'react-icons/fa';
 
 // Importação dos componentes existentes
 import ThemeToggleButton from './ThemeToggleButton';
-import FloatingActionGroup from './FloatingActionGroup'; // NOVO COMPONENTE
+import FloatingActionGroup from './FloatingActionGroup';
 import Breadcrumbs from './Breadcrumbs';
 import PromoBanner from './PromoBanner';
-import SearchBar from './SearchBar'; // Importando a barra de busca
+import SearchBar from './SearchBar';
 import { STORE_INFO, getWhatsappLink } from '@/config/store';
 
 const inter = Inter({
@@ -56,7 +56,7 @@ const Navbar = () => {
     >
       {/* Container Principal */}
       <div className="container mx-auto px-4 h-20 flex items-center justify-between gap-4">
-        
+
         {/* 1. LOGO (Esquerda) */}
         <div className="flex-shrink-0">
           <Link href="/">
@@ -77,7 +77,7 @@ const Navbar = () => {
           <div className="w-full max-w-md">
             <SearchBar />
           </div>
-          
+
           {/* Links de navegação ao lado ou abaixo dependendo do espaço */}
           <nav className="flex items-center gap-5 whitespace-nowrap">
             <Link href="/" className="text-text-secondary hover:text-brand-primary font-medium text-sm">Início</Link>
@@ -110,31 +110,31 @@ const Navbar = () => {
             <div className="mb-2">
               <SearchBar />
             </div>
-            
+
             <nav className="flex flex-col gap-2">
-              <Link 
-                href="/" 
+              <Link
+                href="/"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="p-3 rounded-lg hover:bg-surface-border text-text-primary font-medium transition-colors"
               >
                 Início
               </Link>
-              <Link 
-                href="/#categorias" 
+              <Link
+                href="/#categorias"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="p-3 rounded-lg hover:bg-surface-border text-text-primary font-medium transition-colors"
               >
                 Categorias
               </Link>
-              <Link 
-                href="/#servicos" 
+              <Link
+                href="/#servicos"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="p-3 rounded-lg hover:bg-surface-border text-text-primary font-medium transition-colors"
               >
                 Serviços
               </Link>
-              <Link 
-                href="/#localizacao" 
+              <Link
+                href="/#localizacao"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="p-3 rounded-lg hover:bg-surface-border text-text-primary font-medium transition-colors"
               >
@@ -201,8 +201,8 @@ export default function Layout({ children }: LayoutProps) {
         {children}
       </main>
       <Footer />
-      {/* Botões flutuantes agora gerenciados aqui */}
-      <FloatingActionGroup /> 
+      {/* Botões flutuantes aqui */}
+      <FloatingActionGroup />
     </div>
   );
 }

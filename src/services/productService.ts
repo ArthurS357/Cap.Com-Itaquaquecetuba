@@ -68,7 +68,7 @@ export const productService = {
             ],
         };
 
-        // 3. Definição da Ordenação (NOVA LÓGICA)
+        // 3. Definição da Ordenação 
         let orderBy: Prisma.ProductOrderByWithRelationInput = { name: 'asc' };
         
         switch (sort) {
@@ -91,6 +91,7 @@ export const productService = {
         // 4. Executa a busca
         const products = await prisma.product.findMany({
             where: whereClause,
+            take: 100,
             select: {
                 id: true,
                 name: true,

@@ -3,29 +3,8 @@ import { Prisma } from '@prisma/client';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { slugify } from '@/lib/utils';
-import { z } from 'zod';
 import { prisma } from '@/lib/prisma'; 
-
-// Schema de Validação para Edição
-const productUpdateSchema = z.object({
-  name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres.").optional(),
-  description: z.string().optional(),
-  price: z.preprocess(
-    (val) => (val === '' ? null : val),
-    z.coerce.number().nonnegative().optional().nullable()
-  ),
-  type: z.string().min(1).optional(),
-  brandId: z.coerce.number().int().positive().optional(),
-  categoryId: z.coerce.number().int().positive().optional(),
-  
-  // Aceita caminhos relativos (sem .url())
-  imageUrl: z.string().optional().or(z.literal('')), 
-  
-  compatiblePrinterIds: z.array(z.coerce.number().int().positive()).optional(),
-  
-  // Campo de Destaque
-  isFeatured: z.boolean().optional(),
-});
+import { productUpdateSchema } from '@/lib/schemas'; 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');

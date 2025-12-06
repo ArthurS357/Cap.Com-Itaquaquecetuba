@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export const slugify = (text: string) => {
   if (!text) return '';
-  
+
   return text
     .toString()
     .toLowerCase()
@@ -20,4 +20,12 @@ export const slugify = (text: string) => {
     .replace(/--+/g, '-') // Remove hífens duplicados
     .replace(/^-+/, '') // Remove hífens do início
     .replace(/-+$/, ''); // Remove hífens do final
+};
+
+export const formatCurrency = (value: number | null | undefined) => {
+  if (value === null || value === undefined) return '';
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(value);
 };

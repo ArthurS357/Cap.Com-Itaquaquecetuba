@@ -7,7 +7,7 @@ const fetchMock = vi.fn();
 global.fetch = fetchMock;
 
 // Mock do console.error para evitar poluição no console e verificar o logging
-const consoleErrorMock = vi.spyOn(console, 'error').mockImplementation(() => {});
+const consoleErrorMock = vi.spyOn(console, 'error').mockImplementation(() => { });
 
 describe('Componente PromoBanner', () => {
 
@@ -30,10 +30,10 @@ describe('Componente PromoBanner', () => {
 
     // Aguarda a rejeição ser processada pelo catch do useEffect
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
-    
+
     // Verifica se o erro foi logado (novo comportamento após o último refactor)
     expect(consoleErrorMock).toHaveBeenCalled();
-    
+
     // O catch deve garantir que o componente retorne null (container vazio)
     expect(container).toBeEmptyDOMElement();
   });
@@ -65,12 +65,12 @@ describe('Componente PromoBanner', () => {
 
     render(<PromoBanner />);
 
-    // CORREÇÃO: Usa regex (/texto/i) para encontrar o texto, que é mais resiliente ao ícone adjacente.
+    // Usa regex (/texto/i) para encontrar o texto, que é mais resiliente ao ícone adjacente.
     const bannerText = await screen.findByText(/Frete Grátis Hoje!/i);
     expect(bannerText).toBeInTheDocument();
   });
 
-  // TESTE CORRIGIDO: Uso de Regex
+  // Uso de Regex
   it('deve fechar o banner ao clicar no botão', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
@@ -79,7 +79,7 @@ describe('Componente PromoBanner', () => {
 
     render(<PromoBanner />);
 
-    // CORREÇÃO: Usa regex para encontrar o texto
+    // Usa regex para encontrar o texto
     const bannerText = await screen.findByText(/Banner Fechável/i);
     expect(bannerText).toBeInTheDocument();
 

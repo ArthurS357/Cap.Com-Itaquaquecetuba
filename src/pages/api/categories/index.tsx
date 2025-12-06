@@ -4,17 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { slugify } from '@/lib/utils';
 import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
-
-// Schema de Validação para Criação
-const categoryCreateSchema = z.object({
-  name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
-  imageUrl: z.string().url().optional().or(z.literal('')),
-  parentId: z.preprocess(
-    (val) => (val === '' ? null : val),
-    z.coerce.number().int().positive().optional().nullable()
-  ),
-});
+import { categoryCreateSchema } from '@/lib/schemas';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;

@@ -3,6 +3,7 @@ import { getWhatsappLink } from '@/config/store';
 import { FaTimes, FaTrash, FaWhatsapp, FaShoppingBag } from 'react-icons/fa';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { formatCurrency } from '@/lib/utils';
 
 export default function CartSidebar() {
   const { items, isCartOpen, toggleCart, removeFromCart } = useCart();
@@ -19,32 +20,30 @@ export default function CartSidebar() {
     items.forEach((item) => {
       message += `▪️ ${item.quantity}x *${item.name}*\n`;
     });
-    
+
     message += `\n*Aguardo o retorno!*`;
-    
+
     const link = getWhatsappLink(message);
     window.open(link, '_blank');
   };
-  
-  // Se o carrinho não estiver aberto, não renderiza nada (o botão agora fica no FloatingActionGroup)
-  
+
+  // Se o carrinho não estiver aberto, não renderiza nada 
+
   return (
     <>
       {/* Overlay Escuro */}
-      <div 
-        className={`fixed inset-0 bg-black/50 z-[60] transition-opacity duration-300 ${
-          isCartOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
+      <div
+        className={`fixed inset-0 bg-black/50 z-[60] transition-opacity duration-300 ${isCartOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          }`}
         onClick={toggleCart}
       />
 
       {/* Painel Lateral */}
-      <div 
-        className={`fixed inset-y-0 right-0 z-[70] w-full max-w-sm bg-surface-card shadow-2xl transform transition-transform duration-300 ease-in-out border-l border-surface-border flex flex-col ${
-          isCartOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+      <div
+        className={`fixed inset-y-0 right-0 z-[70] w-full max-w-sm bg-surface-card shadow-2xl transform transition-transform duration-300 ease-in-out border-l border-surface-border flex flex-col ${isCartOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
       >
-        
+
         {/* Cabeçalho */}
         <div className="p-4 border-b border-surface-border flex items-center justify-between bg-surface-background">
           <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
@@ -77,11 +76,12 @@ export default function CartSidebar() {
                 <div className="flex-1">
                   <h4 className="text-sm font-medium text-text-primary line-clamp-2">{item.name}</h4>
                   <p className="text-xs text-brand-primary font-bold mt-1">
-                    {item.price ? `R$ ${item.price.toFixed(2)}` : 'Sob Consulta'}
+                    {/* 2. Substituir toFixed por formatCurrency: */}
+                    {item.price ? formatCurrency(item.price) : 'Sob Consulta'}
                   </p>
                   <p className="text-xs text-text-subtle mt-1">Qtd: {item.quantity}</p>
                 </div>
-                <button 
+                <button
                   onClick={() => removeFromCart(item.id)}
                   className="text-red-400 hover:text-red-600 p-2 self-start"
                   title="Remover"

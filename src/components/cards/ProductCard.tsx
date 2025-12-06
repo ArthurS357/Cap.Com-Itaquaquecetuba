@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import FavoriteButton from '../FavoriteButton';
+import { formatCurrency } from '@/lib/utils';
 
 export type MinimalProduct = {
   id: number;
@@ -28,7 +29,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           {/* Imagem do produto */}
           {product.imageUrl ? (
             <div className="relative bg-white p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
-              
+
               {/* Botão de Favorito */}
               <div className="absolute top-2 right-2 z-10">
                 <FavoriteButton product={product} className="bg-white/80 p-1.5 rounded-full shadow-sm backdrop-blur-sm" />
@@ -45,7 +46,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           ) : (
             // Placeholder (sem imagem)
             <div className="relative bg-surface-border p-2 rounded-md mb-4 flex justify-center items-center aspect-square w-full max-w-[200px]">
-              
+
               <div className="absolute top-2 right-2 z-10">
                 <FavoriteButton product={product} className="bg-white/80 p-1.5 rounded-full shadow-sm backdrop-blur-sm" />
               </div>
@@ -58,12 +59,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
           <div className="w-full">
             <h2 className="text-lg font-semibold text-text-primary">{product.name}</h2>
             <p className="text-sm text-text-subtle mt-2">{product.brand.name}</p>
-            
-            {/* CORREÇÃO AQUI: Verificação explícita > 0 para não renderizar "0" */}
+
             {product.price && product.price > 0 ? (
-               <p className="text-sm font-bold text-green-600 mt-1">
-                 {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
-               </p>
+              <p className="text-sm font-bold text-green-600 mt-1">
+                {formatCurrency(product.price)}
+              </p>
             ) : null}
           </div>
 
@@ -90,7 +90,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
     } else {
       key = Math.random();
     }
-    
+
     const name = product ? product.name : 'Produto Inválido';
     const brandName = product && product.brand ? product.brand.name : 'Marca Desconhecida';
     const imageUrl = product ? product.imageUrl : null;

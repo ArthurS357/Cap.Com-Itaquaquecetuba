@@ -30,7 +30,7 @@ export default function SocialShare({ productName }: SocialShareProps) {
   return (
     <div className="flex flex-wrap items-center gap-2 mt-6 pt-6 border-t border-surface-border">
       <span className="text-sm text-text-subtle font-medium mr-2">Compartilhar:</span>
-      
+
       {/* WhatsApp */}
       <a
         href={`https://api.whatsapp.com/send?text=${encodedText}%20${encodedUrl}`}
@@ -56,16 +56,15 @@ export default function SocialShare({ productName }: SocialShareProps) {
       {/* Copiar Link */}
       <button
         onClick={handleCopy}
-        className={`p-2.5 rounded-full transition-all duration-300 ${
-          copied 
-            ? 'bg-green-100 text-green-600' 
+        className={`p-2.5 rounded-full transition-all duration-300 ${copied
+            ? 'bg-green-100 text-green-600'
             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-        }`}
+          }`}
         title="Copiar Link"
       >
         {copied ? <FaCheck size={20} /> : <FaLink size={20} />}
       </button>
-      
+
       {copied && (
         <span className="text-xs font-bold text-green-600 animate-fade-in ml-1">
           Copiado!

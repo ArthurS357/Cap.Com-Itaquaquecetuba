@@ -14,7 +14,7 @@ describe('Componente SearchBar', () => {
   const pushMock = vi.fn();
 
   beforeEach(() => {
-    // 2. Correção aqui: Usamos (useRouter as Mock) para o TypeScript aceitar o mockReturnValue
+    // 2. Usa (useRouter as Mock) para o TypeScript aceitar o mockReturnValue
     (useRouter as Mock).mockReturnValue({
       push: pushMock,
       route: '/',
@@ -42,19 +42,19 @@ describe('Componente SearchBar', () => {
   it('deve atualizar o valor do input quando o usuário digita', async () => {
     render(<SearchBar />);
     const input = screen.getByPlaceholderText('Buscar por produto, marca ou impressora...');
-    
+
     await user.type(input, 'Toner HP');
-    
+
     expect(input).toHaveValue('Toner HP');
   });
 
   it('deve chamar router.push com a query correta ao enviar o formulário', async () => {
     render(<SearchBar />);
     const input = screen.getByPlaceholderText('Buscar por produto, marca ou impressora...');
-    
+
     // Simula digitar e pressionar Enter
     await user.type(input, 'Epson L3250{Enter}');
-    
+
     expect(pushMock).toHaveBeenCalledTimes(1);
     expect(pushMock).toHaveBeenCalledWith('/busca?q=Epson%20L3250');
   });
@@ -62,11 +62,11 @@ describe('Componente SearchBar', () => {
   it('não deve chamar router.push se a busca estiver vazia', async () => {
     render(<SearchBar />);
     const input = screen.getByPlaceholderText('Buscar por produto, marca ou impressora...');
-    
+
     // Apenas foca e aperta Enter sem digitar
     await user.click(input);
     await user.keyboard('{Enter}');
-    
+
     expect(pushMock).not.toHaveBeenCalled();
   });
 });

@@ -11,7 +11,7 @@ export default function PromoBanner() {
       .then((res) => {
         // Se a resposta HTTP for um erro (ex: 404, 500), joga um erro para o bloco .catch
         if (!res.ok) {
-            throw new Error(`Erro HTTP: ${res.status} ao buscar config do banner.`);
+          throw new Error(`Erro HTTP: ${res.status} ao buscar config do banner.`);
         }
         return res.json();
       })
@@ -43,7 +43,7 @@ export default function PromoBanner() {
           {banner.text}
         </span>
       </div>
-      
+
       <button
         onClick={() => setIsVisible(false)}
         className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-white/20 rounded-full transition-colors"

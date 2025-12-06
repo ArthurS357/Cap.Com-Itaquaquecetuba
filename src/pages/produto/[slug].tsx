@@ -11,6 +11,7 @@ import { prisma } from '@/lib/prisma';
 import { useCart } from '@/context/CartContext';
 import RecentlyViewed from '@/components/RecentlyViewed';
 import SocialShare from '@/components/SocialShare';
+import { formatCurrency } from '@/lib/utils';
 
 // Tipagem dos dados
 type ProductWithRelations = Product & {
@@ -144,7 +145,8 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
                 {product.price ? (
                   <div className="flex items-baseline gap-2">
                     <span className="text-4xl font-bold text-green-600">
-                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
+                      {/* 2. Substituir a formatação manual: */}
+                      {formatCurrency(product.price)}
                     </span>
                   </div>
                 ) : (
