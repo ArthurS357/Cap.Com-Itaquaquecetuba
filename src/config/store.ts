@@ -2,8 +2,10 @@ export const STORE_INFO = {
   name: "Cap.Com Itaquaquecetuba",
   address: "Estr. dos Índios, 765 - Jardim Mossapyra, Itaquaquecetuba - SP, 08570-000",
   phoneDisplay: "(11) 99638-8426",
-  whatsappNumber: "5511996388426", // Número limpo para a API do WhatsApp
+  whatsappNumber: "5511996388426",
   whatsappDefaultMessage: "Olá! Visitei o site e gostaria de mais informações.",
+  // ADICIONADO: Chave PIX (CNPJ)
+  pixKey: "14.983.692/0001-40",
 };
 
 // Helper para gerar link do WhatsApp

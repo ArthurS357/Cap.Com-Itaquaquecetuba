@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
-import { getWhatsappLink } from '@/config/store';
-import { FaWhatsapp, FaShoppingBag, FaCommentDots, FaTimes, FaHeart } from 'react-icons/fa';
+import { getWhatsappLink, STORE_INFO } from '@/config/store'; 
+import { FaWhatsapp, FaShoppingBag, FaCommentDots, FaTimes, FaHeart, FaMoneyBillWave } from 'react-icons/fa';
 import Link from 'next/link';
+import toast from 'react-hot-toast'; 
 
 export default function FloatingActionGroup() {
   const { cartCount, toggleCart } = useCart();
@@ -13,6 +14,30 @@ export default function FloatingActionGroup() {
   const whatsappLink = getWhatsappLink();
 
   const baseButtonClass = "w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 transform hover:scale-110 border-2 border-white text-white cursor-pointer";
+
+  // Função para copiar o PIX com TOAST
+  const handleCopyPix = () => {
+    const pixKey = STORE_INFO.pixKey;
+    
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(pixKey)
+        .then(() => {
+          // Toast de Sucesso
+          toast.success("Chave CNPJ copiada!", {
+            duration: 4000,
+            icon: '💸',
+            style: {
+              borderRadius: '10px',
+              background: '#333',
+              color: '#fff',
+            },
+          });
+        })
+        .catch(() => {
+          toast.error("Erro ao copiar PIX.");
+        });
+    }
+  };
 
   return (
     <div className="fixed bottom-4 right-4 z-40 flex flex-col items-end gap-3 pointer-events-none">
@@ -47,7 +72,21 @@ export default function FloatingActionGroup() {
         </Link>
       </div>
 
-      {/* 3. BOTÃO DO WHATSAPP (Escondido no Menu) */}
+      {/* 3. BOTÃO PAGAMENTO PIX (Novo) */}
+      <div
+        className={`transition-all duration-300 transform ${isMenuOpen ? 'translate-y-0 opacity-100 pointer-events-auto' : 'translate-y-10 opacity-0 pointer-events-none'}`}
+      >
+        <button
+          onClick={handleCopyPix}
+          className={`${baseButtonClass} bg-green-600 hover:bg-green-700`}
+          title="Copiar PIX (CNPJ)"
+          aria-label="Copiar chave PIX CNPJ"
+        >
+          <FaMoneyBillWave size={20} />
+        </button>
+      </div>
+
+      {/* 4. BOTÃO DO WHATSAPP (Escondido no Menu) */}
       <div
         className={`transition-all duration-300 transform ${isMenuOpen ? 'translate-y-0 opacity-100 pointer-events-auto' : 'translate-y-10 opacity-0 pointer-events-none'
           }`}
@@ -64,7 +103,7 @@ export default function FloatingActionGroup() {
         </a>
       </div>
 
-      {/* 4. BOTÃO DE MENU / TOGGLE (Sempre visível) */}
+      {/* 5. BOTÃO DE MENU / TOGGLE (Sempre visível) */}
       <button
         onClick={() => setIsMenuOpen(!isMenuOpen)}
         className={`${baseButtonClass} bg-gray-700 hover:bg-gray-800 pointer-events-auto group`}

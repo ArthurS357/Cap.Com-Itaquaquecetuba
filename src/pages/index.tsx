@@ -1,15 +1,17 @@
 import type { GetStaticProps, InferGetStaticPropsType } from 'next';
+import { useState } from 'react';
 import SEO from '../components/Seo';
 import CategoryCard from '../components/cards/CategoryCard';
 import ProductCard from '../components/cards/ProductCard';
 import Image from 'next/image';
 import Link from 'next/link';
 import SearchBar from '../components/SearchBar';
-import { FaAward, FaRegClock, FaStar } from 'react-icons/fa';
+import { FaAward, FaRegClock, FaStar, FaMoneyBillWave, FaCheck } from 'react-icons/fa';
 import { STORE_INFO, GOOGLE_MAPS_EMBED_URL } from '@/config/store';
 import { prisma } from '@/lib/prisma';
 import { Category, Product, Brand } from '@prisma/client';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import toast from 'react-hot-toast'; 
 
 // Tipo auxiliar para os produtos em destaque (Produto + Marca)
 type FeaturedProduct = Product & { brand: Brand };
@@ -69,10 +71,10 @@ export const getStaticProps: GetStaticProps<{
       slug: true,
       imageUrl: true,
       price: true,
-      isFeatured: true, // Importante incluir pois é usado no filtro/tipo
+      isFeatured: true,
       brand: {
         select: {
-          name: true // Só precisa do nome da marca no Card
+          name: true
         }
       }
     },
@@ -92,10 +94,41 @@ function HomePage({ mainCategories, featuredProducts }: InferGetStaticPropsType<
   const encodedAddress = encodeURIComponent(STORE_INFO.address);
   const wazeUrl = `https://waze.com/ul?q=${encodedAddress}&navigate=yes`;
 
+  // Estados de Animação
   const [categoriasRef, categoriasVisible] = useScrollAnimation({ threshold: 0.1 });
   const [servicosRef, servicosVisible] = useScrollAnimation({ threshold: 0.1 });
   const [sobreNosRef, sobreNosVisible] = useScrollAnimation({ threshold: 0.1 });
   const [localizacaoRef, localizacaoVisible] = useScrollAnimation({ threshold: 0.1 });
+
+  // Estado para feedback do botão PIX
+  const [pixCopied, setPixCopied] = useState(false);
+
+  // Função para Copiar PIX com TOAST
+  const handleCopyPix = () => {
+    const pixKey = STORE_INFO.pixKey;
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(pixKey)
+        .then(() => {
+          setPixCopied(true);
+          setTimeout(() => setPixCopied(false), 3000);
+
+          // Toast de Sucesso
+          toast.success("Chave CNPJ copiada!", {
+            duration: 4000,
+            icon: '💸',
+            style: {
+              borderRadius: '10px',
+              background: '#333',
+              color: '#fff',
+            },
+          });
+        })
+        .catch(() => {
+          toast.error("Erro ao copiar PIX.");
+        });
+    }
+  };
 
   return (
     <>
@@ -126,13 +159,28 @@ function HomePage({ mainCategories, featuredProducts }: InferGetStaticPropsType<
             <SearchBar />
           </div>
 
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 w-full">
+          {/* --- BOTÕES DE AÇÃO --- */}
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 w-full flex-wrap">
             <a
               href="#categorias"
               className="inline-block bg-brand-primary text-white font-semibold py-3 px-8 rounded-lg hover:bg-brand-dark transition-colors duration-300 shadow-lg transform hover:scale-105 w-full sm:w-auto"
             >
               Ver Categorias
             </a>
+
+            {/* BOTÃO PIX (COM TOAST) */}
+            <button
+              onClick={handleCopyPix}
+              className={`inline-flex items-center justify-center gap-2 font-semibold py-3 px-8 rounded-lg transition-all duration-300 shadow-lg transform hover:scale-105 w-full sm:w-auto cursor-pointer border-2 ${pixCopied
+                  ? 'bg-green-700 text-white border-green-700'
+                  : 'bg-green-600 text-white border-green-600 hover:bg-green-700'
+                }`}
+              title="Copie o CNPJ para pagar sem taxas"
+            >
+              {pixCopied ? <FaCheck /> : <FaMoneyBillWave />}
+              {pixCopied ? "Copiado!" : "Pagar com PIX"}
+            </button>
+
             <a
               href="#servicos"
               className="inline-block bg-transparent border-2 border-white text-white font-semibold py-3 px-8 rounded-lg hover:bg-white hover:text-surface-background transition-colors duration-300 shadow-lg transform hover:scale-105 w-full sm:w-auto"
@@ -140,6 +188,10 @@ function HomePage({ mainCategories, featuredProducts }: InferGetStaticPropsType<
               Nossos Serviços
             </a>
           </div>
+
+          <p className="text-xs text-gray-300 mt-3 opacity-80">
+            *Dica: Pagamento via CNPJ (PIX) é isento de taxas.
+          </p>
         </div>
       </section>
 
